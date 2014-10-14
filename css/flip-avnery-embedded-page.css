@@ -1,0 +1,11 @@
+
+div.pagelive {
+	text-align:justify;
+	direction: rtl;
+	font-family:"Times New Roman";
+	width: 85%; margin: 0 3%;
+	font-size: 0.95em; line-height: 1.0em;
+	background: none transparent;
+}
+.pagelive.toclive {line-height: 90%;}
+a.toc-link, a.toc-link:visited { background-color: #E6ECEC; padding: 3px; color: #000; }
