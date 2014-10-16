@@ -1,7 +1,7 @@
-kolimilim-avnery
+textuali-avnery
 ================
 
-Minimal "book" to experiment with features for kolmilim flipbook etc.
+Minimal "book" to experiment with features for textuali flipbook etc.
 
 Note that `css/responsive.css` is not really responsive.
 It's a modified copy of `basic.css` with the *intention* of one day becoming responsive ;)
