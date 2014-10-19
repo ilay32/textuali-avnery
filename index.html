@@ -241,6 +241,10 @@
          complete: loadApp
       });
     });
+    
+    $(".flipbook").bind("turned", function(event, page, view) {
+        Hash.go('page/'+page);
+    });
   </script>
 </body>
 </html>
