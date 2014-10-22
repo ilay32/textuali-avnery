@@ -35,7 +35,8 @@
   <style type="text/css">
     body { padding-top: 50px }
       .hidden { display:none }
-      .page-html { margin-top:40px; padding: 0 1em }
+      .page-html {
+        padding: 40px 1em 0; }
       .page-html iframe {
         width:100%;
         border:none;
@@ -76,7 +77,7 @@
                 <button type="button" class="btn btn-xs btn-default" onclick="{ $('.flipbook').turn('page',4); }">
                   <span class="glyphicon glyphicon-list"></span>
                  </button>
-                 <button type="button" class="btn btn-xs btn-default" onclick="toggle_html()">
+                 <button type="button" id="togglehtml" class="btn btn-xs btn-default" >
                     <span class="glyphicon glyphicon-picture"></span> / <span class="glyphicon glyphicon-font"></span>
                  </button>
             </div>
@@ -146,6 +147,20 @@
     <script type="text/javascript" src="../vendor/turnjs4/extras/modernizr.2.5.3.min.js" type="text/javascript"></script>
     <script type="text/javascript">
         $('.flipbook').data('viewState', 'scan');
+        $('#togglehtml').click(function() {
+            var d = $('.flipbook').data();
+            d.viewState = d.viewState == 'scan' ? 'html' : 'scan';
+            var current = $('.flipbook').data('page'),
+                friends = [current -1, current + 1];
+                tar = $('.page.p'+current+' .page-html');
+            for(i in friends) {
+                tar = tar.add('.page.p'+friends[i]+' .page-html');
+            }
+            toggleHtml(tar);
+            
+            
+        });
+        
         function toggle_html(btn) {
             if("undefined" != typeof(btn)) {
               $(btn).parent().parent().find('iframe').each(function() {
@@ -155,17 +170,29 @@
             }
             else {
                if($('.flipbook').data('viewState') == 'scan') {
+                    $('.page-html').removeClass('hidden').find('iframe').css('height',($(this).closest('.page-wrapper').height()-80)+'px');
                     $('.flipbook').data('viewState', 'html');
-                    $('.page-wrapper:visible .page-html').removeClass('hidden').find('iframe').css('height',($(this).parent().parent().height()-80)+'px');
                }
                else {
+                    $('.page-html').addClass('hidden');
                     $('.flipbook').data('viewState' ,'scan');
-                    $('.page-wrapper:visible .page-html').addClass('hidden');
                }
                // $('.flipbook').data('viewState', '
                 //$('.page-html iframe').css('height',($(this).parent().parent().height()-80)+'px');
                 //$('.page-html').toggleClass('hidden');
             }
+        }
+        
+        function toggleHtml(pages) {
+            pages = $(pages);
+            pages.each(function(i,e) {
+                if($('.flipbook').data('viewState') == 'html') { 
+                    $(e).removeClass('hidden').find('iframe').css('height',($(e).closest('.page-wrapper').height()-80)+'px');
+                }
+                else {
+                    $(e).addClass('hidden');
+                }
+           });
         }
         
         function loadApp() {
@@ -188,13 +215,9 @@
                         if(Hash.fragment() != '' || page != 1) {
                             Hash.go('page/'+page);
                         }
-                        var tar = $('.page-html');
-                        if($(this).data('viewState') == 'html') { 
-                            tar.removeClass('hidden').find('iframe').css('height',(tar.closest('.page').height()-80)+'px');;
-                        }
-                        else {
-                            tar.addClass('hidden');
-                        }
+                     },
+                     'start' : function(event,pageObject,corner) {
+                        toggleHtml('.page-html');                        
                     }
                 }
             });
