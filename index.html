@@ -30,6 +30,7 @@
       <script src="html5shiv.min.js"></script>
       <script src="respond.min.js"></script>
     <![endif]-->
+   
   <script src="../vendor/turnjs4/lib/hash.js" type="text/javascript"></script>
 
   <style type="text/css">
@@ -74,18 +75,55 @@
 
     <div class="container" style="direction:rtl">
         <div class="row">
-            <div class="btn-group col-sm-3">
-                 <button type="button" id="showscans" class="btn btn-xs btn-default viewstate" >
-                    <span class="glyphicon glyphicon-picture"></span>
-                 </button>
-                 <button type="button" id="showhtmls" class="btn btn-xs btn-default viewstate">
-                    <span class="glyphicon glyphicon-font"></span>
-                 </button>
-            </div>
-            <div class="col-md-12 text-center">
-                <button type="button" class="btn btn-xs btn-default" onclick="{ $('.flipbook').turn('page',4); }">
-                  <span class="glyphicon glyphicon-list"></span>
-                 </button>
+            <div class="col-md-12 text-center" >
+                <div class="btn-group btn-group-xs">
+                     <button title="show scan image of pages" type="button" id="showscans" class="btn btn-default mode-toggle" >
+                        <span class="glyphicon glyphicon-picture"></span>
+                     </button>
+                     <button title="zoom in" type="button" id="enlarge" class="btn btn-default" >
+                        <span class="glyphicon glyphicon-resize-full"></span>
+                     </button>
+                     <button title="show pages as text" type="button" id="showhtmls" class="btn btn-default mode-toggle">
+                        <span class="glyphicon glyphicon-font"></span>
+                     </button>
+                </div>
+                <div class="btn-group btn-group-xs">
+                    <button title="next page" type="button" class="btn btn-default" id="flb-next">
+                        <span class="glyphicon glyphicon-chevron-left"></span>
+                    </button>
+                    <button title="go to table of contents page" type="button" class="btn btn-default" id="totoc">
+                        <span class="glyphicon glyphicon-list"></span>
+                    </button>
+                    <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown">
+                        <span class="caret"></span> :go to
+                    </button>
+                    <button title="previous page" type="button" class="btn btn-default" id="flb-prev">
+                        <span class="glyphicon glyphicon-chevron-right"/>
+                    </button>
+                    <ul class="dropdown-menu" role="menu" id="gotopage"></ul>
+                </div>
+                <div class="btn-group btn-group-xs">
+                    <button title="download pdf" type="button" class="btn btn-default" id="download-pdf">
+                        <span class="glyphicon glyphicon-download-alt"></span>
+                    </button>
+                    <button title="tag cloud" type="button" class="btn btn-default" id="tag-cloud">
+                        <span class="glyphicon glyphicon-cloud"></span>
+                    </button>
+                    <button title="share this book" type="button" class="btn btn-default" id="share">
+                        <span class="glyphicon glyphicon-transfer"></span>
+                    </button>        
+                </div>
+                <div class="btn-group btn-group-xs">
+                    <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown">
+                        <span class="glyphicon glyphicon-search"></span>
+                    </button>
+                    <button title="previous menu" type="button" class="btn btn-default" id="flb-prev">
+                        previous menu?
+                    </button>   
+                    <div class="dropdown-menu">
+                        <input type="text" class="form-control" placeholder="search">
+                    </div>
+                </div>
             </div>
         </div>
         
@@ -151,18 +189,44 @@
     <!-- IE10 viewport hack for Surface/desktop Windows 8 bug -->
     <script src="js/ie10-viewport-bug-workaround.js" type="text/javascript"></script>
     <script type="text/javascript" src="../vendor/turnjs4/extras/modernizr.2.5.3.min.js" type="text/javascript"></script>
+    <script src="js/bootstrap.min.js" type="text/javascript"></script> 
     <script type="text/javascript">
-        $('.flipbook').data('viewState', 'scan');
+        $('.flipbook').data('displayMode', 'scan');
+        $('#enlarge').click(function() {
+            var z = $('.flipbook').turn('zoom');
+            if(z > 1) {
+                $('.flipbook').turn('zoom', 1);
+                $(this).find('span').removeClass('glyphicon-resize-small').addClass('glyphicon-resize-full');
+                $(this).attr('title', 'zoom in');
+            }
+            else {
+                $('.flipbook').turn('zoom', 1.5);
+                $(this).find('span').removeClass('glyphicon-resize-full').addClass('glyphicon-resize-small');
+                $(this).attr('title', 'zoom out');
+            }
+        });
         
-        $('.viewstate').click(function() {
+        $('#flb-next').click(function() {
+            $('.flipbook').turn('next');
+        });
+        
+        $('#flb-prev').click(function() {
+            $('.flipbook').turn('previous');
+        });
+        
+        $('.mode-toggle').click(function() {
             var d=$('.flipbook').data();
-            if(this.id == 'showhtmls' && d.viewState == 'scan')  {
-                d.viewState = 'html';
+            if(this.id == 'showhtmls' && d.displayMode == 'scan')  {
+                d.displayMode = 'html';
            }
-           else if(this.id == 'showscans' && d.viewState == 'html') {
-                d.viewState = 'scan';
+           else if(this.id == 'showscans' && d.displayMode == 'html') {
+                d.displayMode = 'scan';
            }
            toggleHtml($('.flipbook').turn('view'));
+        });
+        
+        $('#totoc').click(function() {
+            $('.flipbook').turn('page',4);
         });
       
         function toggle_html(btn) {
@@ -193,11 +257,11 @@
         }
         
         function toggleHtml(pages) {
-            var viewstate = $('.flipbook').data('viewState');
-            if(viewstate == 'scan') {
+            var displayMode = $('.flipbook').data('displayMode');
+            if(displayMode == 'scan') {
                 hide_html(pages);
             }
-            else if(viewstate == 'html') {
+            else if(displayMode == 'html') {
                 show_html(pages);
             }
         }
@@ -228,6 +292,10 @@
                     }
                 }
             });
+ 
+            for(var i=1;i<$('.flipbook').turn('pages');i++) {
+                $('#gotopage').append('<li><a href="'+Hash.get('page/'+i)+'">page '+i+'</a></li>');
+            }
 
             // URIs
             Hash.on('^page\/([0-9]*)$', {
