@@ -36,12 +36,13 @@
     body { padding-top: 50px }
       .hidden { display:none }
       .page-html {
-        padding: 40px 1em 0; }
+        padding: 40px 1em 0; 
+      }
       .page-html iframe {
         width:100%;
         border:none;
         background:white
-      }
+       }
       .page.odd { text-align:right }
       .page.even { text-align:left }
   </style>
@@ -73,12 +74,17 @@
 
     <div class="container" style="direction:rtl">
         <div class="row">
+            <div class="btn-group col-sm-3">
+                 <button type="button" id="showscans" class="btn btn-xs btn-default viewstate" >
+                    <span class="glyphicon glyphicon-picture"></span>
+                 </button>
+                 <button type="button" id="showhtmls" class="btn btn-xs btn-default viewstate">
+                    <span class="glyphicon glyphicon-font"></span>
+                 </button>
+            </div>
             <div class="col-md-12 text-center">
                 <button type="button" class="btn btn-xs btn-default" onclick="{ $('.flipbook').turn('page',4); }">
                   <span class="glyphicon glyphicon-list"></span>
-                 </button>
-                 <button type="button" id="togglehtml" class="btn btn-xs btn-default" >
-                    <span class="glyphicon glyphicon-picture"></span> / <span class="glyphicon glyphicon-font"></span>
                  </button>
             </div>
         </div>
@@ -147,52 +153,53 @@
     <script type="text/javascript" src="../vendor/turnjs4/extras/modernizr.2.5.3.min.js" type="text/javascript"></script>
     <script type="text/javascript">
         $('.flipbook').data('viewState', 'scan');
-        $('#togglehtml').click(function() {
-            var d = $('.flipbook').data();
-            d.viewState = d.viewState == 'scan' ? 'html' : 'scan';
-            var current = $('.flipbook').data('page'),
-                friends = [current -1, current + 1];
-                tar = $('.page.p'+current+' .page-html');
-            for(i in friends) {
-                tar = tar.add('.page.p'+friends[i]+' .page-html');
-            }
-            toggleHtml(tar);
-            
-            
-        });
         
+        $('.viewstate').click(function() {
+            var d=$('.flipbook').data();
+            if(this.id == 'showhtmls' && d.viewState == 'scan')  {
+                d.viewState = 'html';
+           }
+           else if(this.id == 'showscans' && d.viewState == 'html') {
+                d.viewState = 'scan';
+           }
+           toggleHtml($('.flipbook').turn('view'));
+        });
+      
         function toggle_html(btn) {
-            if("undefined" != typeof(btn)) {
-              $(btn).parent().parent().find('iframe').each(function() {
+            $(btn).parent().parent().find('iframe').each(function() {
                 $(this).css('height',($(this).parent().parent().height()-80)+'px');
                 $(this).parent().toggleClass('hidden');
-              });
-            }
-            else {
-               if($('.flipbook').data('viewState') == 'scan') {
-                    $('.page-html').removeClass('hidden').find('iframe').css('height',($(this).closest('.page-wrapper').height()-80)+'px');
-                    $('.flipbook').data('viewState', 'html');
-               }
-               else {
-                    $('.page-html').addClass('hidden');
-                    $('.flipbook').data('viewState' ,'scan');
-               }
-               // $('.flipbook').data('viewState', '
-                //$('.page-html iframe').css('height',($(this).parent().parent().height()-80)+'px');
-                //$('.page-html').toggleClass('hidden');
+            });
+        }
+        
+        function show_html(pages) {
+            var tar; 
+            for (i in pages) {
+                tar = find_html_div(pages[i]).add('.page-html');
+                tar.each(function() {
+                    $(this).removeClass('hidden').find('iframe').css('height',($(this).closest('.page-wrapper').height()-80)+'px');
+                });
             }
         }
         
+        function hide_html(pages) {
+            for (i in pages) {
+                find_html_div(pages[i]).add('.page-html').addClass('hidden');
+            }
+        }    
+       
+        function find_html_div(n) {
+            return $('.page.p'+n).find('.page-html');
+        }
+        
         function toggleHtml(pages) {
-            pages = $(pages);
-            pages.each(function(i,e) {
-                if($('.flipbook').data('viewState') == 'html') { 
-                    $(e).removeClass('hidden').find('iframe').css('height',($(e).closest('.page-wrapper').height()-80)+'px');
-                }
-                else {
-                    $(e).addClass('hidden');
-                }
-           });
+            var viewstate = $('.flipbook').data('viewState');
+            if(viewstate == 'scan') {
+                hide_html(pages);
+            }
+            else if(viewstate == 'html') {
+                show_html(pages);
+            }
         }
         
         function loadApp() {
@@ -217,7 +224,7 @@
                         }
                      },
                      'start' : function(event,pageObject,corner) {
-                        toggleHtml('.page-html');                        
+                        toggleHtml(pageObject.turn.turn('view'));                        
                     }
                 }
             });
