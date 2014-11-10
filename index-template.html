@@ -5,74 +5,25 @@
 <!--[if IE 9 ]>    <html lang="he" class="ie9"> <![endif]-->
 <!--[if !IE]><!-->
 
-<html lang="he">
+<html lang="{{language}}">
 <!--<![endif]-->
-
 <head>
-  <meta name="generator" content=
-  "HTML Tidy for Linux (vers 25 March 2009), see www.w3.org">
-  <meta charset="utf-8">
-  <meta http-equiv="X-UA-Compatible" content="IE=edge"><!--
-    <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable = no" />
--->
-  <meta name="viewport" content="width = 1050, user-scalable = no">
-  <!--
-    <meta name="description" content="">
-    <meta name="author" content="">
-    <link rel="icon" href="../../favicon.ico">
--->
-
-  <title>Avnery flipbook test</title><!-- Bootstrap core CSS -->
-  <link href="bootstrap/css/bootstrap.min.css" rel="stylesheet"
-  type="text/css">
-  <!-- HTML5 shim and Respond.js IE8 support of HTML5 elements and media queries -->
-  <!--[if lt IE 9]>
-      <script src="html5shiv.min.js"></script>
-      <script src="respond.min.js"></script>
-    <![endif]-->
-   
-  <script src="../vendor/turnjs4/lib/hash.js" type="text/javascript"></script>
-
-  <style type="text/css">
-    body { padding-top: 50px }
-      .hidden { display:none }
-      .page-html {
-        padding: 40px 1em 0; 
-      }
-      .page-html iframe {
-        width:100%;
-        border:none;
-        background:white
-       }
-      .page.odd { text-align:right }
-      .page.even { text-align:left }
-  </style>
+	<meta name="generator" content="HTML Tidy for Linux (vers 25 March 2009), see www.w3.org">
+	<meta charset="utf-8">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge">
+	<meta name="viewport" content="width = 1050, user-scalable = no">
+	<title>{{book_nicename}}</title>
+	<link href="{{rootpath}}bootstrap/css/bootstrap.min.css" rel="stylesheet" type="text/css">
+	<link href="{{rootpath}}css/basic.css" rel="stylesheet" type="text/css">
+	<!-- HTML5 shim and Respond.js IE8 support of HTML5 elements and media queries -->
+	<!--[if lt IE 9]>
+		<script src="html5shiv.min.js"></script>
+		<script src="respond.min.js"></script>
+	<![endif]-->
+	<script src="{{rootpath}}vendor/turnjs4/lib/hash.js" type="text/javascript"></script>
 </head>
 
 <body>
-  <!--
-    <div class="navbar navbar-inverse navbar-fixed-top" role="navigation">
-      <div class="container">
-        <div class="navbar-header">
-          <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target=".navbar-collapse">
-            <span class="sr-only">Toggle navigation</span>
-            <span class="icon-bar"></span>
-            <span class="icon-bar"></span>
-            <span class="icon-bar"></span>
-          </button>
-          <a class="navbar-brand" href="#">Project name</a>
-        </div>
-        <div class="collapse navbar-collapse">
-          <ul class="nav navbar-nav">
-            <li class="active"><a href="#">Home</a></li>
-            <li><a href="#about">About</a></li>
-            <li><a href="#contact">Contact</a></li>
-          </ul>
-        </div>
-      </div>
-    </div>
--->
-
     <div class="container" style="direction:rtl">
         <div class="row">
             <div class="col-md-12 text-center" >
@@ -130,54 +81,19 @@
         <div class="row">
             <div id="flipbook-wrapper" class="col-md-12 text-center">
                 <div class="flipbook-viewport">
-                    <div class="flipbook-container">
+                    <div class="flipbook-container">   
                         <div class="flipbook">
-                            <div class="hard" style="background-image:url(../scans/avnery/777_front.jpg); background-size: contain"></div>
-                            <div class="hard" style="background-image:url(../scans/avnery/777_front_inner.jpg); background-size: contain"></div>
-                            <div style="background-image:url(../scans/avnery/777_page_0001.jpg); background-size: contain">
-                                <div class="spine-gradient"></div>
-                            </div>
-
-                            <div style="background-image:url(../scans/avnery/777_page_0002.jpg); background-size: contain">
-                                <div class="spine-gradient"></div>
-                            </div>
-
-                            <div style="background-image:url(../scans/avnery/777_page_0005.jpg); background-size: contain">
-                                <div class="spine-gradient">
-                                    <div class="page-html hidden">
-                                        <iframe src="html-pages/b001p000g.htm"></iframe>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <div style="background-image:url(../scans/avnery/777_page_0006.jpg); background-size: contain">
-                                <div class="spine-gradient">
-                                    <div class="page-html hidden">
-                                        <iframe src="html-pages/b001p000h.htm"></iframe>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <div style="background-image:url(../scans/avnery/777_page_0015.jpg); background-size: contain">
-                                <div class="spine-gradient">
-                                    <div class="page-html hidden">
-                                        <iframe src="html-pages/b001p009.htm"></iframe>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <div style="background-image:url(../scans/avnery/777_page_0016.jpg); background-size: contain">
-                                <div class="spine-gradient">
-                                    <div class="page-html hidden">
-                                        <iframe src="html-pages/b001p010.htm"></iframe>
-                                    </div>
-                                </div>
-                            </div>
-                            
-                            <div class="hard" style="background-image:url(../scans/avnery/777_back_inner.jpg); background-size: contain"></div>
-                            <div class="hard" style="background-image:url(../scans/avnery/777_back.jpg); background-size: contain"></div>
-                        </div><!-- flipbook -->
-                    </div>
+							{{#hard_cover}}
+							<div class="hard" style="background-image:url(jpg/{{bookdir}}p000a.jpg)"></div>
+							<div class="hard" style="background-image:url(jpg/{{bookdir}}p000b.jpg)"></div> 
+							{{/hard_cover}}
+							{{^hard_cover}}                             
+							<div style="background-image:url(jpg/{{frontjpg}}); background-size: contain">
+								<div class="page-html hidden"></div>
+							</div>
+							{{/hard_cover}}          				
+                        </div><!-- flipbook -->          
+                   	</div>
                 </div><!--flipbook-viewport -->
             </div>
         </div><!-- .row -->
@@ -185,13 +101,53 @@
     <!-- Bootstrap core JavaScript
     ================================================== -->
     <!-- Placed at the end of the document so the pages load faster -->
-    <script src="js/jquery-1.11.1.js" type="text/javascript"></script>
+    <script src="{{rootpath}}js/jquery-1.11.1.js" type="text/javascript"></script>
     <!-- IE10 viewport hack for Surface/desktop Windows 8 bug -->
-    <script src="js/ie10-viewport-bug-workaround.js" type="text/javascript"></script>
-    <script type="text/javascript" src="../vendor/turnjs4/extras/modernizr.2.5.3.min.js" type="text/javascript"></script>
-    <script src="js/bootstrap.min.js" type="text/javascript"></script> 
+    <script src="{{rootpath}}js/ie10-viewport-bug-workaround.js" type="text/javascript"></script>
+    <script src="{{rootpath}}vendor/turnjs4/extras/modernizr.2.5.3.min.js" type="text/javascript"></script>
+    <script src="{{rootpath}}bootstrap/js/bootstrap.min.js" type="text/javascript"></script> 
     <script type="text/javascript">
-        $('.flipbook').data('displayMode', 'scan');
+		if('{{hard_cover}}'=='False') console.log('hard');		
+		function page_files(page) {
+			var zeros = '00', hard = false;
+			if(page > 9) {
+				zeros = '0';
+			}
+			if(page > 99) {
+				zeros = '';
+			}
+			var filename = '{{bookdir}}p'+ zeros + page;
+			if('{{hard_cover}}' == 'True' && page > {{pages}} - 2) {
+				filename = '{{bookdir}}p999'+(page == {{pages}} ? 'z' : 'y');
+				hard = true;
+			} 
+			return {jpg : 'jpg/'+ filename + '.jpg', html : 'html/' + filename + '.htm', hard : hard};
+		}
+			
+		function loadPage(page, pageElement) {
+			pageElement.css('background-image','url('+page_files(page).jpg+')');			
+			if('{{has_texts}}' == 'True') {			
+				$.ajax({url: page_files(page).html}).done(function(pageHtml) {
+					if('{{whole_docs}}'=='True') {
+						pageHtml = $(pageHtml).find('body').contents();
+					}				
+					pageElement.find('.page-html').html(pageHtml);
+				});
+			}
+		}
+
+		function addPage(page, book) {
+			var id, pages = $('.flipbook').turn('pages');
+			var pageElement = $('<div/>').html('<div class="loader"></div><div class="spine-gradient"><div class="page-html"></div>');
+			if(page_files(page).hard) {
+				pageElement.addClass('hard');
+			}
+			if (book.turn('addPage', pageElement, page)) {
+				loadPage(page, pageElement);
+			}
+		}
+        
+		$('.flipbook').data('displayMode', 'scan');
         $('#enlarge').click(function() {
             var z = $('.flipbook').turn('zoom');
             if(z > 1) {
@@ -276,6 +232,7 @@
                 height:book_height,
                 elevation: 50,
                 duration:2000,
+				pages: {{pages}},
                 direction: "rtl",
                 // Enable gradients
                 gradients: true,
@@ -289,7 +246,13 @@
                      },
                      'start' : function(event,pageObject,corner) {
                         toggleHtml(pageObject.turn.turn('view'));                        
-                    }
+                    },
+					'missing': function (e, pages) {
+						for (var i = 0; i < pages.length; i++) {
+							console.log(e,pages);
+							addPage(pages[i], $(this));
+						}					
+					}
                 }
             });
  
@@ -330,9 +293,9 @@
         $(function() {
             yepnope({
                 test : Modernizr.csstransforms,
-                yep: ['../vendor/turnjs4/lib/turn.js'],
-                nope: ['../vendor/turnjs4/lib/turn.html4.min.js'],
-                both: ['css/responsive.css'],
+                yep: ['{{rootpath}}vendor/turnjs4/lib/turn.js'],
+                nope: ['{{rootpath}}vendor/turnjs4/lib/turn.html4.min.js'],
+                both: ['{{rootpath}}css/responsive.css'],
                 complete: loadApp
             });
         });      

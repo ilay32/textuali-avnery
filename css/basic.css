@@ -5,6 +5,7 @@ body{
 	background-color:#fcfcfc;
 	margin:0;
 	padding:0;
+
 }
 
 .flipbook-viewport{
@@ -23,8 +24,8 @@ body{
 .flipbook-viewport .flipbook{
 	width:922px;
 	height:600px;
-	left:-461px;
-	top:-300px;
+/*	left:-461px;
+	top:-300px;*/
 }
 
 .flipbook-viewport .page{
@@ -65,3 +66,25 @@ body{
 	-ms-box-shadow:0 0 20px #ccc;
 	box-shadow:0 0 20px #ccc;
 }
+
+body {
+    padding-top: 50px
+}
+.hidden {
+    display:none
+ }
+.page-html {
+     padding: 40px 1em 0; 
+ }
+
+.page-html iframe {
+    width:100%;
+    border:none;
+    background:white
+}
+.page.odd { 
+    text-align:right
+}
+.page.even {
+     text-align:left
+ }
