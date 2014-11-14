@@ -136,8 +136,9 @@ if __name__=='__main__':
 		authdir = authorblock['dir']
 		authbooks = authorblock['books']		
 		for book in authbooks:
-			indexpath = "texts/"+authdir+"/"+book['bookdir']+"/"							
-			book['rootpath'] = '../../../../'		
+			indexpath = conf['front']['textsdir']+"/"+authdir+"/"+book['bookdir']+"/"							
+			book['topdir'] = conf['front']['domain']		
+			book['coddir'] = book['topdir'] + conf['front']['coddir'] 		
 			jpgslist = sorted(glob.glob(indexpath+"jpg/*.jpg"))
 			foundpages = len(jpgslist)
 			if(foundpages > 0):
