@@ -9,18 +9,22 @@ body{
     margin: 0 auto;
     clear: both;
 }
-
-@media (max-width:1200px) {
+@media (min-width:1575px) {
+    .textuali-container {
+        width: 1024px;
+    }
+}
+@media (min-width:1200px) {
     .textuali-container {
         min-height: 1000px;
     }
 }
-@media (max-width:1024px) {
+@media (min-width:1024px) {
     .textuali-container {
         min-height: 800px;
     }
 }
-@media (max-width: 940px) {
+@media (min-width: 940px) {
     .textuali-container {
         min-height: 500px;
     }
