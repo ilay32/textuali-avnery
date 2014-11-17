@@ -123,29 +123,37 @@ def _hilite_menu_aux(menu,path):
 #
 
 if __name__=='__main__':
-	#menu,categories = make_menu()
-	#print json.dumps(menu,indent=1)
+    #menu,categories = make_menu()
+    #print json.dumps(menu,indent=1)
 	#print json.dumps(categories,indent=1)
 	#render_posts(menu,categories)
 	#render_non_posts(menu)
-	conf = json.load(file('config.json'))
+    conf = json.load(file('config.json'))
     #logger.info(u"rendering front page")
-	file('index.html','w').write(stache.render(stache.load_template('front-template'),conf).encode('utf-8'))
-	logger.info(u"rendering book indices")	
-	for authorblock in conf['authors'] :	
-		authdir = authorblock['dir']
-		authbooks = authorblock['books']		
-		for book in authbooks:
-			indexpath = conf['front']['textsdir']+"/"+authdir+"/"+book['bookdir']+"/"							
-			book['topdir'] = conf['front']['domain']		
-			book['coddir'] = book['topdir'] + conf['front']['coddir'] 		
-			jpgslist = sorted(glob.glob(indexpath+"jpg/*.jpg"))
-			foundpages = len(jpgslist)
-			if(foundpages > 0):
-				book['pages'] = foundpages
-				book['frontjpg'] = os.path.basename(jpgslist[0])			
-				f = open(indexpath+"index.html",'w')
-				f.write(stache.render(stache.load_template('index-template'),book).encode('utf-8'))
-	logger.info(u"complete")
+    file('index.html','w').write(stache.render(stache.load_template('front-template'),conf).encode('utf-8'))
+    logger.info(u"rendering book indices")	
+	
+    for authorblock in conf['authors']:
+        authdir = authorblock['dir']
+        authbooks = authorblock['books']		
+		
+        for book in authbooks:
+            indexpath = conf['front']['textsdir']+"/"+authdir+"/"+book['bookdir']+"/"
+            book['topdir'] = conf['front']['domain']
+            book['coddir'] = book['topdir'] + conf['front']['coddir']
+            jpgslist = sorted(glob.glob(indexpath+"jpg/*.jpg"))
+            foundpages = len(jpgslist)
+            
+            if(foundpages > 0):
+                book['pages'] = foundpages
+                #book['authdir'] = authdir
+                book['frontjpg'] = os.path.basename(jpgslist[0])
+                f = open(indexpath+"index.html",'w')
+                f.write(stache.render(stache.load_template('index-template'),book).encode('utf-8'))
+                logger.info(book['book_shortname']+ " complete")
+            else:
+                logger.info(book['book_shortname'] + " couldn't find pages")
+        
+        logger.info(authdir + "book indices complete")
 
 

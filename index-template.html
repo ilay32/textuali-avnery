@@ -24,27 +24,31 @@
 	</head>
 
 <body>
-    <div class="container" style="direction:rtl">
+    <div class="textuali-container" style="direction:rtl">
         <div class="row">
-            <div class="col-md-12 text-center" >
+            <div class="text-center" >
                 <div class="btn-group btn-group-xs">
+                    {{#has_texts}}
                      <button title="show scan image of pages" type="button" id="showscans" class="btn btn-default mode-toggle" >
                         <span class="glyphicon glyphicon-picture"></span>
                      </button>
-                     <button title="zoom in" type="button" id="enlarge" class="btn btn-default" >
-                        <span class="glyphicon glyphicon-resize-full"></span>
-                     </button>
-                     <button title="show pages as text" type="button" id="showhtmls" class="btn btn-default mode-toggle">
+                      <button title="show pages as text" type="button" id="showhtmls" class="btn btn-default mode-toggle">
                         <span class="glyphicon glyphicon-font"></span>
+                     </button>
+                     {{/has_texts}}
+                    <button title="zoom in" type="button" id="enlarge" class="btn btn-default" >
+                        <span class="glyphicon glyphicon-resize-full"></span>
                      </button>
                 </div>
                 <div class="btn-group btn-group-xs">
                     <button title="next page" type="button" class="btn btn-default" id="flb-next">
                         <span class="glyphicon glyphicon-chevron-left"></span>
                     </button>
+                    {{#toc}}
                     <button title="go to table of contents page" type="button" class="btn btn-default" id="totoc">
                         <span class="glyphicon glyphicon-list"></span>
                     </button>
+                    {{/toc}}
                     <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown">
                         <span class="caret"></span> :go to
                     </button>
@@ -128,25 +132,32 @@
 			
 		function loadPage(page, pageElement) {
 			pageElement.css('background-image','url('+page_files(page).jpg+')');			
+            foundHtml = false;
 			if('{{has_texts}}' == 'True' ) {			
 				$.ajax({url: page_files(page).html}).done(function(pageHtml) {
-					if('{{whole_docs}}'=='True') {
-						pageHtml = $(pageHtml).get(7);
-					}
+                    if('{{whole_docs}}'=='True') {
+                        pageHtml = $(pageHtml).get(7);
+                    }
                     if(!$.isEmptyObject(pageHtml)) {				
-					    pageElement.find('.page-html').html(pageHtml);
-		            }
+                        $(pageHtml).find('img').each(function() {
+                            var sr = this.src;
+                            sr = sr.replace('{{bookdir}}', '{{bookdir}}/html');
+                            $(this).attr('src',sr);
+                        });
+                        pageElement.find('.page-html').html(pageHtml);
+                    }
                     else {
                         pageElement.find('.page-html').remove();
-                    }
-                    
-        		});
-			}
-		}
+                    }   
+               }).fail(function() {
+                   pageElement.find('.page-html').remove();    
+               });
+		    }
+        }
 
 		function addPage(page, book) {
 			var id, pages = $('.flipbook').turn('pages');
-			var pageElement = $('<div/>').html('<div class="loader"></div><div class="spine-gradient"><div class="page-html"></div>');
+			var pageElement = $('<div/>').html('<div class="loader"></div><div class="spine-gradient">{{#has_texts}}<div class="page-html"></div>{{/has_texts}}');
 			if(page_files(page).hard) {
 				pageElement.addClass('hard');
 			}
@@ -189,9 +200,13 @@
            toggleHtml($('.flipbook').turn('view'));
         });
         
+        {{#toc}}
         $('#totoc').click(function() {
-            $('.flipbook').turn('page',4);
+            $('.flipbook').turn('page',{{toc}});
+            Hash.go('page/{{toc}}');
         });
+        {{/toc}}
+        
       
         function toggle_html(btn) {
             $(btn).parent().parent().find('iframe').each(function() {
@@ -232,28 +247,36 @@
         }
         
         function loadApp() {
-            // Create the flipbook
-            var book_height=Math.floor($(document).height()*0.9);
-            var book_width=Math.floor(book_height*2*1024.0/1628.0);
-            
+           //Create the flipbook
+           //var book_height=Math.floor($(document).height()*0.9);
+           //var book_width=Math.floor(book_height*2*1024.0/1628.0);
+           var book_width = Math.floor($(window).width()*0.65);
+           {{#aspect_ratio}}
+           var book_height=Math.floor(book_width*{{aspect_ratio}});
+           {{/aspect_ratio}}
+           {{^aspect_ratio}} 
+           var book_height = Math.floor((book_width/1268)*1200);
+           {{/aspect_ratio}}
             $('.flipbook').turn({
                 width:book_width,
                 height:book_height,
                 elevation: 50,
                 duration:2000,
-		pages: {{pages}},
+                pages: {{pages}},
                 direction: "rtl",
                 // Enable gradients
                 gradients: true,
                 // Auto center this flipbook
                 autoCenter: true,
                 when: {
+                    {{#toc}}
                     'turned': function(event, page, pages) {
-                        if(Hash.fragment() != '' || page != 1) {
-                            Hash.go('page/'+page);
+                        if(page == {{toc}}) {
+                            Hash.go('page/{{toc}}');
                         }
-                     },
-                     'start' : function(event,pageObject,corner) {
+                    },
+                    {{/toc}}
+                    'start' : function(event,pageObject,corner) {
                         toggleHtml(pageObject.turn.turn('view'));                        
                     },
 					'missing': function (e, pages) {
@@ -261,7 +284,7 @@
 							addPage(pages[i], $(this));
 						}					
 					}
-                }
+                }                 
             });
  
             for(var i=1;i<$('.flipbook').turn('pages');i++) {

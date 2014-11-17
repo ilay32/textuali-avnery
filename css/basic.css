@@ -1,11 +1,29 @@
 /* Basic sample */
 
 body{
-	overflow:hidden;
-	background-color:#fcfcfc;
 	margin:0;
-	padding:0;
+	padding: 50px 0;
+}
+.textuali-container {
+    width: 65%;
+    margin: 0 auto;
+    clear: both;
+}
 
+@media (max-width:1200px) {
+    .textuali-container {
+        min-height: 1000px;
+    }
+}
+@media (max-width:1024px) {
+    .textuali-container {
+        min-height: 800px;
+    }
+}
+@media (max-width: 940px) {
+    .textuali-container {
+        min-height: 500px;
+    }
 }
 
 .flipbook-viewport{
@@ -52,6 +70,7 @@ body{
 	-ms-user-select: none;
 	user-select: none;
 	margin:0;
+    max-width:100%;
 }
 
 .flipbook-viewport .shadow{
@@ -67,15 +86,14 @@ body{
 	box-shadow:0 0 20px #ccc;
 }
 
-body {
-    padding-top: 50px
-}
+
 .hidden {
     display:none
  }
 .page-html {
     padding: 40px 1em 0;
     background-color:white;
+    height:100%;
 }
 .page-html iframe {
     width:100%;
@@ -101,8 +119,16 @@ div.pagelive {
 .pagelive.toclive {
     line-height: 90%;
 }
+.toc-list {
+    text-align:right;
+}
+.toc-list li {
+    display:block;
+    margin:10px 0;
+}
 a.toc-link, a.toc-link:visited {
-    background-color: #E6ECEC; padding: 3px; color: #000; 
+    padding: 3px; color: #000; 
+    line-height:20px;
 }
 .spine-gradient{
 	width:100%;
