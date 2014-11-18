@@ -146,7 +146,7 @@ if __name__=='__main__':
             
             if(foundpages > 0):
                 book['pages'] = foundpages
-                #book['authdir'] = authdir
+                book['authdir'] = authdir
                 book['frontjpg'] = os.path.basename(jpgslist[0])
                 f = open(indexpath+"index.html",'w')
                 f.write(stache.render(stache.load_template('index-template'),book).encode('utf-8'))
