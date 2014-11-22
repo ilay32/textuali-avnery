@@ -2,14 +2,13 @@
 
 body{
 	margin:0;
-	padding: 50px 0;
 }
 .textuali-container {
-    width: 65%;
     margin: 0 auto;
     clear: both;
+    overflow:hidden;
 }
-@media (min-width: 1850px) {
+/*@media (min-width: 1850px) {
     .textuali-container {
         width: 1400px;
     }
@@ -33,7 +32,7 @@ body{
     .textuali-container {
         min-height: 500px;
     }
-}
+}*/
 
 .flipbook-viewport{
 	/*overflow:hidden;*/

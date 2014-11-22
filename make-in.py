@@ -17,48 +17,48 @@ htmlparser = HTMLParser()
 def unescape(s):
     return htmlparser.unescape(s).encode('utf-8')
 
-RE_POST_URL = re.compile('"http://no2bio.org/([^/".]*)/?"')
-def _post_url_handler(m):
-    slug = m.group(1)
-    if slug in item_filter['no-url-conversion']:
-        return '"{0}.html"'.format(slug)
-    return '"post-{0}.html"'.format(slug)
-def _tweak_post_urls(s):
-    return RE_POST_URL.sub(_post_url_handler,s)
-
-def _make_item(keys,row):
-    item = {}
-    for k,v in zip(keys,row):
-        item[k]=v
-    return item
-
-def _item_by_id(menu,item_id):
-    for item in menu['items']:
-        if item['id'] == item_id:
-            return item
-        if item.get('items'):
-            found = _item_by_id(item,item_id)
-            if found:
-                return found
-    return None
-
-def _load_category(slug):
-    logger.info( u"getting category: {0}".format(slug))
-    return json.load(urllib2.urlopen(u'{0}/get_category_posts?slug={1}&count=666'.format(API_URL,slug)))
-
-def hilite_menu(menu,path):
-    for m in menu.get('items',[]):
-        _hilite_menu_aux(m,path)
-def _hilite_menu_aux(menu,path):
-    if path and menu.get('id')==path[0]:
-        menu['active'] = True
-        for m in menu.get('items',[]):
-            _hilite_menu_aux(m,path[1:])
-    else:
-        menu['active'] = False
-        for m in menu.get('items',[]):
-            _hilite_menu_aux(m,[])
-
+#RE_POST_URL = re.compile('"http://no2bio.org/([^/".]*)/?"')
+#def _post_url_handler(m):
+#    slug = m.group(1)
+#    if slug in item_filter['no-url-conversion']:
+#        return '"{0}.html"'.format(slug)
+#    return '"post-{0}.html"'.format(slug)
+#def _tweak_post_urls(s):
+#    return RE_POST_URL.sub(_post_url_handler,s)
+#
+#def _make_item(keys,row):
+#    item = {}
+#    for k,v in zip(keys,row):
+#        item[k]=v
+#    return item
+#
+#def _item_by_id(menu,item_id):
+#    for item in menu['items']:
+#        if item['id'] == item_id:
+#            return item
+#        if item.get('items'):
+#            found = _item_by_id(item,item_id)
+#            if found:
+#                return found
+#    return None
+#
+#def _load_category(slug):
+#    logger.info( u"getting category: {0}".format(slug))
+#    return json.load(urllib2.urlopen(u'{0}/get_category_posts?slug={1}&count=666'.format(API_URL,slug)))
+#
+#def hilite_menu(menu,path):
+#    for m in menu.get('items',[]):
+#        _hilite_menu_aux(m,path)
+#def _hilite_menu_aux(menu,path):
+#    if path and menu.get('id')==path[0]:
+#        menu['active'] = True
+#        for m in menu.get('items',[]):
+#            _hilite_menu_aux(m,path[1:])
+#    else:
+#        menu['active'] = False
+#        for m in menu.get('items',[]):
+#            _hilite_menu_aux(m,[])
+#
 #def make_menu(csv_filename=CSV_FILENAME):
 #    menu = {'type':'submenu','items':[],'path':[]}
 #    categories = {}
@@ -131,19 +131,18 @@ if __name__=='__main__':
     conf = json.load(file('config.json'))
     #logger.info(u"rendering front page")
     file('index.html','w').write(stache.render(stache.load_template('front-template'),conf).encode('utf-8'))
-    logger.info(u"rendering book indices")	
-	
+    logger.info(u"rendering book indices")
+    #book_type_pattern = re.compile('"^([a-zA-Z])(\d)$"')
     for authorblock in conf['authors']:
         authdir = authorblock['dir']
         authbooks = authorblock['books']		
-		
         for book in authbooks:
             indexpath = conf['front']['textsdir']+"/"+authdir+"/"+book['bookdir']+"/"
             book['topdir'] = conf['front']['domain']
             book['coddir'] = book['topdir'] + conf['front']['coddir']
             jpgslist = sorted(glob.glob(indexpath+"jpg/*.jpg"))
             foundpages = len(jpgslist)
-            
+            book['type'] = conf['book_types'].get(book['bookdir'][:1],"book")
             if(foundpages > 0):
                 book['pages'] = foundpages
                 book['authdir'] = authdir

@@ -64,7 +64,7 @@
                     <button title="tag cloud" type="button" class="btn btn-default" id="tag-cloud">
                         <span class="glyphicon glyphicon-cloud"></span>
                     </button>
-                    <button title="share this book" type="button" class="btn btn-default" id="share">
+                    <button title="share this {{type}}" type="button" class="btn btn-default" id="share">
                         <span class="glyphicon glyphicon-transfer"></span>
                     </button>        
                 </div>
@@ -266,18 +266,25 @@
         }
         
         function loadApp() {
-           //Create the flipbook
-           //var book_height=Math.floor($(document).height()*0.9);
-           //var book_width=Math.floor(book_height*2*1024.0/1628.0);
-           var  book_width = Math.min(Math.floor($(window).width()*0.65),1024),
+            //Create the flipbook
+            //var book_height=Math.floor($(document).height()*0.9);
+            //var book_width=Math.floor(book_height*2*1024.0/1628.0);
+            var  book_height = Math.floor($(window).height() * 0.95),
                 im = $('<img src="jpg/{{frontjpg}}"/>').get(0),
-                ratio = im.naturalHeight/(2*im.naturalWidth);
-           if($(window).width() >= 1850) {
-               book_width = 1400;
-           }
-
-           var book_height=Math.floor(book_width*ratio);
-           $('.flipbook').turn({
+                openbook_ratio = (2*im.naturalWidth)/im.naturalHeight,
+                screen_ratio = $(window).width()/$(window).height(),
+                book_width;
+            
+            if(Math.abs(1 - openbook_ratio/screen_ratio) > Math.abs(1 - screen_ratio/openbook_ratio)) {
+                openbook_ratio = 1/openbook_ratio;
+                book_width = Math.floor($(window).width() * 0.95);
+                book_height = Math.floor(book_width*openbook_ratio);
+            }   
+            else {
+                book_width=Math.floor(book_height*openbook_ratio);
+            }
+            $('.textuali-container').width(book_width).height(book_height);
+            $('.flipbook').turn({
                 width:book_width,
                 height:book_height,
                 elevation: 50,
