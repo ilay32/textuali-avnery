@@ -269,7 +269,7 @@
             //Create the flipbook
             //var book_height=Math.floor($(document).height()*0.9);
             //var book_width=Math.floor(book_height*2*1024.0/1628.0);
-            var  book_height = Math.floor($(window).height() * 0.95),
+            var  book_height = Math.floor(($(window).height() - $('.row').eq(0).height()) * 0.95),
                 im = $('<img src="jpg/{{frontjpg}}"/>').get(0),
                 openbook_ratio = (2*im.naturalWidth)/im.naturalHeight,
                 screen_ratio = $(window).width()/$(window).height(),
@@ -283,7 +283,7 @@
             else {
                 book_width=Math.floor(book_height*openbook_ratio);
             }
-            $('.textuali-container').width(book_width).height(book_height);
+            $('.textuali-container').width(book_width + 10);
             $('.flipbook').turn({
                 width:book_width,
                 height:book_height,
