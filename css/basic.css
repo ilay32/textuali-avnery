@@ -8,6 +8,24 @@ body{
     clear: both;
     overflow:hidden;
 }
+#buttons-row {
+    margin-bottom: 25px;
+}
+
+.largenav {
+    position:absolute;
+    font-size:65px;
+    color: #ccc;
+    top: 50%;
+    cursor:pointer;
+}
+
+/*.largenav.flb-next {
+    left: 0;
+}
+.largenav.flb-pref {
+    right: 0;
+}*/
 /*@media (min-width: 1850px) {
     .textuali-container {
         width: 1400px;
@@ -50,6 +68,8 @@ body{
 .flipbook-viewport .flipbook{
 	width:922px;
 	height:600px;
+    left: -20px;
+    top:-20px;
 /*	left:-461px;
 	top:-300px;*/
 }
@@ -62,13 +82,13 @@ body{
 	background-size:100% 100%;
 }
 
-.flipbook .page{
+/*.flipbook .page{
 	-webkit-box-shadow:0 0 20px rgba(0,0,0,0.2);
 	-moz-box-shadow:0 0 20px rgba(0,0,0,0.2);
 	-ms-box-shadow:0 0 20px rgba(0,0,0,0.2);
 	-o-box-shadow:0 0 20px rgba(0,0,0,0.2);
 	box-shadow:0 0 20px rgba(0,0,0,0.2);
-}
+}*/
 
 .flipbook-viewport .page img{
 	-webkit-touch-callout: none;
@@ -96,7 +116,7 @@ body{
 
 
 .hidden {
-    display:none
+    display:none;
  }
 .page-html {
     padding: 40px 1em 0;

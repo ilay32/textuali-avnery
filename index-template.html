@@ -24,8 +24,10 @@
 	</head>
 
 <body>
+    <span class="hidden flb-prev glyphicon-chevron-right glyphicon largenav"></span>
+    <span class="hidden flb-next glyphicon-chevron-left largenav glyphicon"></span>
     <div class="textuali-container" style="direction:rtl">
-        <div class="row">
+        <div class="row" id="buttons-row">
             <div class="text-center" >
                 <div class="btn-group btn-group-xs">
                     {{#has_texts}}
@@ -41,7 +43,7 @@
                      </button>
                 </div>
                 <div class="btn-group btn-group-xs">
-                    <button title="next page" type="button" class="btn btn-default" id="flb-next">
+                    <button title="next page" type="button" class="btn bflb-next btn-default">
                         <span class="glyphicon glyphicon-chevron-left"></span>
                     </button>
                     {{#toc}}
@@ -52,7 +54,7 @@
                     <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown">
                         <span class="caret"></span> :go to
                     </button>
-                    <button title="previous page" type="button" class="btn btn-default" id="flb-prev">
+                    <button title="previous page" type="button" class="btn btn-default flb-prev" >
                         <span class="glyphicon glyphicon-chevron-right"/>
                     </button>
                     <ul class="dropdown-menu" role="menu" id="gotopage"></ul>
@@ -83,7 +85,7 @@
         </div>
         
         <div class="row">
-            <div id="flipbook-wrapper" class="col-md-12 text-center">
+            <!--<div id="flipbook-wrapper">-->
                 <div class="flipbook-viewport">
                     <div class="flipbook-container">   
                         <div class="flipbook">
@@ -99,9 +101,10 @@
                         </div><!-- flipbook -->          
                    	</div>
                 </div><!--flipbook-viewport -->
-            </div>
+            <!--</div>-->
         </div><!-- .row -->
     </div><!-- .container -->
+    
     <!-- Bootstrap core JavaScript
     ================================================== -->
     <!-- Placed at the end of the document so the pages load faster -->
@@ -197,11 +200,11 @@
             }
         });
         
-        $('#flb-next').click(function() {
+        $('.flb-next').click(function() {
             $('.flipbook').turn('next');
         });
         
-        $('#flb-prev').click(function() {
+        $('.flb-prev').click(function() {
             $('.flipbook').turn('previous');
         });
         
@@ -266,10 +269,11 @@
         }
         
         function loadApp() {
+            $('.largenav').addClass('hidden');
             //Create the flipbook
             //var book_height=Math.floor($(document).height()*0.9);
             //var book_width=Math.floor(book_height*2*1024.0/1628.0);
-            var  book_height = Math.floor(($(window).height() - $('.row').eq(0).height()) * 0.95),
+            var  book_height = Math.floor(($(window).height() - $('#buttons-row').height()) * 0.95),
                 im = $('<img src="jpg/{{frontjpg}}"/>').get(0),
                 openbook_ratio = (2*im.naturalWidth)/im.naturalHeight,
                 screen_ratio = $(window).width()/$(window).height(),
@@ -283,7 +287,12 @@
             else {
                 book_width=Math.floor(book_height*openbook_ratio);
             }
-            $('.textuali-container').width(book_width + 10);
+            var screen_marge = Math.floor(($(window).width() - book_width)/2);
+            var largenav_offset = (screen_marge - 85)+'px';
+            $('.textuali-container').width(book_width + 20);
+            $('.flb-next.largenav').css('left', largenav_offset);
+            $('.flb-prev.largenav').css('right',largenav_offset);
+            $('.largenav').removeClass('hidden');
             $('.flipbook').turn({
                 width:book_width,
                 height:book_height,
