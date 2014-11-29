@@ -297,9 +297,7 @@
         }    
        
         function find_html_div(n) {
-            return $('.page.p'+n).find('.page-html').filter(function() {
-                return $(this).html() != "";
-            });
+            return $('.page.p'+n).find('.page-html');
         }
         
         function toggleHtml(pages) {
@@ -349,13 +347,11 @@
                 // Auto center this flipbook
                 autoCenter: true,
                 when: {
-                    //{{#toc}}
                     'turned': function(event, page, pages) {
-                        if(Hash) {
-                            Hash.go('page/{{toc}}');
+                       if(Hash.fragment() != "" || page > 2) {
+                            Hash.go('page/'+page);
                         }
                     },
-                    //{{/toc}}
                     'start' : function(event,pageObject,corner) {
                         toggleHtml(pageObject.turn.turn('view'));                        
                     },
@@ -381,8 +377,8 @@
                     }
                 },
                 nop: function(path) {
-                    if ($('.flipbook').turn('is'))
-                        $('.flipbook').turn('page', 2);
+                   if ($('.flipbook').turn('is'))
+                       $('.flipbook').turn('page', 2);
                 }
             });
 
