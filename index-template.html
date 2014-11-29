@@ -95,7 +95,7 @@
 							{{/hard_cover}}
 							{{^hard_cover}}                             
 							<div style="background-image:url(jpg/{{frontjpg}}); background-size: contain">
-								<!--<div class="page-html hidden"></div> assuming the front never has html -->
+								<div class="page-html hidden"></div>
 							</div>
 							{{/hard_cover}}          				
                         </div><!-- flipbook -->          
@@ -115,16 +115,28 @@
     <script src="{{topdir}}bootstrap/js/bootstrap.min.js" type="text/javascript"></script> 
     <script type="text/javascript">
 		$(window).resize(function() {
-            var rememberme = $('.flipbook').turn('page');
+            var rememberme = {page:  $('.flipbook').turn('page'), displaymode : $('.flipbook').data('displayMode')};
             $('.flipbook').turn('destroy');
             loadApp();
-            $('.flipbook').turn('page',rememberme);
+            var book = $('.flipbook');
+            book.data('displayMode',rememberme.displaymode);
+            //toggleHtml();
+            Hash.go('page/'+rememberme.page);
+            book.turn('page',rememberme.page);
+            for(p in book.turn('view')) {
+                addPage(p,book);
+            }
+            toggleHtml(); 
         });
 
         $('#download-pdf').click(function() {
-            var pdf = $(this).attr('href');
+            var pdf = $(this).attr('href'),
+                h = location.href;
+            if(h.indexOf('#') > 0) {
+                h = h.substr(0,h.indexOf('#'));
+            }
             if(undefined != pdf) {
-                window.open(location.href+"{{authdir}}-{{bookdir}}-"+pdf, "{{book_nicename}} PDF", "width=600, height=400" );
+                window.open(h+"{{authdir}}-{{bookdir}}-"+pdf, "{{book_nicename}} PDF", "width=600, height=400" );
             }
         });
         if('{{language}}' == 'he') {
@@ -184,7 +196,16 @@
         
 		$('.flipbook').data('displayMode', 'scan');
         $('#enlarge').click(function() {
-            var z = $('.flipbook').turn('zoom'),
+            if($(this).hasClass('btn-danger')) {
+                $(this).removeClass('btn-danger');
+                $('.flipbook').turn('zoom', 1).animate({left: '-20px', top: '-20px'},500).turn('disable',false);
+                $('.textuali-container').width($('.flipbook').width() + 20);
+            }
+            else {
+                $(this).addClass('btn-danger');
+                $('.flipbook').turn('disable',true);
+            }
+            /*var z = $('.flipbook').turn('zoom'),
                 w = $('.textuali-container').width();
             if(z > 1) {
                 $('.flipbook').turn('zoom', 1);
@@ -197,6 +218,25 @@
                 $(this).find('span').removeClass('glyphicon-resize-full').addClass('glyphicon-resize-small');
                 $(this).attr('title', 'zoom out');
                 $('.textuali-container').width(Math.ceil(w*1.5));
+            }*/
+        });
+        $('.flipbook').click(function(c) {
+            var dist_from_center = c.pageX - $('.flipbook').offset().left - $('.flipbook').width()/2;
+            var dist_from_middle = c.pageY - $('.flipbook').offset().top - $('.flipbook').height()/2;
+            if($('#enlarge').hasClass('btn-danger')) {
+                var z = $('.flipbook').turn('zoom');
+                if(z > 1) {
+                    $('.flipbook').turn('zoom', 1).animate({left: '-20px', top: '-20px'},500).turn('disable',false);
+                    $('.textuali-container').width($('.flipbook').width() + 20);
+                    $('#enlarge').removeClass('btn-danger');
+                }
+                else {
+                    $('.textuali-container').width($(this).width()*2 + 40);
+                    $('.flipbook').turn('zoom', 2).animate({left : -2* dist_from_center+'px', top : -2 * dist_from_middle +'px'});
+                }
+            }
+            else {
+                $('.flipbook').turn(dist_from_center  > 0 ? 'previous' : 'next');
             }
         });
         
@@ -237,11 +277,13 @@
         function show_html(pages) {
             var tar; 
             for (i in pages) {
-                tar = find_html_div(pages[i]).add('.page-html');
+                tar = find_html_div(pages[i]).add('.page-html').filter(function() {
+                    return $(this).html() != "";
+                });
                 tar.each(function() {
                     var oldh = $(this).height(),
-                        newh = $(this).find('.pagelive').height(); 
-                    $(this).closest('.page').css('overflow-y','scroll');
+                        newh = $(this).find('.pagelive').height() + 20; 
+                    $(this).closest('.page').css('overflow-y','auto');
                     //$(this).removeClass('hidden').find('iframe').css('height',($(this).closest('.page-wrapper').height()-80)+'px');
                     $(this).removeClass('hidden').height(Math.max(oldh,newh)); 
                 });
@@ -255,7 +297,9 @@
         }    
        
         function find_html_div(n) {
-            return $('.page.p'+n).find('.page-html');
+            return $('.page.p'+n).find('.page-html').filter(function() {
+                return $(this).html() != "";
+            });
         }
         
         function toggleHtml(pages) {
@@ -305,13 +349,13 @@
                 // Auto center this flipbook
                 autoCenter: true,
                 when: {
-                    {{#toc}}
+                    //{{#toc}}
                     'turned': function(event, page, pages) {
-                        if(page == {{toc}}) {
+                        if(Hash) {
                             Hash.go('page/{{toc}}');
                         }
                     },
-                    {{/toc}}
+                    //{{/toc}}
                     'start' : function(event,pageObject,corner) {
                         toggleHtml(pageObject.turn.turn('view'));                        
                     },
@@ -323,7 +367,7 @@
                 }                 
             });
  
-            for(var i=1;i<$('.flipbook').turn('pages');i++) {
+            for(var i=1;i<=$('.flipbook').turn('pages');i++) {
                 $('#gotopage').append('<li><a href="'+Hash.get('page/'+i)+'">page '+i+'</a></li>');
             }
 

@@ -99,6 +99,7 @@ body{
 	user-select: none;
 	margin:0;
     max-width:100%;
+    height:auto !important;
 }
 
 .flipbook-viewport .shadow{
@@ -184,7 +185,6 @@ a.toc-link, a.toc-link:visited {
    filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#00f7f7f7', endColorstr='#66212006',GradientType=1 ); /* IE6-9 */
    
     
-    border-right:1px solid black;    
 }
 
 .page.even .spine-gradient, .page.even .page-html{
@@ -209,7 +209,6 @@ a.toc-link, a.toc-link:visited {
  filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#66212006', endColorstr='#00000000',GradientType=1 ); /* IE6-9 */
 
 
- border-left:1px solid black; 
 }
 .page.even .page-html, .page.odd .page-html {
     background-color:white;
