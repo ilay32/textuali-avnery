@@ -43,7 +43,7 @@
                      </button>
                 </div>
                 <div class="btn-group btn-group-xs">
-                    <button title="next page" type="button" class="btn bflb-next btn-default">
+                    <button title="next page" type="button" class="btn flb-next btn-default">
                         <span class="glyphicon glyphicon-chevron-left"></span>
                     </button>
                     {{#toc}}
@@ -281,11 +281,9 @@
                     return $(this).html() != "";
                 });
                 tar.each(function() {
-                    var oldh = $(this).height(),
-                        newh = $(this).find('.pagelive').height() + 20; 
                     $(this).closest('.page').css('overflow-y','auto');
                     //$(this).removeClass('hidden').find('iframe').css('height',($(this).closest('.page-wrapper').height()-80)+'px');
-                    $(this).removeClass('hidden').height(Math.max(oldh,newh)); 
+                    $(this).removeClass('hidden').height(Math.max($(this).height(),$(this).find('.pagelive').height() + 20)); 
                 });
             }
         }
@@ -362,10 +360,11 @@
 					}
                 }                 
             });
- 
+            loadPage(1,$('.flipbook').find('div').eq(0));
             for(var i=1;i<=$('.flipbook').turn('pages');i++) {
                 $('#gotopage').append('<li><a href="'+Hash.get('page/'+i)+'">page '+i+'</a></li>');
             }
+            
 
             // URIs
             Hash.on('^page\/([0-9]*)$', {
