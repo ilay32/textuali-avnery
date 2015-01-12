@@ -237,8 +237,16 @@
                     $('.flipbook').turn('zoom', 2).animate({left : -2* dist_from_center+'px', top : -2 * dist_from_middle +'px'});
                 }
             }
-            else {
-                $('.flipbook').turn(dist_from_center  > 0 ? 'previous' : 'next');
+        });
+
+        $('.flipbook').mouseenter(function(e) {
+            var dist_from_center = e.pageX - $('.flipbook').offset().left - $('.flipbook').width()/2;
+            var dist_from_top = e.pageY - $('.flipbook').offset().top;
+            var dist_from_bottom = $('.flipbook').height() - dist_from_top;
+            if(Math.abs(dist_from_center)/$('.flipbook').width() > 0.45 && dist_from_top > 100 && dist_from_bottom > 100) {
+                $('.flipbook').turn("peel", dist_from_center > 0 ? 'tr' : 'tl').bind('mousedown', function() {
+                    $(this).turn(dist_from_center > 0 ? 'previous' : 'next');
+                });
             }
         });
         
@@ -352,6 +360,7 @@
                        if(Hash.fragment() != "" || page > 2 ) {
                             Hash.go('page/'+page);
                        } 
+                       $(this).unbind('mousedown');
                     },
                     'start' : function(event,pageObject,corner) {
                         toggleHtml(pageObject.turn.turn('view'));                        
@@ -399,7 +408,7 @@
                 }
             });
             
-            if(first_flipto[2] !== "") {
+            if(first_flipto != null && first_flipto[2] !== "") {
                 Hash.go('page/'+first_flipto[2]);
             }
         } // loadApp
