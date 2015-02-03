@@ -48,9 +48,14 @@
                         <span class="glyphicon glyphicon-chevron-left"></span>
                     </button>
                     {{#toc}}
-                    <button title="go to table of contents page" type="button" class="btn btn-default" id="totoc">
+                    <button type="button" id="totoc" title="go to table of contents page" class="btn btn-default dropdown-toggle jpg-toc" data-toggle="dropdown">
                         <span class="glyphicon glyphicon-list"></span>
                     </button>
+                      
+
+                    <!--<button title="go to table of contents page" type="button" class="btn btn-default" id="totoc">
+                        <span class="glyphicon glyphicon-list"></span>
+                    </button>-->
                     {{/toc}}
                     <button id="gotopage-trigger" type="button" class="btn btn-default">
                         <span class="caret"></span> :go to
@@ -169,6 +174,16 @@
             return false;
             
         });
+
+        function get_toc(pagenum) {
+            $.ajax({url: page_files(pagenum).html}).done(function(pageHtml) {
+                var toc_list = $('<ul class="toc-list dropdown-menu"/>');
+                $(pageHtml).find('.toc-list li').each(function() {
+                    toc_list.append(this);
+                });
+                $('#totoc').after(toc_list);
+            });
+        }
     
         $('body').mousedown(function(c) {
             if($(this).hasClass('modal-open')) {
@@ -277,16 +292,16 @@
             }
         });
 
-        $('.flipbook').mouseover(function(e) {
+        /*$('.flipbook').mouseover(function(e) {
             var dist_from_center = e.pageX - $('.flipbook').offset().left - $('.flipbook').width()/2;
             var dist_from_top = e.pageY - $('.flipbook').offset().top;
             var dist_from_bottom = $('.flipbook').height() - dist_from_top;
-            if(Math.abs(dist_from_center)/$('.flipbook').width() > 0.45 && dist_from_top > 100 && dist_from_bottom > 100) {
+            if(Math.abs(dist_from_center)/$('.flipbook').width() > 0.45 && dist_from_top > 100 && dist_from_bottom > 100 && $('.flipbook').data().displayMode == 'scan') {
                 $('.flipbook').turn("peel", dist_from_center > 0 ? 'tr' : 'tl').bind('mousedown', function() {
                     $(this).turn(dist_from_center > 0 ? 'previous' : 'next');
                 });
             }
-        });
+        });*/
         
         $('.flb-next').click(function() {
             $('.flipbook').turn('next');
@@ -309,8 +324,9 @@
         
         {{#toc}}
         $('#totoc').click(function() {
-            $('.flipbook').turn('page',{{toc}});
-            Hash.go('page/{{toc}}');
+            if(!$(this).hasClass('jpg-toc')) {  
+                $('.flipbook').turn('page',{{toc}});
+            }
         });
         {{/toc}}
         
@@ -334,12 +350,15 @@
                     $(this).removeClass('hidden').height(Math.max($(this).height(),$(this).find('.pagelive').height() + 20)); 
                 });
             }
+            $('#totoc').attr('data-toggle', '').removeClass('jpg-toc');
         }
         
         function hide_html(pages) {
             for (i in pages) {
                 find_html_div(pages[i]).add('.page-html').addClass('hidden').closest('.page').css('overflow-y','hidden');
             }
+
+            $('#totoc').attr('data-toggle', 'dropdown').addClass('jpg-toc');
         }    
        
         function find_html_div(n) {
@@ -398,7 +417,7 @@
                         if(Hash.fragment() != "" || page > 2 ) {
                             Hash.go('page/'+page);
                         } 
-                        $(this).unbind('mousedown');
+                        //$(this).unbind('mousedown');
                         $('.flb-next, .flb-prev').show();
                         if(page == $(this).turn('pages')) {
                             $('.flb-next').hide();
@@ -458,6 +477,10 @@
             if(first_flipto != null && first_flipto[2] !== "") {
                 Hash.go('page/'+first_flipto[2]);
             }
+
+            if(parseInt({{toc}}) > 0) {
+                get_toc({{toc}});
+            }
         } // loadApp
         
         // Load the HTML4 version if there's not CSS transform
@@ -469,7 +492,7 @@
                 //both: ['{{topdir}}css/responsive.css'],
                 complete: loadApp
             });
-        });      
-  </script>
+        });     
+     </script> 
 </body>
 </html>
