@@ -136,10 +136,12 @@ if __name__=='__main__':
     for authorblock in conf['authors']:
         authdir = authorblock['dir']
         authbooks = authorblock['books']		
+        authnicename = authorblock['nicename'];
         for book in authbooks:
             indexpath = conf['front']['textsdir']+"/"+authdir+"/"+book['bookdir']+"/"
             book['topdir'] = conf['front']['domain']
             book['coddir'] = book['topdir'] + conf['front']['coddir']
+            book['authnice'] = authnicename
             jpgslist = sorted(glob.glob(indexpath+"jpg/*.jpg"))
             foundpages = len(jpgslist)
             book['type'] = conf['book_types'].get(book['bookdir'][:1],"book")
