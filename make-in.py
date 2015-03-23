@@ -146,7 +146,7 @@ if __name__=='__main__':
             foundpages = len(jpgslist)
             book['type'] = conf['book_types'].get(book['bookdir'][:1],"book")
             if(foundpages > 0):
-                book['pages'] = foundpages
+                book['pages'] = foundpages - 2 if book['hard_cover'] else  foundpages
                 book['authdir'] = authdir
                 book['frontjpg'] = os.path.basename(jpgslist[0])
                 f = open(indexpath+"index.html",'w')

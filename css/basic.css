@@ -9,6 +9,8 @@ body{
     margin: 0 auto;
     clear: both;
     overflow:hidden;
+    width:922px;
+
 }
 #buttons-row {
     margin-bottom: 25px;
@@ -21,13 +23,12 @@ body{
     top: 50%;
     cursor:pointer;
 }
-
-/*.largenav.flb-next {
-    left: 0;
+.largenav.flb-prev {
+    right: 22%;
 }
-.largenav.flb-pref {
-    right: 0;
-}*/
+.largenav.flb-next{
+    left:22%;
+}
 /*@media (min-width: 1850px) {
     .textuali-container {
         width: 1400px;
