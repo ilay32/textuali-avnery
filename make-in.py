@@ -13,6 +13,7 @@ stache = pystache.Renderer(
 #item_filter = json.load(file(ITEM_FILTER_FILE))
 
 from HTMLParser import HTMLParser
+from PIL import Image
 htmlparser = HTMLParser()
 def unescape(s):
     return htmlparser.unescape(s).encode('utf-8')
@@ -149,6 +150,9 @@ if __name__=='__main__':
                 book['pages'] = foundpages - 2 if book['hard_cover'] else  foundpages
                 book['authdir'] = authdir
                 book['frontjpg'] = os.path.basename(jpgslist[0])
+                frontjpg = Image.open(jpgslist[0])
+                fsize = frontjpg.size
+                book['openbook_ratio'] = float(2*fsize[0])/fsize[1]
                 f = open(indexpath+"index.html",'w')
                 f.write(stache.render(stache.load_template('index-template'),book).encode('utf-8'))
                 logger.info(book['book_shortname']+ " complete")

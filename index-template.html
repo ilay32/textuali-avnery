@@ -385,10 +385,14 @@
             //var book_height=Math.floor($(document).height()*0.9);
             //var book_width=Math.floor(book_height*2*1024.0/1628.0);
             var  book_height = Math.floor(($(window).height() - $('#buttons-row').height()) * 0.95),
-                im = $('<img src="jpg/{{frontjpg}}"/>').get(0),
-                openbook_ratio = (2*im.naturalWidth)/im.naturalHeight,
                 screen_ratio = $(window).width()/$(window).height(),
-                book_width;
+                book_width,
+                openbook_ratio = parseFloat({{openbook_ratio}});
+                 
+            if(typeof(openbook_ratio) != "number" || openbook_ratio == 0) {
+                im = $('<img src="jpg/{{frontjpg}}"/>').get(0);
+                openbook_ratio = (2*im.naturalWidth)/im.naturalHeight;
+            }
             
             if(Math.abs(1 - openbook_ratio/screen_ratio) > Math.abs(1 - screen_ratio/openbook_ratio)) {
                 openbook_ratio = 1/openbook_ratio;
