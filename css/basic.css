@@ -22,6 +22,8 @@ body{
     color: #ccc;
     top: 50%;
     cursor:pointer;
+    height:50px;
+    width:auto;
 }
 .largenav.flb-prev {
     right: 22%;
