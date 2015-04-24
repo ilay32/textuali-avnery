@@ -25,6 +25,7 @@
 	</head>
 
 <body>
+    
     <!--<span class="hidden flb-prev glyphicon-chevron-right glyphicon largenav"></span>
     <span class="hidden flb-next glyphicon-chevron-left largenav glyphicon"></span>-->
     <img class="hidden flb-prev largenav" src="/media/right-arrow.png" />
@@ -133,7 +134,8 @@
     <script src="{{topdir}}bootstrap/js/bootstrap.min.js" type="text/javascript"></script> 
     <script src="{{topdir}}bootstrap/js/bootstrap-modal-popover.js" type="text/javascript"></script> 
     <script type="text/javascript">
-		var first_flipto = location.href.match(/(\/#page\/)(\d*)$/);
+        var first_flipto = location.href.match(/(\/#page\/)(\d*)$/);
+        
         $(window).resize(function() {
             var rememberme = {page:  $('.flipbook').turn('page'), displaymode : $('.flipbook').data('displayMode')};
             $('.flipbook').turn('destroy');
@@ -204,7 +206,7 @@
 		}
 		
         function page_files(page) {
-			var zeros = '00', hard = false;
+			/*var zeros = '00', hard = false;
 			if(page > 9) {
 				zeros = '0';
 			}
@@ -215,11 +217,14 @@
 			if('{{hard_cover}}' == 'True' && page > {{pages}} - 2) {
 				filename = '{{bookdir}}p999'+(page == {{pages}} ? 'z' : 'y');
 				hard = true;
-			} 
+			}*/
+            var filename = {{page_list}}[page-1], 
+                hard = /[a-z]/.test(filename.slice(-1));
 			return {jpg : 'jpg/'+ filename + '.jpg', html : 'html/' + filename + '.htm', hard : hard};
 		}
 			
-		function loadPage(page, pageElement) {
+		
+        function loadPage(page, pageElement) {
 			pageElement.css('background-image','url('+page_files(page).jpg+')');			
             foundHtml = false;
 			if('{{has_texts}}' == 'True' ) {			
