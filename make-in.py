@@ -9,7 +9,6 @@ stache = pystache.Renderer(
     search_dirs='.',file_encoding='utf-8',string_encoding='utf-8',file_extension='html'
 )
 
-
 from HTMLParser import HTMLParser
 from PIL import Image
 htmlparser = HTMLParser()
@@ -18,6 +17,7 @@ def unescape(s):
 
 if __name__=='__main__':
     conf = json.load(file('config.json'))
+    execfile("../webconfig.py")
     logger.info(u"rendering front page")
     file('index.html','w').write(stache.render(stache.load_template('front-template'),conf).encode('utf-8'))
     logger.info(u"rendering book indices")
@@ -36,6 +36,8 @@ if __name__=='__main__':
             book['type'] = conf['book_types'].get(book['bookdir'][:1],"book")
             if(foundpages > 0):
                 logger.info(book['book_shortname'])
+                if (folders.has_key(authdir+'-'+book['bookdir'])):
+                    book['has_search'] = 1
                 #book['pages'] = foundpages - 2 if book['hard_cover'] else  foundpages
                 book['pages'] = foundpages
                 book['page_list']= map((lambda uri : unescape(os.path.splitext(os.path.basename(uri))[0])),jpgslist)

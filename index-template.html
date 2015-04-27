@@ -25,7 +25,6 @@
 	</head>
 
 <body>
-    
     <!--<span class="hidden flb-prev glyphicon-chevron-right glyphicon largenav"></span>
     <span class="hidden flb-next glyphicon-chevron-left largenav glyphicon"></span>-->
     <img class="hidden flb-prev largenav" src="/media/right-arrow.png" />
@@ -64,7 +63,7 @@
                         <span class="glyphicon glyphicon-list"></span>
                     </button>-->
                     {{/toc}}
-                    <button id="gotopage-trigger" type="button" class="btn btn-default">
+                    <button id="gotopage-trigger" type="button" data-popper="#gotopage-popover" class="btn btn-default">
                         <span class="caret"></span> :go to
                     </button>
                     <button title="previous page" type="button" class="btn btn-default flb-prev" >
@@ -83,9 +82,11 @@
                     </button>        
                 </div>
                 <div class="btn-group btn-group-xs">
-                    <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown">
+                    {{#has_search}}
+                    <button type="button" id="search-trigger" class="btn btn-default" data-popper="#search-popover">
                         <span class="glyphicon glyphicon-search"></span>
                     </button>
+                    {{/has_search}}
                     <button title="previous menu" type="button" class="btn btn-default" id="flb-prev">
                         previous menu?
                     </button>   
@@ -117,13 +118,23 @@
         </div><!-- .row -->
     </div><!-- .container -->
 
-    <div id="gotopage-popover" class="popover">
+    <div id="gotopage-popover" data-trigger="#gotopage-trigger" class="popover">
         <form id="gotopage-form" class="form-inline">
             <input type="text" maxlength="5" class="form-control" placeholder="#page"/>
             <button type="submit" class="btn btn-primary" >go</button>
         </form>
-         <div id="error-message">please enter only numbers between 1 and {{pages}}</div>
+         <div class="error-message hide">please enter only numbers between 1 and {{pages}}</div>
     </div>
+    {{#has_search}}
+    <div id="search-popover" data-trigger="#search-trigger" class="popover">
+        <form id="search-form" class="form-inline">
+            <input type="text" name="q" maxlength="20" class="form-control" placeholder="חפש"/>
+            <button type="submit" class="btn btn-primary" >חפש</button>
+        </form>
+        <div id="search-results" class="fade open"></div>
+        <div class="error-message hide"></div>
+    </div>
+    {{/has_search}}
     <!-- Bootstrap core JavaScript
     ================================================== -->
     <!-- Placed at the end of the document so the pages load faster -->
@@ -135,7 +146,9 @@
     <script src="{{topdir}}bootstrap/js/bootstrap-modal-popover.js" type="text/javascript"></script> 
     <script type="text/javascript">
         var first_flipto = location.href.match(/(\/#page\/)(\d*)$/);
-        
+        $('.page_end').click(function(c) {
+            c.preventDefault();
+        }); 
         $(window).resize(function() {
             var rememberme = {page:  $('.flipbook').turn('page'), displaymode : $('.flipbook').data('displayMode')};
             $('.flipbook').turn('destroy');
@@ -162,13 +175,15 @@
             }
         });
         
-        $('#gotopage-trigger').click(function() {
-            $('#gotopage-popover').modalPopover('toggle');
+        $('[data-popper]').click(function() {
+            $($(this).data('popper')).modalPopover('toggle');
         });
         
-        $('#gotopage-popover').modalPopover({
-            target: '#gotopage-trigger',
-            placement: 'bottom'
+        $('.popover').each(function() {
+            $(this).modalPopover({
+                target: $(this).data('trigger'),
+                placement: 'bottom'
+            });
         });
         
         $('#gotopage-form').submit(function() {
@@ -177,12 +192,34 @@
                 $('.flipbook').turn('page',v);
             }
             else {
-                $(this).siblings('#error-message').fadeIn(300).delay(4000).fadeOut(300);
+                $(this).siblings('.error-message').fadeIn(300).delay(4000).fadeOut(300);
             }
             return false;
-            
         });
-
+        
+        
+        $('#search-form').submit(function() {
+            $('#search-results').removeClass('in');
+            var query = $(this).serialize();
+            $.ajax({
+                url: 'http://textuali.com/search/websearch.py/?pretty=1&f={{authdir}}-{{bookdir}}&'+query,
+                DataType: 'json'
+            }).done(function(results) {
+                $('#search-results').html(process_search_results(results)).addClass('in');
+            }).fail(function(err) {
+               $(this).siblings('.error-message').fadeIn(300).delay(4000).fadeOut(300);
+           });
+           return false; 
+        });
+        
+        function filename2pagenum(filename) {
+            var ans="";
+            var n = filename.match(/\d+p0*([1-9]\d*)$/);
+            if(n != null && n.length > 1) {
+                ans= n[1];
+            }
+            return ans;
+        } 
         function get_toc(pagenum) {
             $.ajax({url: page_files(pagenum).html}).done(function(pageHtml) {
                 var toc_list = $('<ul class="toc-list dropdown-menu"/>');
@@ -192,13 +229,42 @@
                 $('#totoc').after(toc_list);
             });
         }
-    
+        function process_search_results(results) {
+            var htm = '<h5>תוצאות חיפוש עבור "'+results.q+'"</h5>';
+            if(results.status == 'success') {
+                if(results.matches.length > 0) {
+                    htm += '<ul class="toc-list">';
+                    var m = results.matches;
+                    for(var res in m) {
+                        htm += '<li><span class="search-results-pagenum">עמ\' ' + filename2pagenum(m[res].id)+'</span>';
+                        htm += '<a class="toc-link search-result" href="#page/'+($.inArray(m[res].id,{{page_list}}) + 1);
+                        htm += '?q='+results.q+'">'+m[res].match+'</a></li>';
+                    }
+                    htm += '</ul>';
+                }
+                else {
+                    htm = 'sorry, no matches found';
+                } 
+           }
+           else if(results.status == 'fail') {
+               htm = results.error;
+           }
+           else {
+               htm = 'unknown error';
+           }
+           return htm;
+        } 
+        
         $('body').mousedown(function(c) {
             if($(this).hasClass('modal-open')) {
-                var exclude = $('#gotopage-trigger').add($('#gotopage-popover').find('*').andSelf());
-                if(!exclude.is(c.target)) {
+                var exclude1 = $('#gotopage-trigger').add($('#gotopage-popover').find('*').andSelf());
+                var exclude2 = $('#search-trigger').add($('#search-popover').find('*').andSelf());
+                if(!exclude1.is(c.target)) {
                     $('#gotopage-popover').modalPopover('hide');
                 }
+                if(!exclude2.is(c.target)) {
+                    $('#search-popover').modalPopover('hide');
+               }
             }
        }); 
         if('{{language}}' == 'he') {
@@ -259,7 +325,19 @@
 				loadPage(page, pageElement);
 			}
 		}
-        
+        function highlight_search(page,query) {
+            var target = $('.p'+page).find('.page-html');
+            if(target.length > 0) {
+                var rawhtml = target.html();
+                var newhtml = rawhtml.replace(query,'<strong class="in-page-highlight whole">'+query+'</strong>');
+                var sq = query.split(" ");
+                for(w in sq) {
+                    newhtml = newhtml.replace(sq[w], '<strong class="in-page-highlight">'+sq[w]+'</strong>');
+                }
+                target.html(newhtml);
+            }
+            return 1;
+        } 
 		$('.flipbook').data('displayMode', 'scan');
         $('#enlarge').click(function() {
             if($(this).hasClass('btn-danger')) {
@@ -323,19 +401,22 @@
         });
         
         $('.mode-toggle').click(function() {
+            $('.mode-toggle').removeClass('on');
             var d=$('.flipbook').data();
             if(this.id == 'showhtmls' && d.displayMode == 'scan')  {
                 d.displayMode = 'html';
+                $('#showhtmls').addClass('on');
            }
            else if(this.id == 'showscans' && d.displayMode == 'html') {
                 d.displayMode = 'scan';
+                $('#showscans').addClass('on');
            }
            toggleHtml($('.flipbook').turn('view'));
         });
         
         {{#toc}}
         $('#totoc').click(function() {
-            if(!$(this).hasClass('jpg-toc')) {  
+            if(!$(this).hasClass('jpg-toe')) {  
                 $('.flipbook').turn('page',{{toc}});
             }
         });
@@ -356,9 +437,17 @@
                     return $(this).html() != "";
                 });
                 tar.each(function() {
-                    $(this).closest('.page').css('overflow-y','auto');
+                    $(this).closest('.page').css({'overflow-y': 'auto', 'background-size': '0 0'});
+                    $(this).removeClass('hidden');
+                    var l = $(this).find('.pagelive').height() + 20,
+                        t = $(this).height(),
+                        p = $(this).closest('.page').height(),
+                        h = Math.max(t,p,l);
                     //$(this).removeClass('hidden').find('iframe').css('height',($(this).closest('.page-wrapper').height()-80)+'px');
-                    $(this).removeClass('hidden').height(Math.max($(this).height(),$(this).find('.pagelive').height() + 20)); 
+                    $(this).height(h); 
+                    if(l < h) {
+                        $(this).find('.pagelive').height(h);
+                    }
                 });
             }
             $('#totoc').attr('data-toggle', '').removeClass('jpg-toc');
@@ -366,7 +455,10 @@
         
         function hide_html(pages) {
             for (i in pages) {
-                find_html_div(pages[i]).add('.page-html').addClass('hidden').closest('.page').css('overflow-y','hidden');
+                find_html_div(pages[i]).add('.page-html').addClass('hidden').closest('.page').css({
+                    'overflow-y' : 'hidden',
+                    'background-size' : '100% 100%'
+                });
             }
 
             $('#totoc').attr('data-toggle', 'dropdown').addClass('jpg-toc');
@@ -430,6 +522,13 @@
                 when: {
                     'turned': function(event, page, pages) {
                         if(Hash.fragment() != "" || page > 2 ) {
+                            var searchq = Hash.fragment().match(/\?q=(.*)$/);
+                            if(searchq != null && searchq.length == 2) {
+                                show_html(pages);
+                                for(var p in pages) {
+                                    highlight_search(pages[p],decodeURIComponent(searchq[1])),$('.p'+page);
+                                }
+                            }
                             Hash.go('page/'+page);
                         } 
                         //$(this).unbind('mousedown');
@@ -450,7 +549,7 @@
 						}					
 					},
                     'turning' : function(event, page, view) {
-                        $('#gotopage-popover').modalPopover('hide');
+                        $('.popover').modalPopover('hide');
                     }
                 }                 
             });
@@ -462,7 +561,7 @@
             }*/
             
             // URIs
-            Hash.on('^page\/([0-9]*)$', {
+            Hash.on('^page\/([0-9]*)\/\?(.*)$', {
                 yep: function(path, parts) {
                     var page = parts[1];
                     if (page!==undefined) {

@@ -31,6 +31,9 @@ body{
 .largenav.flb-next{
     left:22%;
 }
+.mode-toggle.on {
+    background-color:lightcyan;
+}
 /*@media (min-width: 1850px) {
     .textuali-container {
         width: 1400px;
@@ -132,7 +135,7 @@ body{
 .page-html iframe {
     width:100%;
     border:none;
-    background:white
+    background:white;
 }
 .page.odd { 
     text-align:right
@@ -140,15 +143,25 @@ body{
 .page.even {
      text-align:left
  }
-
-
+.page_end {
+    position: absolute;
+    bottom: -10px;
+ }
+.page.odd .page_end {
+    left: 5px;
+}
+.page.even .page_end{
+    right: 5px;
+}
 div.pagelive {
-	text-align:justify;
+    text-align:justify;
 	font-family:"Times New Roman";
 	margin: 0 3%;
-	font-size: 0.95em; 
+    color:#101010;
+	font-size: 1.05em; 
 	line-height: 1.0em;
 	background: none transparent;
+    position:relative;
 }
 .pagelive.toclive {
     line-height: 90%;
@@ -168,6 +181,23 @@ a.toc-link, a.toc-link:visited {
 	width:100%;
 	height:100%;
 }
+#search-form input {
+    width:calc(100% - 60px);
+}
+#search-form button {
+    width: 50px;
+} 
+#search-results .toc-list {
+    padding-right:0;
+}
+#search-results .toc-list > li >a:hover {
+    background-color:#F5F5F5;
+}
+.search-results-pagenum {
+    display:block;
+    text-decoration:underline;
+}
+
 .page.odd .spine-gradient, .page.odd .page-html{
 	/*background:-webkit-gradient(linear, left top, right top, colorstop(0%, 255,255,255,0), colorstop(94%, 255,255,255,0.25), color-stop(0.95, rgba(255,255,255,0.5)), color-stop(1, rgba(218,218,218,1)));
 	background-image:-webkit-linear-gradient(left, rgba(255,255,255,0) 0%, rgba(255,255,255,0.25) 94%, rgba(255,255,255,0.5) 95%, rgba(218,218,218,1) 100%);
@@ -218,11 +248,25 @@ a.toc-link, a.toc-link:visited {
 .page.even .page-html, .page.odd .page-html {
     background-color:white;
 }
-#gotopage-popover {
-    direction:ltr;
+.popover#search-popover {
+    max-width: 500px;
+    text-align:right;
+    padding: 10px;
 }
-#gotopage-popover #error-message {
-   display:none;
+.in-page-highlight {
+    font-size: 16px;
+    color: white;
+    background-color:darkred;
+}
+.in-page-highlight.whole{
+    background-color:darkblue;
+}
+.in-page-highlight.whole .in-page-highlight {
+    background-color:inherit;
+}
+
+#gotopage-popover{
+    direction:ltr;
 }
 #gotopage-form input[type="text"] {
     width: 70px;
