@@ -13,7 +13,7 @@ body{
 
 }
 #buttons-row {
-    margin-bottom: 25px;
+    margin-bottom: 15px;
 }
 
 .largenav {
@@ -77,8 +77,8 @@ body{
 	width:922px;
 	height:600px;
     left: -20px;
-    top:-20px;
-/*	left:-461px;
+    /*top:-20px;
+	left:-461px;
 	top:-300px;*/
 }
 
@@ -158,8 +158,8 @@ div.pagelive {
 	font-family:"Times New Roman";
 	margin: 0 3%;
     color:#101010;
-	font-size: 1.05em; 
-	line-height: 1.0em;
+	font-size: 1.2em; 
+	line-height: 1.3em;
 	background: none transparent;
     position:relative;
 }
