@@ -27,7 +27,8 @@ if __name__=='__main__':
         authbooks = authorblock['books']		
         authnicename = authorblock['nicename'];
         for book in authbooks:
-            indexpath = conf['front']['textsdir']+"/"+authdir+"/"+book['bookdir']+"/"
+            book['textsdir'] = conf['front']['textsdir']
+            indexpath = book['textsdir']+"/"+authdir+"/"+book['bookdir']+"/"
             book['topdir'] = conf['front']['domain']
             book['coddir'] = book['topdir'] + conf['front']['coddir']
             book['authnice'] = authnicename
@@ -36,6 +37,10 @@ if __name__=='__main__':
             book['type'] = conf['book_types'].get(book['bookdir'][:1],"book")
             if(foundpages > 0):
                 logger.info(book['book_shortname'])
+                if(os.path.isfile(book['textsdir']+"/"+authdir+"/authorstyle.css")):
+                    book['has_author_css'] = 1
+                if(os.path.isfile(indexpath+"bookstyle.css")):
+                    book['has_book_css'] = 1
                 if (folders.has_key(authdir+'-'+book['bookdir'])):
                     book['has_search'] = 1
                 #book['pages'] = foundpages - 2 if book['hard_cover'] else  foundpages
@@ -52,6 +57,6 @@ if __name__=='__main__':
             else:
                 logger.info(book['book_shortname'] + " couldn't find pages")
         
-        logger.info(authdir + "book indices complete")
+        logger.info(authdir + " book indices complete")
 
 
