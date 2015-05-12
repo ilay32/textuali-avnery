@@ -4,6 +4,7 @@ body{
 	margin:0;
     background-color:transparent;
     overflow:hidden;
+    height:100%;
 }
 .textuali-container {
     margin: 0 auto;
@@ -14,6 +15,8 @@ body{
 }
 #buttons-row {
     margin-bottom: 15px;
+    position:relative;
+    z-index:5;
 }
 
 .largenav {

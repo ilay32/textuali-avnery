@@ -139,6 +139,7 @@
     ================================================== -->
     <!-- Placed at the end of the document so the pages load faster -->
     <script src="{{topdir}}vendor/jquery-1.11.1.min.js" type="text/javascript"></script>
+    <script src="{{topdir}}vendor/jquery-ui.min.js" type="text/javascript"></script>
     <!-- IE10 viewport hack for Surface/desktop Windows 8 bug -->
     <script src="{{topdir}}vendor/ie10-viewport-bug-workaround.js" type="text/javascript"></script>
     <script src="{{topdir}}vendor/turnjs4/extras/modernizr.2.5.3.min.js" type="text/javascript"></script>
@@ -339,58 +340,26 @@
             return 1;
         } 
 		$('.flipbook').data('displayMode', 'scan');
+        
         $('#enlarge').click(function() {
             if($(this).hasClass('btn-danger')) {
                 $(this).removeClass('btn-danger');
-                $('.flipbook').turn('zoom', 1).animate({left: '-20px', top: '-20px'},500).turn('disable',false);
+                $('.flipbook').turn('zoom', 1).animate({left: '-20px', top: '0'},500).turn('disable',false).draggable("destroy");
                 $('.textuali-container').width($('.flipbook').width() + 20);
             }
             else {
                 $(this).addClass('btn-danger');
-                $('.flipbook').turn('disable',true);
-            }
-            /*var z = $('.flipbook').turn('zoom'),
-                w = $('.textuali-container').width();
-            if(z > 1) {
-                $('.flipbook').turn('zoom', 1);
-                $(this).find('span').removeClass('glyphicon-resize-small').addClass('glyphicon-resize-full');
-                $(this).attr('title', 'zoom in');
-                $('.textuali-container').width(w/1.5);
-            }
-            else {
-                $('.flipbook').turn('zoom', 1.5);
-                $(this).find('span').removeClass('glyphicon-resize-full').addClass('glyphicon-resize-small');
-                $(this).attr('title', 'zoom out');
-                $('.textuali-container').width(Math.ceil(w*1.5));
-            }*/
-        });
-        $('.flipbook').click(function(c) {
-            var dist_from_center = c.pageX - $('.flipbook').offset().left - $('.flipbook').width()/2;
-            var dist_from_middle = c.pageY - $('.flipbook').offset().top - $('.flipbook').height()/2;
-            if($('#enlarge').hasClass('btn-danger')) {
-                var z = $('.flipbook').turn('zoom');
-                if(z > 1) {
-                    $('.flipbook').turn('zoom', 1).animate({left: '-20px', top: '-20px'},500).turn('disable',false);
-                    $('.textuali-container').width($('.flipbook').width() + 20);
-                    $('#enlarge').removeClass('btn-danger');
-                }
-                else {
-                    $('.textuali-container').width($(this).width()*2 + 40);
-                    $('.flipbook').turn('zoom', 2).animate({left : -2* dist_from_center+'px', top : -2 * dist_from_middle +'px'});
-                }
+                //var dist_from_center = c.pageX - $('.flipbook').offset().left - $('.flipbook').width()/2;
+                //var dist_from_middle = c.pageY - $('.flipbook').offset().top - $('.flipbook').height()/2;
+                
+                var dist_from_center = $('.flipbook').offset().left - $('.flipbook').width()/2;
+                var dist_from_middle = $('.flipbook').offset().top - $('.flipbook').height()/2;
+                
+                //$('.textuali-container').width($(this).width()*2 + 40);
+                $('.flipbook').turn('zoom', 2);//.animate({left : -2* dist_from_center+'px', top : -2 * dist_from_middle +'px'});
+                $('.flipbook').turn('disable',true).draggable();
             }
         });
-
-        /*$('.flipbook').mouseover(function(e) {
-            var dist_from_center = e.pageX - $('.flipbook').offset().left - $('.flipbook').width()/2;
-            var dist_from_top = e.pageY - $('.flipbook').offset().top;
-            var dist_from_bottom = $('.flipbook').height() - dist_from_top;
-            if(Math.abs(dist_from_center)/$('.flipbook').width() > 0.45 && dist_from_top > 100 && dist_from_bottom > 100 && $('.flipbook').data().displayMode == 'scan') {
-                $('.flipbook').turn("peel", dist_from_center > 0 ? 'tr' : 'tl').bind('mousedown', function() {
-                    $(this).turn(dist_from_center > 0 ? 'previous' : 'next');
-                });
-            }
-        });*/
         
         $('.flb-next').click(function() {
             $('.flipbook').turn('next');
