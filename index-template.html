@@ -78,9 +78,11 @@
                     </button>
                 </div>
                 <div class="btn-group btn-group-xs">
+                    {{#pdf_downloads}}
                     <button title="download pdf" href="{{book_shortname}}.pdf" type="button" class="btn btn-default" id="download-pdf">
                         <span class="glyphicon glyphicon-download-alt"></span>
                     </button>
+                    {{/pdf_downloads}}
                     <button title="tag cloud" type="button" class="btn btn-default" id="tag-cloud">
                         <span class="glyphicon glyphicon-cloud"></span>
                     </button>
@@ -94,9 +96,9 @@
                         <span class="glyphicon glyphicon-search"></span>
                     </button>
                     {{/has_search}}
-                    <button title="previous menu" type="button" class="btn btn-default" id="flb-prev">
+                    <!--<button title="previous menu" type="button" class="btn btn-default" id="flb-prev">
                         previous menu?
-                    </button>   
+                    </button>-->   
                     <div class="dropdown-menu">
                         <input type="text" class="form-control" placeholder="search">
                     </div>

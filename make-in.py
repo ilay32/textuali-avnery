@@ -25,8 +25,10 @@ if __name__=='__main__':
     for authorblock in conf['authors']:
         authdir = authorblock['dir']
         authbooks = authorblock['books']		
-        authnicename = authorblock['nicename'];
+        pdfs = authorblock['pdf_downloads']
+        authnicename = authorblock['nicename']
         for book in authbooks:
+            book['pdf_downloads'] = pdfs
             book['textsdir'] = conf['front']['textsdir']
             indexpath = book['textsdir']+"/"+authdir+"/"+book['bookdir']+"/"
             book['topdir'] = conf['front']['domain']
