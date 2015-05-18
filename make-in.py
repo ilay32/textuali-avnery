@@ -5,10 +5,12 @@ logging.basicConfig(level=logging.DEBUG)
 logger=logging.getLogger('make-in')
 
 import pystache
-stache = pystache.Renderer(
+stache_htm = pystache.Renderer(
     search_dirs='.',file_encoding='utf-8',string_encoding='utf-8',file_extension='html'
 )
-
+stache_js = pystache.Renderer(
+    search_dirs='.',file_encoding='utf-8',string_encoding='utf-8',file_extension='js'
+)
 from HTMLParser import HTMLParser
 from PIL import Image
 htmlparser = HTMLParser()
@@ -19,7 +21,7 @@ if __name__=='__main__':
     conf = json.load(file('config.json'))
     execfile("../webconfig.py")
     logger.info(u"rendering front page")
-    file('index.html','w').write(stache.render(stache.load_template('front-template'),conf).encode('utf-8'))
+    file('index.html','w').write(stache_htm.render(stache_htm.load_template('front-template'),conf).encode('utf-8'))
     logger.info(u"rendering book indices")
     #book_type_pattern = re.compile('"^([a-zA-Z])(\d)$"')
     for authorblock in conf['authors']:
@@ -53,8 +55,10 @@ if __name__=='__main__':
                 frontjpg = Image.open(jpgslist[0])
                 fsize = frontjpg.size
                 book['openbook_ratio'] = float(2*fsize[0])/fsize[1]
-                f = open(indexpath+"index.html",'w')
-                f.write(stache.render(stache.load_template('index-template'),book).encode('utf-8'))
+                ind = open(indexpath+"index.html",'w')
+                ind.write(stache_htm.render(stache_htm.load_template('index-template'),book).encode('utf-8'))
+                sc = open(indexpath+"bookscript.js", 'w')
+                sc.write(stache_js.render(stache_js.load_template('bookscript-template'),book).encode('utf-8'))
                 logger.info(book['book_shortname']+ " complete")
             else:
                 logger.info(book['book_shortname'] + " couldn't find pages")
