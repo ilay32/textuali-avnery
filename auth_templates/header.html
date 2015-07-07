@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<!--[if lt IE 7 ]> <html lang="he" class="ie6"> <![endif]-->
+<!--[if IE 7 ]>    <html lang="he" class="ie7"> <![endif]-->
+<!--[if IE 8 ]>    <html lang="he" class="ie8"> <![endif]-->
+<!--[if IE 9 ]>    <html lang="he" class="ie9"> <![endif]-->
+<!--[if !IE]><!-->
+<html lang="he">
+<!--<![endif]-->
+<head>
+	<meta name="robots" content="noindex, nofollow">
+	<meta name="generator" content="HTML Tidy for Linux (vers 25 March 2009), see www.w3.org">
+	<meta charset="utf-8">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge">
+	<meta name="viewport" content="width = 1050, user-scalable = no">
+	<title>{{string_translations.title}}</title>
+	<link href="{{front.domain}}/bootstrap/css/bootstrap.min.css" rel="stylesheet" type="text/css">
+	<link href="../css/style-{{dir}}.css" rel="stylesheet" type="text/css">
+    {{#cssoverride}}
+	<link href="../css/local-override.css" rel="stylesheet" type="text/css">
+    {{/cssoverride}}
+
+
+</head>
+
+<body class="{{dir}}">
+    <header class="container">
+        <div class="row">
+            <nav id="primary-navigation" class="col-sm-4">
+                <ul class="nav nav-pills nav-justified">
+                    {{#menu_items}}
+                     <li>
+                        <a href="{{item}}.html">
+                            {{label}}
+                        </a>
+                     </li>
+                    {{/menu_items}}
+                </ul>
+            </nav>
+            <nav id="logos" class="col-sm-4">
+                <a href="{{baseurl}}/he" >
+                    <img src="img/logo-heb.png" alt="{{auth_name_he}}"/>
+                </a>
+                <span>|</span>
+                <a href="{{baseurl}}/en">
+                    <img src="img/logo-en.png" alt="{{auth_name_en}}" />
+                </a>
+            </nav>
+            <div class="col-sm-4">
+                <nav id="social" class="col-sm-6">
+                    <ul class="nav nav-pills nav-justified">
+                        {{#socials}}
+                        <li>
+                            <a title={{label}} href="{{url}}"><img src="{{baseurl}}/img/{{icon}}"/></a>
+                        </li>
+                        {{/socials}}
+                    </ul>
+                </nav>
+                <div id="search" class="col-sm-6">
+                    <form id="searchform" class="form-inline">
+                        <input type="text" maxlneght="50" placeholder="{{string_translations.search}}" />
+                        <button type="submit">{{string_translations.search}}</button> 
+                    </form> 
+                </div>
+            </div>
+        </div>
+    </header>
+    
+    <main class="container" id="content">
+        <div class="row">
+

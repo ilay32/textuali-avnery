@@ -1,0 +1,28 @@
+body {
+    direction: {{dir}};
+}
+
+/** header **/
+header {
+    border-bottom: 2px solid {{textcolor}};
+}
+header nav ul {
+    list-style: none;
+    padding-{{side}}:0;
+}
+#logos {
+    text-align:center;
+}
+
+
+/** bootstrap overrides **/
+.container {
+    width: 100%;
+}
+
+[class*="col"] {
+    float:{{side}};
+}
+
+
+

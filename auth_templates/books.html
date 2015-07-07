@@ -1,0 +1,13 @@
+<h1>{{string_translations.books_by}} {{string_translations.author}}</h1>
+    <ul>
+        {{#author_books}}
+            {{#books}}
+            <li>
+                <a href="{{front.domain}}/{{front.textsdir}}/{{author_books.dir}}/{{bookdir}}">{{book_nicename}}</a>
+            </li>
+            {{/books}}
+        {{/author_books}}
+    </ul>
+</div><!-- row -->
+</main>
+</body>
