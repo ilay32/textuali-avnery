@@ -1,10 +1,10 @@
 
 
-import csv,json,urllib2,re,logging,sys,os,glob,jsonmerge,gettext
+import csv,json,jsoncomment,urllib2,re,logging,sys,os,glob,jsonmerge,gettext
 
 logging.basicConfig(level=logging.DEBUG) 
 logger=logging.getLogger('make-auth')
-
+jc = jsoncomment.JsonComment(json)
 import pystache
 stache = pystache.Renderer(
     search_dirs='auth_templates',file_encoding='utf-8',string_encoding='utf-8',file_extension=False
@@ -25,7 +25,7 @@ class AuthorSiteGenerator:
         self.indexpath = ""
         self.siteconfig = None
         self.authorblock = None
-        self.conf = json.load(file('config.json'))
+        self.conf = jc.load(file('config.json'))
         self.auth = auth
         self.found = self.search_auth()
         self.langs = {
@@ -50,9 +50,9 @@ class AuthorSiteGenerator:
             if(d == authdir):
                 self.authorblock = authorblock
                 self.indexpath = self.conf['front']['textsdir']+"/"+authdir+"/site"
-                self.siteconfig = json.load(file(self.indexpath+"/siteconfig.json"))
+                self.siteconfig = jc.load(file(self.indexpath+"/siteconfig.json"))
                 return True
-    
+         
     def good_to_go(self):
         if(self.found):
             logger.info("good to go")
@@ -66,12 +66,18 @@ class AuthorSiteGenerator:
         templatedata=self.get_globals(lang)
         menu_items = []
         for menu_item in self.siteconfig['menu'][lang]:
-            menu_items.append(                
+            try :
+                it = self.siteconfig['pages'][menu_item]
+                menu_items.append(                
                 {
                     "item":menu_item,
-                    "label": self.siteconfig[menu_item]['label'][lang]
+                    "label": it['label'][lang],
+                    "title" : it['mouseover'][lang]
                 }
              )
+            except:
+                logger.error(menu_item+" not configured in 'pages' block")
+            
         socials =[]
         for social in self.siteconfig['socials'] :
             socials.append(jsonmerge.merge(social,{"label":social['label'][lang]}))
@@ -80,34 +86,47 @@ class AuthorSiteGenerator:
         templatedata['cssoverride']=os.path.exists(self.indexpath+"/css/local-override.css") 
         return stache.render(stache.load_template('header.html'),templatedata).encode('utf-8')
     
+    def render_footer(self,lang):
+        templatedata=self.get_globals(lang)
+        return stache.render(stache.load_template('footer.html'),templatedata).encode('utf-8') 
      
     def render_body(self,page,lang):
         block = self.get_globals(lang)
-        if page in self.body_blocks:
-            block = jsonmerge.merge(block,self.body_blocks[page]())
-            #logger.info(block)
-            #quit()
-        contentfile = self.indexpath+"/"+lang+"/"+page+".txt"
-        if(os.path.exists(contentfile)):
-            content = open(contentfile).read() 
-            block['content'] = content
-        else:
-            logger.info(u'could not find '+contentfile) 
-        return  stache.render(stache.load_template(page+".html"),block).encode('utf-8')
+        template = self.siteconfig['pages'][page]['template']
+        contf= self.indexpath+"/"+lang+"/"+page+"-maintext.txt"
+        statf = self.indexpath+"/"+lang+"/"+page+"-static.html"
+        if template in self.body_blocks:
+            block = jsonmerge.merge(block,self.body_blocks[template]())
+        if template == "static":
+            if(os.path.exists(statf)):
+                logger.info(u'loading '+page+' static html')
+                stat = open(statf).read() 
+                return stat  
+            else:
+                logger.error(page+" ("+lang+") "+"has template 'static' but no " + page + "-static.html found in ...site/"+lang)
+                return
+        elif os.path.exists(contf):
+            logger.info(u'loading '+ page+ '.txt into template')
+            cont = open(contf).read()
+            block['content'] = cont
+        return  stache.render(stache.load_template(template+".html"),block).encode('utf-8')
    
-    def render_page(self,page,lang,header):
+    def render_page(self,page,lang,header,footer):
         body = self.render_body(page,lang)
         dir = self.indexpath+"/"+lang
-        #render hrebew home as index
+        #home as index
         if(page == 'home'):
             page = 'index'
         if not os.path.exists(dir):
             os.makedirs(dir)
-        htmlfile = open(dir+"/"+page+".html",'w')
-        htmlfile.write(header+body)
-        htmlfile.close()
-        logger.info(page+ u' done')
-    
+        try:
+            htmlfile = open(dir+"/"+page+".html",'w')
+            htmlfile.write(header+body+footer)
+            htmlfile.close()
+            logger.info(page+ u' done')
+        except Exception as e:
+            logger.error(e)
+             
     def get_globals(self,lang):
         g={"baseurl": self.siteconfig['baseurl']}
         string_translations = {}
@@ -161,9 +180,10 @@ class AuthorSiteGenerator:
         self.render_styles()
         for lang,men in self.siteconfig['menu'].iteritems():
             header = self.render_header(lang)
-            self.render_page('home',lang,header)
+            footer = self.render_footer(lang)
+            self.render_page('home',lang,header,footer)
             for page in men:
-                self.render_page(page,lang,header)
+                self.render_page(page,lang,header,footer)
         logger.info(authdir+" site done")
 
 

@@ -1,13 +1,26 @@
-<h1>{{string_translations.books_by}} {{string_translations.author}}</h1>
-    <ul>
+<div class="row">
+    <div class="col-sm-12">
+        <h1>{{string_translations.books_by}} {{string_translations.author}}</h1>
+    </div>
+</div>
+{{#content}}
+<div class="row">
+    <div class="col-sm-12">
+        {{content}}
+    </div>
+</div>
+{{/content}}
+
+<div class="row">
+    <div class="col-sm-12">
+        <ul>
         {{#author_books}}
             {{#books}}
             <li>
-                <a href="{{front.domain}}/{{front.textsdir}}/{{author_books.dir}}/{{bookdir}}">{{book_nicename}}</a>
+                <a class="flip-modal-trigger" href="{{front.domain}}/{{front.textsdir}}/{{author_books.dir}}/{{bookdir}}">{{book_nicename}}</a>
             </li>
             {{/books}}
         {{/author_books}}
-    </ul>
-</div><!-- row -->
-</main>
-</body>
+        </ul>
+    </div>
+</div>
