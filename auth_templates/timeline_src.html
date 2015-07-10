@@ -1,0 +1,49 @@
+
+<!DOCTYPE html>
+<html lang="{{lang}}">
+  <head>
+    <title>TimelineJS</title>
+    <meta charset="utf-8">
+    <meta name="description" content="TimelineJS Embed">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-touch-fullscreen" content="yes">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+    <!-- CSS-->
+    <!-- Style-->
+    <link rel="stylesheet" href="{{src}}/css/{{skin}}.css">
+    <style>
+      html, body {
+      	height:100%;
+      	width:100%;
+      	padding: 0px;
+      	margin: 0px;
+      }
+      .vco-timeline {
+        height: 500px;	
+      }
+      .vco-timeline h2 { font-size:1.3em }
+      .vco-text,.vco-caption {
+            direction:rtl;
+            text-align:right !important;
+       }
+      
+    </style>
+    <!-- HTML5 shim, for IE6-8 support of HTML elements-->
+    <!--if lt IE 9
+    script(src='http://html5shim.googlecode.com/svn/trunk/html5.js')
+    -->
+  </head>
+  <body>
+    <div id="timeline"></div>
+    <!-- JavaScript-->
+    <script src="{{src}}/js/timeline.js"></script>
+    <script>
+      var timeline = new VCO.Timeline('timeline', '{{src}}/{{tlconfig}}.json', {
+      	theme_color: "{{theme_color}}"
+      });
+      window.onresize = function(event) {
+      	timeline.updateDisplay();
+      }
+    </script>
+  </body>
+</html>

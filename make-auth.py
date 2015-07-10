@@ -41,8 +41,25 @@ class AuthorSiteGenerator:
         } 
     
     
-    def books_template_data(self):
+    def books_template_data(self,lang):
         return {"author_books": self.authorblock}
+    
+    def timeline_template_data(self,lang):
+        src = self.conf['front']['domain']+"/timeline"
+        vars = {}
+        defaults = {"src": src, "theme_color" : "#288EC3", "auth":self.auth}
+        varsf = self.indexpath+"/"+lang+"/timeline.json"
+        if os.path.exists(varsf) :
+            vars = jc.load(file(varsf))
+        elif lang != "he":
+            try:
+                vars = jc.load(self.indexpath+"/he/"+page+".json")
+                logger.info("timline - "+lang+" using defaults found in the hebrew directory")
+            except:
+                logger.info("no timeline configuration, using general defaults")
+
+        return jsonmerge.merge(defaults,vars)
+          
 
     def search_auth(self):
         for authorblock in self.conf['authors']:
@@ -70,7 +87,7 @@ class AuthorSiteGenerator:
                 it = self.siteconfig['pages'][menu_item]
                 menu_items.append(                
                 {
-                    "item":menu_item,
+                    "file": 'index' if menu_item == 'home' else menu_item,
                     "label": it['label'][lang],
                     "title" : it['mouseover'][lang]
                 }
@@ -95,11 +112,12 @@ class AuthorSiteGenerator:
         template = self.siteconfig['pages'][page]['template']
         contf= self.indexpath+"/"+lang+"/"+page+"-maintext.txt"
         statf = self.indexpath+"/"+lang+"/"+page+"-static.html"
+        tempf = "auth_templates/"+template+".html"
         if template in self.body_blocks:
-            block = jsonmerge.merge(block,self.body_blocks[template]())
+            block = jsonmerge.merge(block,self.body_blocks[template](lang))
         if template == "static":
             if(os.path.exists(statf)):
-                logger.info(u'loading '+page+' static html')
+                logger.info(u'loading '+lang+'/'+page+' static html')
                 stat = open(statf).read() 
                 return stat  
             else:
@@ -109,8 +127,39 @@ class AuthorSiteGenerator:
             logger.info(u'loading '+ page+ '.txt into template')
             cont = open(contf).read()
             block['content'] = cont
+        if not os.path.exists(tempf):
+            logger.error("can't find template '"+template+"'")
+            return
+        if template == 'timeline':
+            self.render_timeline_src(lang)
         return  stache.render(stache.load_template(template+".html"),block).encode('utf-8')
-   
+    
+    def render_timeline_src(self,lang):
+        tfilepath = "../timeline/"+self.auth+"_"+lang+".html"
+        block = self.get_globals(lang)
+        vars = {}
+        defaults = {"theme_color" : "#288EC3",  "skin":"timeline.dark", "tlconfig" : self.auth, "src" : self.conf['front']['domain']+"/timeline" }
+        varsf = self.indexpath+"/"+lang+"/timeline_src_params.json"
+        if os.path.exists(varsf) :
+            vars = jc.load(file(varsf))
+        elif lang != "he":
+            try:
+                vars = jc.load(self.indexpath+"/he/timeline_src_params.json")
+                logger.info("timline - "+lang+" using defaults found in the hebrew directory")
+            except:
+                logger.info("no timeline configuration, using general defaults")
+        #if not os.path.exists(dir):
+        #    os.makedirs(dir)
+        vars = jsonmerge.merge(defaults,vars)
+        try:
+            block = jsonmerge.merge(block,vars)
+            tfile = open(tfilepath,"w")
+            tfile.write(stache.render(stache.load_template("timeline_src.html"),block))
+            tfile.close()
+            logger.info("source written at "+tfilepath)
+        except Exception as e:
+            logger.error(e)
+         
     def render_page(self,page,lang,header,footer):
         body = self.render_body(page,lang)
         dir = self.indexpath+"/"+lang
@@ -123,7 +172,7 @@ class AuthorSiteGenerator:
             htmlfile = open(dir+"/"+page+".html",'w')
             htmlfile.write(header+body+footer)
             htmlfile.close()
-            logger.info(page+ u' done')
+            logger.info(lang+"/"+page+ u' done')
         except Exception as e:
             logger.error(e)
              
@@ -141,6 +190,7 @@ class AuthorSiteGenerator:
         g['auth_name_he'] = self.siteconfig['string_translations']['author']['he']
         g['auth_name_en'] = self.siteconfig['string_translations']['author']['en']
         g['front'] = self.conf['front']
+        g['auth'] = self.auth
         return g
          
     #def parse_lang(self,str):
@@ -181,7 +231,8 @@ class AuthorSiteGenerator:
         for lang,men in self.siteconfig['menu'].iteritems():
             header = self.render_header(lang)
             footer = self.render_footer(lang)
-            self.render_page('home',lang,header,footer)
+            if not 'home' in men:
+                self.render_page('home',lang,header,footer)
             for page in men:
                 self.render_page(page,lang,header,footer)
         logger.info(authdir+" site done")
