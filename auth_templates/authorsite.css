@@ -1,4 +1,4 @@
-body, html, main {
+body, html {
     height:100%;
 }
 body {
@@ -18,6 +18,19 @@ header nav ul {
 }
 
 
+
+
+
+
+
+/** iframes **/
+iframe{
+    width:100%;
+    height:100%;
+    border:none;
+}
+
+
 /** bootstrap overrides **/
 .container {
     width: 100%;
@@ -27,10 +40,6 @@ header nav ul {
     float:{{side}};
 }
 
-#timeline-frame{
-    width:100%;
-    height:100%;
-    border:none;
+.modal-dialog {
+    width: 90%;
 }
-
-

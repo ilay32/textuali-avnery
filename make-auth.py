@@ -89,7 +89,7 @@ class AuthorSiteGenerator:
                 {
                     "file": 'index' if menu_item == 'home' else menu_item,
                     "label": it['label'][lang],
-                    "title" : it['mouseover'][lang]
+                    "title" : it['label'][lang] if 'mouseover' not in it else it['mouseover'][lang]
                 }
              )
             except:
