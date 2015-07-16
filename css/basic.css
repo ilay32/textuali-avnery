@@ -18,7 +18,9 @@ body{
     position:relative;
     z-index:5;
 }
-
+.error-message {
+    display:none;
+}
 .largenav {
     position:absolute;
     font-size:65px;

@@ -47,9 +47,25 @@ if __name__=='__main__':
                     book['has_book_css'] = 1
                 if (folders.has_key(authdir+'-'+book['bookdir'])):
                     book['has_search'] = 1
-                #book['pages'] = foundpages - 2 if book['hard_cover'] else  foundpages
                 book['pages'] = foundpages
+                realpagename = re.compile("p\d{3,4}$")
                 book['page_list']= map((lambda uri : unescape(os.path.splitext(os.path.basename(uri))[0])),jpgslist)
+                left  = 0
+                right = foundpages - 1
+                stop = stop_start = stop_end = False
+                while(right > left and not stop):
+                    if realpagename.search(book['page_list'][left]) == None:
+                        left = left + 1
+                    else:
+                        stop_start = True
+                    if realpagename.search(book['page_list'][right]) == None:
+                        right = right - 1
+                    else:
+                        stop_end = True
+                    stop = stop_end and stop_start 
+                book['start_offset'] = left
+                book['end_offset'] = foundpages - right 
+                book['phispage_count'] = right - left + 1
                 book['authdir'] = authdir
                 book['frontjpg'] = os.path.basename(jpgslist[0])
                 frontjpg = Image.open(jpgslist[0])

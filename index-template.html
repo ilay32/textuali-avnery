@@ -132,7 +132,7 @@
             <input type="text" maxlength="5" class="form-control" placeholder="#page"/>
             <button type="submit" class="btn btn-primary" >go</button>
         </form>
-         <div class="error-message hide">please enter only numbers between 1 and {{pages}}</div>
+         <div class="error-message">please enter only numbers between 1 and {{phispage_count}}</div>
     </div>
     {{#has_search}}
     <div id="search-popover" data-trigger="#search-trigger" class="popover">
@@ -141,7 +141,7 @@
             <button type="submit" class="btn btn-primary" >חפש</button>
         </form>
         <div id="search-results" class="fade open"></div>
-        <div class="error-message hide"></div>
+        <div class="error-message"></div>
     </div>
     {{/has_search}}
     <!-- Bootstrap core JavaScript

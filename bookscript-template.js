@@ -1,4 +1,5 @@
 var first_flipto = location.href.match(/(\/#page\/)(\d*)$/);
+
 $('.page_end').click(function(c) {
     c.preventDefault();
 }); 
@@ -8,7 +9,6 @@ $(window).resize(function() {
     loadApp();
     var book = $('.flipbook');
     book.data('displayMode',rememberme.displaymode);
-    //toggleHtml();
     Hash.go('page/'+rememberme.page);
     book.turn('page',rememberme.page);
     for(p in book.turn('view')) {
@@ -41,8 +41,9 @@ $('.popover').each(function() {
 
 $('#gotopage-form').submit(function() {
     var v = $(this).find('input').val();
-    if(parseInt(v) <= {{pages}} && parseInt(v) > 0) {
-        $('.flipbook').turn('page',v);
+    phis = flip2phis(v);
+    if(phis > 0) {
+        $('.flipbook').turn('page', phis);
     }
     else {
         $(this).siblings('.error-message').fadeIn(300).delay(4000).fadeOut(300);
@@ -126,8 +127,29 @@ if('{{language}}' == 'he') {
 
 function page_files(page) {
    var filename = {{page_list}}[page-1], 
-        hard = /[a-z]/.test(filename.slice(-1));
+        hard = /[a-z]/.test(filename.slice(-1)) && (page >= {{page_list}}.length - 1 || page <= 2);
     return {jpg : 'jpg/'+ filename + '.jpg', html : 'html/' + filename + '.htm', hard : hard};
+}
+
+function flip2phis(num) {
+    var ret = -1;
+    if(num > 0 && num <= {{phispage_count}}) {
+        ret = parseInt(num) + parseInt({{start_offset}});
+    }
+    /*var ret = -1;
+    var zeros = '00';
+    if(num > 9 && num < 99) {
+        zeros = '0';
+    }
+    if(num > 99) {
+        zeros = '';
+    }
+    var filebase = {{page_list}}[0].match(/^\w\d{3}p/);
+    var inlist = $.inArray(filebase+zeros+num,{{phispages}});
+    if(inlist > 0) {
+        ret =  inlist + 1;
+    }*/
+    return ret;
 }
     
 
@@ -352,6 +374,7 @@ function loadApp() {
             },
             'turning' : function(event, page, view) {
                 $('.popover').modalPopover('hide');
+                $('.toc-list').dropdown('toggle');
             }
         }                 
     });
