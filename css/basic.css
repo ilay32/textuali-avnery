@@ -71,6 +71,9 @@ body{
 	height:100%;
 }
 
+.page.odd {
+    direction: rtl;
+}
 .flipbook-viewport .container{
 	position:absolute;
 	top:50%;
@@ -203,7 +206,7 @@ a.toc-link, a.toc-link:visited {
     text-decoration:underline;
 }
 
-.page.odd .spine-gradient, .page.odd .page-html{
+.page.odd .spine-gradient /*, .page.odd .page-html*/{
 	/*background:-webkit-gradient(linear, left top, right top, colorstop(0%, 255,255,255,0), colorstop(94%, 255,255,255,0.25), color-stop(0.95, rgba(255,255,255,0.5)), color-stop(1, rgba(218,218,218,1)));
 	background-image:-webkit-linear-gradient(left, rgba(255,255,255,0) 0%, rgba(255,255,255,0.25) 94%, rgba(255,255,255,0.5) 95%, rgba(218,218,218,1) 100%);
 	background-image:-moz-linear-gradient(left, rgba(255,255,255,0) 0%, rgba(255,255,255,0.25) 94%,  rgba(255,255,255,0.5) 95%, rgba(218,218,218,1) 100%);
@@ -227,7 +230,7 @@ a.toc-link, a.toc-link:visited {
     
 }
 
-.page.even .spine-gradient, .page.even .page-html{
+.page.even .spine-gradient /*, .page.even .page-html*/{
 	/*background:-webkit-gradient(linear, right top, left top, colorstop(0%, 255,255,255,0), colorstop(94%, 255,255,255,0.25), color-stop(0.95,  rgba(255,255,255,0) 0%, rgba(255,255,255,0.25) 94%, rgba(255,255,255,0.5)), color-stop(1, rgba(202,202,202,1)));
 	background-image:-webkit-linear-gradient(right,  rgba(255,255,255,0) 0%, rgba(255,255,255,0.25) 94%, rgba(255,255,255,0.5) 95%, rgba(202,202,202,1) 100%);
 	background-image:-moz-linear-gradient(right,  rgba(255,255,255,0) 0%, rgba(255,255,255,0.25) 94%, rgba(255,255,255,0.5) 95%, rgba(202,202,202,1) 100%);
@@ -252,6 +255,12 @@ a.toc-link, a.toc-link:visited {
 }
 .page.even .page-html, .page.odd .page-html {
     background-color:white;
+}
+.page.odd .page-html {
+    border-right: 1px solid #ccc;
+}
+.page.even .page-html {
+    border-left: 1px solid #ccc;
 }
 .popover#search-popover {
     max-width: 500px;

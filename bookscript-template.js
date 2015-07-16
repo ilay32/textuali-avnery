@@ -290,7 +290,7 @@ function hide_html(pages) {
     }
 
     $('#totoc').attr('data-toggle', 'dropdown').addClass('jpg-toc');
-}    
+}
 
 function find_html_div(n) {
     return $('.page.p'+n).find('.page-html');
@@ -374,7 +374,9 @@ function loadApp() {
             },
             'turning' : function(event, page, view) {
                 $('.popover').modalPopover('hide');
-                $('.toc-list').dropdown('toggle');
+                if($('#next-prev-toc').hasClass('open')) {
+                    $('.toc-list').dropdown('toggle');
+                }
             }
         }                 
     });
