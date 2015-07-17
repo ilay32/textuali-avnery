@@ -1,0 +1,22 @@
+<div class="row">
+    <div class="col-sm-12">
+        <h1>{{string_translations.videos}}</h1>
+    </div>
+</div>
+{{#content}}
+<div class="row">
+    <div class="col-sm-12">
+        {{content}}
+    </div>
+</div>
+{{/content}}
+<div class="row">
+    {{#videos}}
+     <div class="col-sm-3 vidwrap">
+        <div class="vid" data-vidid="{{id}}" >
+            <img  src="{{firstframe}}"/>
+            <h4  class="vid-title">{{title}}</h4>
+        </div>
+     </div>
+    {{/videos}}
+</div>

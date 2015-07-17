@@ -19,7 +19,27 @@ header nav ul {
 
 
 
-
+/** videos page **/
+.vidwrap {
+    margin: 10px 0;
+}
+.vid {
+    position: relative;
+    cursor: pointer;
+}
+.vid > img {
+    max-width:100%;
+}
+.vid  h4 {
+    text-align:center;
+    position: absolute;
+    bottom: 0;
+    width:100%;
+    margin:0;
+    line-height: 40px;
+    color: white;
+    background: rgba(0,0,0,0.7);
+}
 
 
 

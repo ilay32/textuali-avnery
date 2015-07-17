@@ -37,13 +37,32 @@ class AuthorSiteGenerator:
             "textcolor" : "#333"
         } 
         self.body_blocks = {
-            "books": self.books_template_data
+            "books": self.books_template_data,
+            "videos" : self.videos_template_data
         } 
     
     
     def books_template_data(self,lang):
         return {"author_books": self.authorblock}
     
+    def videos_template_data(self,lang):
+        vidlistsrc = self.indexpath+"/videos.json" 
+        if not os.path.isfile(vidlistsrc):
+            logger.error("videos.json missing from "+self.indexpath)
+            return {}
+        vidlist = jc.load(file(vidlistsrc))
+        videos = []
+        frame0 = 'http://img.youtube.com/vi/{0}/0.jpg' 
+        for vid in vidlist:
+            videos.append(                
+                {
+                    "id": vid['id'],
+                    "title": vid['title'][lang],
+                    "firstframe" : frame0.format(vid['id'])
+                }
+            )
+        return {"videos" : videos}
+
     def timeline_template_data(self,lang):
         src = self.conf['front']['domain']+"/timeline"
         vars = {}

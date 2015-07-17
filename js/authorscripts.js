@@ -32,5 +32,8 @@ $(document).ready(function() {
         h = this.href; 
         iframe_in_modal(h);        
     });
-
+    $('.vid').click(function() {
+        var id = $(this).data('vidid');
+        iframe_in_modal("http://www.youtube.com/embed/"+id+"?autoplay=1");
+    });
 });
