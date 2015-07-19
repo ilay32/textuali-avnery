@@ -1,6 +1,6 @@
 
 
-import csv,json,jsoncomment,urllib2,re,logging,sys,os,glob,jsonmerge,gettext
+import csv,json,jsoncomment,urllib2,re,logging,sys,os,glob,jsonmerge,lesscpy,six
 
 logging.basicConfig(level=logging.DEBUG) 
 logger=logging.getLogger('make-auth')
@@ -230,11 +230,11 @@ class AuthorSiteGenerator:
         stylertl = open(self.indexpath+"/css/style-rtl.css", 'w')
         styleltr = open(self.indexpath+"/css/style-ltr.css", 'w')
         rtlvars = jsonmerge.merge(self.stylevars, {"dir": "rtl", "side": "right", "oposide": "right" })
-        stylertl.write(stache.render(stache.load_template('authorsite.css'),rtlvars)) 
+        stylertl.write(lesscpy.compile(six.StringIO(stache.render(stache.load_template('authorsite.less'),rtlvars)),minify=True)) 
         stylertl.close()
         logger.info('rtl styles done')
         ltrvars = jsonmerge.merge(self.stylevars,{ "dir": "ltr", "side": "left", "oposide": "right" }) 
-        styleltr.write(stache.render(stache.load_template('authorsite.css'),ltrvars))
+        styleltr.write(lesscpy.compile(six.StringIO(stache.render(stache.load_template('authorsite.less'),ltrvars)),minify=True))
         styleltr.close()
         logger.info('ltr styles done')
         
