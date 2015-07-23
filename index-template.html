@@ -16,7 +16,8 @@
 	<title>{{book_nicename}}</title>
 	<link href="{{topdir}}bootstrap/css/bootstrap.min.css" rel="stylesheet" type="text/css">
 	<link href="{{coddir}}css/basic.css" rel="stylesheet" type="text/css">
-	{{#has_author_css}}
+	<link href="{{coddir}}/css/flip-{{flipdirection}}.css" rel="stylesheet" type="text/css"/>
+    {{#has_author_css}}
 	<link href="{{topdir}}/{{textsdir}}/{{authdir}}/authorstyle.css" rel="stylesheet" type="text/css">
     {{/has_author_css}} 
     {{#has_book_css}}
@@ -34,9 +35,9 @@
 <body>
     <!--<span class="hidden flb-prev glyphicon-chevron-right glyphicon largenav"></span>
     <span class="hidden flb-next glyphicon-chevron-left largenav glyphicon"></span>-->
-    <img class="hidden flb-prev largenav" src="/media/right-arrow.png" />
-    <img class="hidden flb-next largenav" src="/media/left-arrow.png" />
-    <div class="textuali-container" style="direction:rtl">
+    <img class="hidden flb-prev largenav" src="/media/{{side}}-arrow.png" />
+    <img class="hidden flb-next largenav" src="/media/{{oposide}}-arrow.png" />
+    <div class="textuali-container">
         <div class="row" id="buttons-row">
             <div class="text-center" >
                 <div class="btn-group btn-group-xs">
@@ -57,8 +58,8 @@
                      </button>
                 </div>
                 <div class="btn-group btn-group-xs" id="next-prev-toc">
-                    <button title="next page" type="button" class="btn flb-next btn-default">
-                        <span class="glyphicon glyphicon-chevron-left"></span>
+                    <button title="previous page" type="button" class="btn flb-prev btn-default">
+                        <span class="glyphicon glyphicon-chevron-{{side}}"></span>
                     </button>
                     {{#toc}}
                     <button type="button" id="totoc" title="go to table of contents page" class="btn btn-default dropdown-toggle jpg-toc" data-toggle="dropdown">
@@ -73,8 +74,8 @@
                     <button id="gotopage-trigger" type="button" data-popper="#gotopage-popover" class="btn btn-default">
                         <span class="caret"></span> :go to
                     </button>
-                    <button title="previous page" type="button" class="btn btn-default flb-prev" >
-                        <span class="glyphicon glyphicon-chevron-right"/>
+                    <button title="next page" type="button" class="btn btn-default flb-next" >
+                        <span class="glyphicon glyphicon-chevron-{{oposide}}"/>
                     </button>
                 </div>
                 <div class="btn-group btn-group-xs">

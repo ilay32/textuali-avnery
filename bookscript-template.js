@@ -208,7 +208,7 @@ $('.flipbook').data('displayMode', 'scan');
 $('#enlarge').click(function() {
     if($(this).hasClass('btn-danger')) {
         $(this).removeClass('btn-danger');
-        $('.flipbook').turn('zoom', 1).animate({left: '-20px', top: '0'},500).turn('disable',false).draggable("destroy");
+        $('.flipbook').turn('zoom', 1).css('{{side}}','').animate({'{{oposide}}': '-20px', top: '0'},500).turn('disable',false).draggable("destroy");
         $('.textuali-container').width($('.flipbook').width() + 20);
     }
     else {
@@ -328,10 +328,9 @@ function loadApp() {
     }
     var screen_marge = Math.floor(($(window).width() - book_width)/2);
     var largenav_offset = (screen_marge - 85)+'px';
-    
     $('.textuali-container').width(book_width + 20);
-    $('.flb-next.largenav').css('left', largenav_offset);
-    $('.flb-prev.largenav').css('right',largenav_offset);
+    $('.flb-next.largenav').css('{{oposide}}', largenav_offset);
+    $('.flb-prev.largenav').css('{{side}}',largenav_offset);
     $('.largenav').removeClass('hidden');
     $('.flipbook').turn({
         width:book_width,
@@ -339,7 +338,7 @@ function loadApp() {
         elevation: 50,
         duration:2000,
         pages: {{pages}},
-        direction: "rtl",
+        direction: '{{flipdirection}}',
         // Enable gradients
         gradients: true,
         // Auto center this flipbook
