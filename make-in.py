@@ -1,8 +1,8 @@
 
-import csv,json,urllib2,re,logging,sys,os,glob,pystache
+import csv,json,urllib2,re,logging,sys,os,glob,pystache,textualangs
 from HTMLParser import HTMLParser
 from PIL import Image
-
+from webconfig import folders
 logging.basicConfig(level=logging.DEBUG) 
 logger=logging.getLogger('make-in')
 
@@ -10,17 +10,12 @@ logger=logging.getLogger('make-in')
 stache = pystache.Renderer(search_dirs='.',file_encoding='utf-8',string_encoding='utf-8',file_extension=False)
 htmlparser = HTMLParser()
 
-langs = {
-    "he" : "rtl",
-    "en": "ltr"
-}
-
 def unescape(s):
     return htmlparser.unescape(s).encode('utf-8')
 
 if __name__=='__main__':
     conf = json.load(file('config.json'))
-    execfile("../webconfig.py")
+    #execfile("../webconfig.py")
     logger.info(u"rendering front page")
     file('index.html','w').write(stache.render(stache.load_template('front-template.html'),conf).encode('utf-8'))
     logger.info("rendering flip ltr/rtl styles")
@@ -79,7 +74,7 @@ if __name__=='__main__':
                 frontjpg = Image.open(jpgslist[0])
                 fsize = frontjpg.size
                 book['openbook_ratio'] = float(2*fsize[0])/fsize[1]
-                book['flipdirection'] = langs[book['language']]
+                book['flipdirection'] = textualangs.dir(book['language'])
                 book['side'] = 'right' if book['flipdirection'] == 'rtl' else 'left'
                 book['oposide'] = 'left' if book['side'] == 'right' else 'right'
                 ind = open(indexpath+"index.html",'w')

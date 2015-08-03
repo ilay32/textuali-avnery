@@ -1,130 +1,4 @@
 var first_flipto = location.href.match(/(\/#page\/)(\d*)$/);
-
-$('.page_end').click(function(c) {
-    c.preventDefault();
-}); 
-$(window).resize(function() {
-    var rememberme = {page:  $('.flipbook').turn('page'), displaymode : $('.flipbook').data('displayMode')};
-    $('.flipbook').turn('destroy');
-    loadApp();
-    var book = $('.flipbook');
-    book.data('displayMode',rememberme.displaymode);
-    Hash.go('page/'+rememberme.page);
-    book.turn('page',rememberme.page);
-    for(p in book.turn('view')) {
-        addPage(p,book);
-    }
-    toggleHtml(); 
-});
-
-$('#download-pdf').click(function() {
-    var pdf = $(this).attr('href'),
-        h = location.href;
-    if(h.indexOf('#') > 0) {
-        h = h.substr(0,h.indexOf('#'));
-    }
-    if(undefined != pdf) {
-        window.open(h+"{{authdir}}-{{bookdir}}-"+pdf, "{{book_nicename}} PDF", "width=600, height=400" );
-    }
-});
-
-$('[data-popper]').click(function() {
-    $($(this).data('popper')).modalPopover('toggle');
-});
-
-$('.popover').each(function() {
-    $(this).modalPopover({
-        target: $(this).data('trigger'),
-        placement: 'bottom'
-    });
-});
-
-$('#gotopage-form').submit(function() {
-    var v = $(this).find('input').val();
-    phis = flip2phis(v);
-    if(phis > 0) {
-        $('.flipbook').turn('page', phis);
-    }
-    else {
-        $(this).siblings('.error-message').fadeIn(300).delay(4000).fadeOut(300);
-    }
-    return false;
-});
-
-
-$('#search-form').submit(function() {
-    $('#search-results').removeClass('in');
-    var query = $(this).serialize();
-    $.ajax({
-        url: 'http://textuali.com/search/websearch.py/?pretty=1&f={{authdir}}-{{bookdir}}&'+query,
-        DataType: 'json'
-    }).done(function(results) {
-        $('#search-results').html(process_search_results(results)).addClass('in');
-    }).fail(function(err) {
-       $(this).siblings('.error-message').fadeIn(300).delay(4000).fadeOut(300);
-   });
-   return false; 
-});
-
-function filename2pagenum(filename) {
-    var ans="";
-    var n = filename.match(/\d+p0*([1-9]\d*)$/);
-    if(n != null && n.length > 1) {
-        ans= n[1];
-    }
-    return ans;
-} 
-function get_toc(pagenum) {
-    $.ajax({url: page_files(pagenum).html}).done(function(pageHtml) {
-        var toc_list = $('<ul class="toc-list dropdown-menu"/>');
-        $(pageHtml).find('.toc-list li').each(function() {
-            toc_list.append(this);
-        });
-        $('#totoc').after(toc_list);
-    });
-}
-function process_search_results(results) {
-    var htm = '<h5>תוצאות חיפוש עבור "'+results.q+'"</h5>';
-    if(results.status == 'success') {
-        if(results.matches.length > 0) {
-            htm += '<ul class="toc-list">';
-            var m = results.matches;
-            for(var res in m) {
-                htm += '<li><span class="search-results-pagenum">עמ\' ' + filename2pagenum(m[res].id)+'</span>';
-                htm += '<a class="toc-link search-result" href="#page/'+($.inArray(m[res].id,{{page_list}}) + 1);
-                htm += '?q='+results.q+'">'+m[res].match+'</a></li>';
-            }
-            htm += '</ul>';
-        }
-        else {
-            htm = 'sorry, no matches found';
-        } 
-   }
-   else if(results.status == 'fail') {
-       htm = results.error;
-   }
-   else {
-       htm = 'unknown error';
-   }
-   return htm;
-} 
-
-$('body').mousedown(function(c) {
-    if($(this).hasClass('modal-open')) {
-        var exclude1 = $('#gotopage-trigger').add($('#gotopage-popover').find('*').andSelf());
-        var exclude2 = $('#search-trigger').add($('#search-popover').find('*').andSelf());
-        if(!exclude1.is(c.target)) {
-            $('#gotopage-popover').modalPopover('hide');
-        }
-        if(!exclude2.is(c.target)) {
-            $('#search-popover').modalPopover('hide');
-       }
-    }
-}); 
-if('{{language}}' == 'he') {
-    $('body').css('direction', 'rtl');
-}
-
 function page_files(page) {
    var filename = {{page_list}}[page-1], 
         hard = /[a-z]/.test(filename.slice(-1)) && (page >= {{page_list}}.length - 1 || page <= 2);
@@ -151,7 +25,6 @@ function flip2phis(num) {
     }*/
     return ret;
 }
-    
 
 function loadPage(page, pageElement) {
     pageElement.css('background-image','url('+page_files(page).jpg+')');			
@@ -203,53 +76,50 @@ function highlight_search(page,query) {
     return 1;
 } 
 
-$('.flipbook').data('displayMode', 'scan');
-
-$('#enlarge').click(function() {
-    if($(this).hasClass('btn-danger')) {
-        $(this).removeClass('btn-danger');
-        $('.flipbook').turn('zoom', 1).css('{{side}}','').animate({'{{oposide}}': '-20px', top: '0'},500).turn('disable',false).draggable("destroy");
-        $('.textuali-container').width($('.flipbook').width() + 20);
+function filename2pagenum(filename) {
+    var ans="";
+    var n = filename.match(/\d+p0*([1-9]\d*)$/);
+    if(n != null && n.length > 1) {
+        ans= n[1];
     }
-    else {
-        $(this).addClass('btn-danger');
-        var dist_from_center = $('.flipbook').offset().left - $('.flipbook').width()/2;
-        var dist_from_middle = $('.flipbook').offset().top - $('.flipbook').height()/2;
-        
-        $('.flipbook').turn('zoom', 2);//.animate({left : -2* dist_from_center+'px', top : -2 * dist_from_middle +'px'});
-        $('.flipbook').turn('disable',true).draggable();
-    }
-});
+    return ans;
+} 
 
-$('.flb-next').click(function() {
-    $('.flipbook').turn('next');
-});
+function get_toc(pagenum) {
+    $.ajax({url: page_files(pagenum).html}).done(function(pageHtml) {
+        var toc_list = $('<ul class="toc-list dropdown-menu"/>');
+        $(pageHtml).find('.toc-list li').each(function() {
+            toc_list.append(this);
+        });
+        $('#totoc').after(toc_list);
+    });
+}
 
-$('.flb-prev').click(function() {
-    $('.flipbook').turn('previous');
-});
-
-$('.mode-toggle').click(function() {
-    $('.mode-toggle').removeClass('on');
-    var d=$('.flipbook').data();
-    if(this.id == 'showhtmls' && d.displayMode == 'scan')  {
-        d.displayMode = 'html';
-        $('#showhtmls').addClass('on');
+function process_search_results(results) {
+    var htm = '<h5>תוצאות חיפוש עבור "'+results.q+'"</h5>';
+    if(results.status == 'success') {
+        if(results.matches.length > 0) {
+            htm += '<ul class="toc-list">';
+            var m = results.matches;
+            for(var res in m) {
+                htm += '<li><span class="search-results-pagenum">עמ\' ' + filename2pagenum(m[res].id)+'</span>';
+                htm += '<a class="toc-link search-result" href="#page/'+($.inArray(m[res].id,{{page_list}}) + 1);
+                htm += '?q='+results.q+'">'+m[res].match+'</a></li>';
+            }
+            htm += '</ul>';
+        }
+        else {
+            htm = 'sorry, no matches found';
+        } 
    }
-   else if(this.id == 'showscans' && d.displayMode == 'html') {
-        d.displayMode = 'scan';
-        $('#showscans').addClass('on');
+   else if(results.status == 'fail') {
+       htm = results.error;
    }
-   toggleHtml($('.flipbook').turn('view'));
-});
-
-{{#toc}}
-$('#totoc').click(function() {
-    if(!$(this).hasClass('jpg-toe')) {  
-        $('.flipbook').turn('page',{{toc}});
-    }
-});
-{{/toc}}
+   else {
+       htm = 'unknown error';
+   }
+   return htm;
+} 
 
 function toggle_html(btn) {
     $(btn).parent().parent().find('iframe').each(function() {
@@ -414,10 +284,143 @@ function loadApp() {
         Hash.go('page/'+first_flipto[2]);
     }
 
+    
+} //loadApp
+
+$(window).resize(function() {
+    var rememberme = {page:  $('.flipbook').turn('page'), displaymode : $('.flipbook').data('displayMode')};
+    $('.flipbook').turn('destroy');
+    loadApp();
+    var book = $('.flipbook');
+    book.data('displayMode',rememberme.displaymode);
+    Hash.go('page/'+rememberme.page);
+    book.turn('page',rememberme.page);
+    for(p in book.turn('view')) {
+        addPage(p,book);
+    }
+    toggleHtml(); 
+});
+
+$(document).ready(function() {
+    $('.flipbook').data('displayMode', 'scan');
+    $('body').mousedown(function(c) {
+        if($(this).hasClass('modal-open')) {
+            var exclude1 = $('#gotopage-trigger').add($('#gotopage-popover').find('*').andSelf());
+            var exclude2 = $('#search-trigger').add($('#search-popover').find('*').andSelf());
+            if(!exclude1.is(c.target)) {
+                $('#gotopage-popover').modalPopover('hide');
+            }
+            if(!exclude2.is(c.target)) {
+                $('#search-popover').modalPopover('hide');
+           }
+        }
+    }); 
+    //if('{{language}}' == 'he') {
+        $('body').css('direction', '{{flipdirection}}');
+    //}
     if(parseInt({{toc}}) > 0) {
         get_toc({{toc}});
     }
-} // loadApp
+    $('.page_end').click(function(c) {
+        c.preventDefault();
+    }); 
+   
+    $('#download-pdf').click(function() {
+        var pdf = $(this).attr('href'),
+            h = location.href;
+        if(h.indexOf('#') > 0) {
+            h = h.substr(0,h.indexOf('#'));
+        }
+        if(undefined != pdf) {
+            window.open(h+"{{authdir}}-{{bookdir}}-"+pdf, "{{book_nicename}} PDF", "width=600, height=400" );
+        }
+    });
+
+    $('[data-popper]').click(function() {
+        $($(this).data('popper')).modalPopover('toggle');
+    });
+
+    $('.popover').each(function() {
+        $(this).modalPopover({
+            target: $(this).data('trigger'),
+            placement: 'bottom'
+        });
+    });
+
+    $('#gotopage-form').submit(function() {
+        var v = $(this).find('input').val();
+        phis = flip2phis(v);
+        if(phis > 0) {
+            $('.flipbook').turn('page', phis);
+        }
+        else {
+            $(this).siblings('.error-message').fadeIn(300).delay(4000).fadeOut(300);
+        }
+        return false;
+    });
+
+
+    $('#search-form').submit(function() {
+        $('#search-results').removeClass('in');
+        var query = $(this).serialize();
+        $.ajax({
+            url: 'http://textuali.com/search/websearch.py/?pretty=1&f={{authdir}}-{{bookdir}}&'+query,
+            DataType: 'json'
+        }).done(function(results) {
+            $('#search-results').html(process_search_results(results)).addClass('in');
+        }).fail(function(err) {
+           $(this).siblings('.error-message').fadeIn(300).delay(4000).fadeOut(300);
+       });
+       return false; 
+    });
+
+    $('#enlarge').click(function() {
+        if($(this).hasClass('btn-danger')) {
+            $(this).removeClass('btn-danger');
+            $('.flipbook').turn('zoom', 1).css('{{side}}','').animate({'{{oposide}}': '-20px', top: '0'},500).turn('disable',false).draggable("destroy");
+            $('.textuali-container').width($('.flipbook').width() + 20);
+        }
+        else {
+            $(this).addClass('btn-danger');
+            var dist_from_center = $('.flipbook').offset().left - $('.flipbook').width()/2;
+            var dist_from_middle = $('.flipbook').offset().top - $('.flipbook').height()/2;
+            
+            $('.flipbook').turn('zoom', 2);//.animate({left : -2* dist_from_center+'px', top : -2 * dist_from_middle +'px'});
+            $('.flipbook').turn('disable',true).draggable();
+        }
+    });
+
+    $('.flb-next').click(function() {
+        $('.flipbook').turn('next');
+    });
+
+    $('.flb-prev').click(function() {
+        $('.flipbook').turn('previous');
+    });
+
+    $('.mode-toggle').click(function() {
+        $('.mode-toggle').removeClass('on');
+        var d=$('.flipbook').data();
+        if(this.id == 'showhtmls' && d.displayMode == 'scan')  {
+            d.displayMode = 'html';
+            $('#showhtmls').addClass('on');
+       }
+       else if(this.id == 'showscans' && d.displayMode == 'html') {
+            d.displayMode = 'scan';
+            $('#showscans').addClass('on');
+       }
+       toggleHtml($('.flipbook').turn('view'));
+    });
+
+    {{#toc}}
+    $('#totoc').click(function() {
+        if(!$(this).hasClass('jpg-toe')) {  
+            $('.flipbook').turn('page',{{toc}});
+        }
+    });
+    {{/toc}}
+
+});
 
 // Load the HTML4 version if there's not CSS transform
 $(function() {
