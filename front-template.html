@@ -20,12 +20,13 @@
 <body>
 	<div class="container">
 		<div class="row">
-			<h1 class="col-xs-12">here are our books:</div>	
 			{{#authors}}
-			<h2>books by {{nicename}}:</h2>
+			<h2>{{nicename}}:</h2>
 			<ul>
 				{{#books}}
-					<li><a href="{{front.textsdir}}/{{dir}}/{{bookdir}}">{{book_nicename}} by {{nicename}}</a></li>
+				<li>
+                    <a href="{{front.indices_dir}}/{{dir}}/{{bookdir}}">{{book_nicename}}</a>
+                </li>
 				{{/books}}
 			</ul>
 			{{/authors}}

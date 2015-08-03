@@ -10,6 +10,29 @@
         </div><!-- /.modal-content -->
     </div><!-- /.modal-dialog -->
 </div><!-- /.modal -->
-
+<div id="search-container" class="utilbox  " area-hidden="false">
+    <form id="searchform" class="form-inline">
+        <input name="q" type="text" maxlneght="50" placeholder="{{string_translations.search}}" />
+        <button type="submit">{{string_translations.search}}</button> 
+    </form> 
+</div>
+<div id="share-container" class="fade utilbox">
+    <nav id="social" class="col-sm-6">
+        <ul class="nav nav-pills nav-justified">
+            {{#socials}}
+            <li>
+                <a title={{label}} href="{{url}}">
+                    <img src="{{baseurl}}/img/{{icon}}" title="{{label}}"/>
+                </a>
+            </li>
+            {{/socials}}
+        </ul>
+    </nav>
+</div>
+<script type="text/javascript">
+    var trns = "{{string_translations}}".replace(/u'(?=[\W\w])/g,"'");
+    trns = trns.replace(/'/g,'"');
+    window.TextualiStrings=JSON.parse(trns);
+</script>
 <script src="{{front.domain}}{{front.coddir}}js/authorscripts.js"></script>
 </body>

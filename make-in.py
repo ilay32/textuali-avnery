@@ -34,17 +34,20 @@ if __name__=='__main__':
         authnicename = authorblock['nicename']
         for book in authbooks:
             book['pdf_downloads'] = pdfs
-            book['textsdir'] = conf['front']['textsdir']
-            indexpath = book['textsdir']+"/"+authdir+"/"+book['bookdir']+"/"
+            book['indices_dir'] = conf['front']['indices_dir']
+            indexpath = book['indices_dir']+"/"+authdir+"/"+book['bookdir']+"/"
+            srcpath  = conf['front']['srcs_dir']+"/"+authdir+"/"+book['bookdir']+"/"
+            book['srcs'] = conf['front']['domain']+os.path.basename(conf['front']['srcs_dir'])+"/"+authdir+"/"+book['bookdir']+"/"
+
             book['topdir'] = conf['front']['domain']
             book['coddir'] = book['topdir'] + conf['front']['coddir']
             book['authnice'] = authnicename
-            jpgslist = sorted(glob.glob(indexpath+"jpg/*.jpg"))
+            jpgslist = sorted(glob.glob(srcpath+"jpg/*.jpg"))
             foundpages = len(jpgslist)
             book['type'] = conf['book_types'].get(book['bookdir'][:1],"book")
             if(foundpages > 0):
                 #logger.info("rendering "+book['book_shortname'])
-                if(os.path.isfile(book['textsdir']+"/"+authdir+"/authorstyle.css")):
+                if(os.path.isfile(book['indices_dir']+"/"+authdir+"/authorstyle.css")):
                     book['has_author_css'] = 1
                 if(os.path.isfile(indexpath+"bookstyle.css")):
                     book['has_book_css'] = 1
@@ -77,6 +80,9 @@ if __name__=='__main__':
                 book['flipdirection'] = textualangs.dir(book['language'])
                 book['side'] = 'right' if book['flipdirection'] == 'rtl' else 'left'
                 book['oposide'] = 'left' if book['side'] == 'right' else 'right'
+                if not os.path.exists(indexpath):
+                    os.makedirs(indexpath)
+
                 ind = open(indexpath+"index.html",'w')
                 ind.write(stache.render(stache.load_template('index-template.html'),book).encode('utf-8'))
                 sc = open(indexpath+"bookscript.js", 'w')

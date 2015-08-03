@@ -1,19 +1,24 @@
 
 
-import csv,json,jsoncomment,urllib2,re,logging,sys,os,glob,jsonmerge,lesscpy,six
+import csv,json,jsoncomment,urllib2,re,logging,sys,os,glob,jsonmerge,lesscpy,six, optparse,textualangs,pystache
+#from HTMLParser import HTMLParser
+#from PIL import Image
+
+
+op = optparse.OptionParser()
+op.add_option("-s", action="store_true", dest="render_styles", help="render style files")
+
+
 
 logging.basicConfig(level=logging.DEBUG) 
 logger=logging.getLogger('make-auth')
 jc = jsoncomment.JsonComment(json)
-import pystache
 stache = pystache.Renderer(
     search_dirs='auth_templates',file_encoding='utf-8',string_encoding='utf-8',file_extension=False
 )
 
-from HTMLParser import HTMLParser
-from PIL import Image
 
-htmlparser = HTMLParser()
+#htmlparser = HTMLParser()
 #hetran = gettext.translation('avnery_heb',os.getcwd()+'/lang',['he_IL'])
 #hetran.install('avnery_heb')
 
@@ -28,22 +33,20 @@ class AuthorSiteGenerator:
         self.conf = jc.load(file('config.json'))
         self.auth = auth
         self.found = self.search_auth()
-        self.langs = {
-           "he" : "rtl",
-           "en" : "ltr"
-        } 
         self.langpat = re.compile("(.*)\-(\w{2})$")
-        self.stylevars = {
-            "textcolor" : "#333"
-        } 
         self.body_blocks = {
             "books": self.books_template_data,
             "videos" : self.videos_template_data
         } 
     
-    
+            
     def books_template_data(self,lang):
-        return {"author_books": self.authorblock}
+        block = self.authorblock
+        for book in block['books']:
+            book['cover'] = self.get_cover(book['bookdir'])
+            if 'orig_id' in book:
+                book['orig_name'] = self.get_book_name(book['orig_id'])
+        return {"author_books":block}
     
     def videos_template_data(self,lang):
         vidlistsrc = self.indexpath+"/videos.json" 
@@ -85,7 +88,7 @@ class AuthorSiteGenerator:
             d = authorblock['dir']
             if(d == authdir):
                 self.authorblock = authorblock
-                self.indexpath = self.conf['front']['textsdir']+"/"+authdir+"/site"
+                self.indexpath = self.conf['front']['indices_dir']+"/"+authdir+"/site"
                 self.siteconfig = jc.load(file(self.indexpath+"/siteconfig.json"))
                 return True
          
@@ -113,17 +116,17 @@ class AuthorSiteGenerator:
              )
             except:
                 logger.error(menu_item+" not configured in 'pages' block")
-            
-        socials =[]
-        for social in self.siteconfig['socials'] :
-            socials.append(jsonmerge.merge(social,{"label":social['label'][lang]}))
         templatedata['menu_items'] = menu_items
-        templatedata['socials'] = socials
         templatedata['cssoverride']=os.path.exists(self.indexpath+"/css/local-override.css") 
         return stache.render(stache.load_template('header.html'),templatedata).encode('utf-8')
     
     def render_footer(self,lang):
         templatedata=self.get_globals(lang)
+        socials =[]
+        for social in self.siteconfig['socials'] :
+            socials.append(jsonmerge.merge(social,{"label":social['label'][lang]}))
+    
+        templatedata['socials'] = socials
         return stache.render(stache.load_template('footer.html'),templatedata).encode('utf-8') 
      
     def render_body(self,page,lang):
@@ -134,6 +137,16 @@ class AuthorSiteGenerator:
         tempf = "auth_templates/"+template+".html"
         if template in self.body_blocks:
             block = jsonmerge.merge(block,self.body_blocks[template](lang))
+        if template == "external":
+            pageblock = self.siteconfig['pages'][page]
+            if lang in pageblock['url']:
+                block['url'] = pageblock['url'][lang]
+            else:
+                try:
+                    block['url'] = pageblock['url']['he']
+                except:
+                    logger.error("cannot find url for external site page "+lang+"/"+page)
+
         if template == "static":
             if(os.path.exists(statf)):
                 logger.info(u'loading '+lang+'/'+page+' static html')
@@ -197,14 +210,14 @@ class AuthorSiteGenerator:
              
     def get_globals(self,lang):
         g={"baseurl": self.siteconfig['baseurl']}
-        string_translations = {}
-        for p,v in self.siteconfig['string_translations'].iteritems():
-            try: 
-                string_translations[p]=v[lang]
-            except:
-                logger.info(u'missing '+p+' in '+lang)
-        g['string_translations']=string_translations 
-        g['dir'] = self.langs[lang]
+        #string_translations = {}
+        #for p,v in self.siteconfig['string_translations'].iteritems():
+        #    try: 
+        #        string_translations[p]=v[lang]
+        #    except:
+        #        logger.info(u'missing '+p+' in '+lang)
+        g['string_translations']=jsonmerge.merge(textualangs.translations(lang),textualangs.translations(lang,self.siteconfig['string_translations']))
+        g['dir'] = textualangs.dir(lang)
         g['lang'] = lang
         g['auth_name_he'] = self.siteconfig['string_translations']['author']['he']
         g['auth_name_en'] = self.siteconfig['string_translations']['author']['en']
@@ -229,24 +242,32 @@ class AuthorSiteGenerator:
     def render_styles(self):
         stylertl = open(self.indexpath+"/css/style-rtl.css", 'w')
         styleltr = open(self.indexpath+"/css/style-ltr.css", 'w')
-        rtlvars = jsonmerge.merge(self.stylevars, {"dir": "rtl", "side": "right", "oposide": "right" })
+        rtlvars = jsonmerge.merge(self.siteconfig['stylevars'], {"dir": "rtl", "side": "right", "oposide": "left" })
         stylertl.write(lesscpy.compile(six.StringIO(stache.render(stache.load_template('authorsite.less'),rtlvars)),minify=True)) 
+        #stylertl.write(lesscpy.compile(six.StringIO(self.json2less(rtlvars)+open('auth_templates/authorsite.less').read()),minify=True)) 
         stylertl.close()
         logger.info('rtl styles done')
-        ltrvars = jsonmerge.merge(self.stylevars,{ "dir": "ltr", "side": "left", "oposide": "right" }) 
+        ltrvars = jsonmerge.merge(self.siteconfig['stylevars'],{ "dir": "ltr", "side": "left", "oposide": "right" }) 
         styleltr.write(lesscpy.compile(six.StringIO(stache.render(stache.load_template('authorsite.less'),ltrvars)),minify=True))
+        #styleltr.write(lesscpy.compile(six.StringIO(self.json2less(ltrvars)+open('auth_templates/authorsite.less').read()),minify=True)) 
         styleltr.close()
         logger.info('ltr styles done')
         
-    
-    #def merge_menus(self,dict):
+    #def json2less(self,dict) :
+    #    ret = "/* Variables from */"
+    #    lineform = '@{0}:{1};\n'
+    #    for prop,val in dict.iteritems():
+    #        ret += lineform.format(prop,val)
+    #    return ret
+    ##def merge_menus(self,dict):
     #    ret = []
     #    for pages in dict.itervalues():
     #        ret = ret + pages.append["home"]
     #    return ret
 
     def render_site(self):
-        self.render_styles()
+        if options.render_styles:
+            self.render_styles()
         for lang,men in self.siteconfig['menu'].iteritems():
             header = self.render_header(lang)
             footer = self.render_footer(lang)
@@ -256,11 +277,25 @@ class AuthorSiteGenerator:
                 self.render_page(page,lang,header,footer)
         logger.info(authdir+" site done")
 
-
-
+    def get_cover(self,book):
+        jpgs = sorted(glob.glob(self.conf['front']['srcs_dir']+"/"+self.auth+"/"+book+"/jpg/*.jpg"))
+        if len(jpgs) == 0:
+            logger.error("no jpgs for "+book)
+            return
+        return self.conf['front']['domain']+os.path.basename(self.conf['front']['srcs_dir'])+"/"+self.auth+"/"+book+"/jpg/"+os.path.basename(jpgs[0])
+    
+    def get_book_name(self,bookdir):
+        name = ""
+        block = self.authorblock['books']
+        for book in block:
+            if book['bookdir'] == bookdir:
+                name = book['book_nicename']
+                break;
+        return name
 
 if __name__=='__main__':
-    authdir = sys.argv[1]
+    (options, args) = op.parse_args()
+    authdir = args[0]
     asg = AuthorSiteGenerator(authdir)
     if(asg.good_to_go()):
         logger.info(u"rendering "+authdir)
