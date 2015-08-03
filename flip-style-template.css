@@ -1,8 +1,9 @@
 
 /* flip direction adjustments  */
-.textuali-container {
+body {
     direction: {{dir}};
 }
+
 .flipbook-viewport .flipbook {
     {{oposide}}: -20px;
 }
