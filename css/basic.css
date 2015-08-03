@@ -165,7 +165,7 @@ div.pagelive {
     line-height: 90%;
 }
 .toc-list {
-    text-align:right;
+    overflow:auto;
 }
 .toc-list li {
     display:block;
