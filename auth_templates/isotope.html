@@ -1,0 +1,14 @@
+<div id="isotope">
+{{#iblocks}}
+    <div class="isotope-item {{^img}}no-image{{/img}}" {{#id}}id="{{id}}"{{/id}} {{#link}}data-href="{{link}}"{{/link}} style="{{#width}}width:{{width}};{{/width}}{{#height}}height:{{height}};{{/height}}">
+        {{#img}}
+        <img class="item-image" src="{{baseurl}}/img/{{img}}" />
+        {{/img}}
+        {{#text}}
+        <div class="item-text">
+            {{text}}
+        </div>
+        {{/text}}
+    </div>
+{{/iblocks}}
+</div><!-- isotope -->
