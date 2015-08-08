@@ -1,14 +1,10 @@
 
 
-import csv,json,jsoncomment,urllib2,re,logging,sys,os,glob,jsonmerge,lesscpy,six, optparse,textualangs,pystache
-#from HTMLParser import HTMLParser
-#from PIL import Image
+import csv,json,jsoncomment,urllib2,re,logging,sys,os,glob,jsonmerge,lesscpy,six, optparse,textualangs,pystache,string
 
-
+#lets you compile the css with -s or skip it without
 op = optparse.OptionParser()
 op.add_option("-s", action="store_true", dest="render_styles", help="render style files")
-
-
 
 logging.basicConfig(level=logging.DEBUG) 
 logger=logging.getLogger('make-auth')
@@ -16,7 +12,6 @@ jc = jsoncomment.JsonComment(json)
 stache = pystache.Renderer(
     search_dirs='auth_templates',file_encoding='utf-8',string_encoding='utf-8',file_extension=False
 )
-
 
 #htmlparser = HTMLParser()
 #hetran = gettext.translation('avnery_heb',os.getcwd()+'/lang',['he_IL'])
@@ -38,14 +33,24 @@ class AuthorSiteGenerator:
             "books": self.books_template_data,
             "videos" : self.videos_template_data
         } 
-    
+        self.puncpat = re.compile('[%s]' % re.escape(string.punctuation)) 
             
     def books_template_data(self,lang):
         block = self.authorblock
+        front = self.conf['front']
+        auth_base_url = front['domain']+"/"+front['indices_dir']+"/"+self.authorblock['dir']+"/"
+        google = "https://www.google.com/search?q={0}"
         for book in block['books']:
             book['cover'] = self.get_cover(book['bookdir'])
+            book['url'] = auth_base_url+book['bookdir']
+            book['language_name'] = textualangs.langname(book['language'])
             if 'orig_id' in book:
                 book['orig_name'] = self.get_book_name(book['orig_id'])
+                book['orig_url'] = auth_base_url+book['orig_id']
+            if 'link' not in book:
+                q = '+'.join(self.puncpat.sub('',book['book_nicename']+" "+self.authorblock['nicename']).split(' '))
+                book['google'] = google.format(q.encode('utf-8')) 
+            
         return {"author_books":block}
     
     def videos_template_data(self,lang):
@@ -283,16 +288,15 @@ class AuthorSiteGenerator:
             logger.error("no jpgs for "+book)
             return
         return self.conf['front']['domain']+os.path.basename(self.conf['front']['srcs_dir'])+"/"+self.auth+"/"+book+"/jpg/"+os.path.basename(jpgs[0])
-    
-    def get_book_name(self,bookdir):
-        name = ""
-        block = self.authorblock['books']
-        for book in block:
-            if book['bookdir'] == bookdir:
-                name = book['book_nicename']
-                break;
-        return name
 
+    def get_book_name(self,bookdir):
+       name = ''
+       for book in self.authorblock['books']:
+           if book['bookdir'] == bookdir:
+               name = book['book_nicename']
+               break;
+       return name
+        
 if __name__=='__main__':
     (options, args) = op.parse_args()
     authdir = args[0]

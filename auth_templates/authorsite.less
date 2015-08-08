@@ -4,6 +4,10 @@
 @horizspace: 20px;
 @vertspace: 20px;
 @light-bg: #F2F2F2;
+
+html {
+    font-size:{{font_size_base}};
+}
 body, html {
     height:100%;
     font-family: Alef;
@@ -11,6 +15,7 @@ body, html {
 body {
     direction: {{dir}};
 }
+
 /** header **/
 header {
     background-color:{{primary_color}};
@@ -42,6 +47,14 @@ header {
 /* main */
 main {
     margin-top: @topheight;
+    a,a:hover {
+        color: {{primary_color}};
+    }
+    h1,h2,h3,h4,h5,h6 {
+        color: {{primary_color}};
+        text-align:center;
+        font-weight:600;
+    }
 }
 
 /** videos page **/

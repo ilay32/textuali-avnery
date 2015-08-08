@@ -48,27 +48,39 @@ function process_search_results(results) {
 } 
 
 $(document).ready(function() {
+    var youtube = "http://www.youtube.com/embed/ID?autoplay=1";
+    var display_params  = location.search.match(/^\?(vid|book)=(.*)$/);
+    if(display_params != null) {
+        if(display_params[1] == 'book') {
+            iframe_in_modal(window.TextualiAuthorBase+'/'+display_params[2]);        }
+        else if(display_params[1] == 'vid') {
+            iframe_in_modal(youtube.replace('ID',display_params[2]));
+        }
+    }
     $(window).load(function() {
         frame_height('main');
     });     
+    
     $(window).resize(function() {
         $('iframe').attr('src',this.src);
         frame_height('main');
     });
+    
     $('.flip-modal-trigger').click(function(c) {
         c.preventDefault();
         h = this.href; 
         iframe_in_modal(h);        
     });
+    
     $('.vid').click(function() {
         var id = $(this).data('vidid');
-        iframe_in_modal("http://www.youtube.com/embed/"+id+"?autoplay=1");
+        iframe_in_modal(youtube.replace('ID',id));
     });
-
+    
     $('#searchform').submit(function() {
         var query = $(this).serialize();
         $.ajax({
-            url: 'http://textuali.com/search/websearch.py/?pretty=1&f=uri_avnery&'+query,
+            url: window.TextualiSearchBase+'&'+query,
             DataType: 'json'
         }).done(function(results) {
             $('#auth-mod').modal('show').find('.modal-body').html(process_search_results(results));

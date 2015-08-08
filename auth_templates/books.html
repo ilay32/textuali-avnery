@@ -18,20 +18,20 @@
         <div class="col-sm-4 book-item">
             <div class="book-wrap clearfix"> 
                 <div class="col-sm-4 book-cover">
-                    <a class="flip-modal-trigger" href="{{front.domain}}/{{front.indices_dir}}/{{author_books.dir}}/{{bookdir}}">
+                    <a class="flip-modal-trigger" href="{{url}}">
                         <img class="cover-image" src="{{cover}}" alt="{{book_nicename}}"/>
                     </a>
                 </div>
                 <div class="col-sm-8 book-details">
-                    <h2>{{book_nicename}}</h2>
+                    <a href="{{url}}">{{book_nicename}}</a>
                     {{#publisher}}
                     <div class="book-detail">
-                        {{string_translations.publisher}}:{{publisher}}
+                        {{string_translations.publisher}}: {{publisher}}
                     </div>
                     {{/publisher}}
                     {{#year}}
                     <div class="book-detail">
-                        {{string_translations.year}}:{{year}}
+                        {{string_translations.year}}: {{year}}
                     </div>
                     {{/year}}
                     {{#editorial_info}}
@@ -39,19 +39,25 @@
                         {{editorial_info}}
                     </div>
                     {{/editorial_info}}
-                    {{#link}}
                     <div class="book-detail">
-                        <a href="{{link}}">{{link}}</a>
+                        {{#link}}
+                        <a target="_blank" href="{{link}}">{{link}}</a>
+                        {{/link}}
+                        {{#google}}
+                        <a target="_blank" href="{{google}}">{{string_translations.google}}</a>
+                        {{/google}}
                     </div>
-                    {{/link}}
                     {{#remark}}
                     <div class="book-detail">
                         {{remark}}
                     </div>
                     {{/remark}}
+                    <div class="book-detail">
+                        {{string_translations.language}}: {{language_name}}
+                    </div>
                     {{#orig_id}}
                     <div class="book-detail">
-                       {{string_translations.orig}}: <a class="flip-modal-trigger" href="{{{front.domain}}/{{front.indices_dir}}/{{author_books.dir}}/{{orig_id}}">{{orig_name}}</a>
+                       {{string_translations.orig}}: <a class="flip-modal-trigger" href="{{orig_url}}">{{orig_name}}</a>
                     </div>
                     {{/orig_id}}
                 </div>
