@@ -17,6 +17,11 @@ if __name__=='__main__':
     conf = json.load(file('config.json'))
     #execfile("../webconfig.py")
     logger.info(u"rendering front page")
+    for author in conf['authors']:
+        for book in author['books']:
+            type  = conf['book_types'].get(book['bookdir'][:1],"book")
+            book['type'] = textualangs.translate(type,'he')
+    conf['string_translations'] = textualangs.translations('he') 
     file('index.html','w').write(stache.render(stache.load_template('front-template.html'),conf).encode('utf-8'))
     logger.info("rendering flip ltr/rtl styles")
     fliprtl = open("css/flip-rtl.css","w")
