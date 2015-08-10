@@ -16,6 +16,10 @@ body {
     direction: {{dir}};
 }
 
+[data-href] {
+    cursor:pointer;
+}
+
 /** header **/
 header {
     background-color:{{primary_color}};
@@ -133,6 +137,16 @@ iframe{
     border:none;
 }
 
+/* isotope */
+.isotope-item {
+    margin: @vertspace @horizspace;
+    width: 200px;
+    height: 200px;
+    .item-image {
+        width:100%;
+    }
+    border: 2px solid {{primary_color}};
+}
 
 /** bootstrap overrides **/
 .container {

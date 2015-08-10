@@ -31,10 +31,23 @@ class AuthorSiteGenerator:
         self.langpat = re.compile("(.*)\-(\w{2})$")
         self.body_blocks = {
             "books": self.books_template_data,
-            "videos" : self.videos_template_data
+            "videos" : self.videos_template_data,
+            "isotope": self.isotope_template_data
         } 
         self.puncpat = re.compile('[%s]' % re.escape(string.punctuation)) 
-            
+    
+    def isotope_template_data(self,lang): 
+        blocksf = self.indexpath+"/isotope-blocks.json";
+        if os.path.isfile(blocksf):
+            blocks = jc.load(file(blocksf))
+            for block in blocks:
+                if 'text' in block:
+                    block['text'] = block['text'][lang]
+        else:
+            logger.error("could not find "+blocksf)
+            blocks = []
+        return {"iblocks" : blocks}
+    
     def books_template_data(self,lang):
         block = self.authorblock
         front = self.conf['front']

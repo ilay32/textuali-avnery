@@ -50,6 +50,16 @@ function process_search_results(results) {
 $(document).ready(function() {
     var youtube = "http://www.youtube.com/embed/ID?autoplay=1";
     var display_params  = location.search.match(/^\?(vid|book)=(.*)$/);
+    $('#isotope').isotope({
+        isOriginLeft: $('body').css('direction') == 'rtl' ? false : true,
+        itemSelector: window.isoIt,
+        layoutMode: 'masonry'
+    });
+
+    $('[data-href]').click(function() {
+        var h = $(this).data('href');
+        window.location.assign(h);
+    });
     if(display_params != null) {
         if(display_params[1] == 'book') {
             iframe_in_modal(window.TextualiAuthorBase+'/'+display_params[2]);        }
