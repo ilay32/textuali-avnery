@@ -1,4 +1,5 @@
 var first_flipto = location.href.match(/(\/#page\/)(\d*)$/);
+
 function page_files(page) {
    var filename = {{page_list}}[page-1], 
         hard = /[a-z]/.test(filename.slice(-1)) && (page >= {{page_list}}.length - 1 || page <= 2);
@@ -269,7 +270,7 @@ function loadApp() {
         }                 
     });
     
-    loadPage(1,$('.flipbook').find('div').eq(0));
+    //loadPage(1,$('.flipbook').find('div').eq(0));
     
     // URIs
     Hash.on('^page\/([0-9]*)\/\?(.*)$', {
@@ -443,8 +444,8 @@ $(document).ready(function() {
 $(function() {
     yepnope({
         test : Modernizr.csstransforms,
-        yep: ['{{topdir}}vendor/turnjs4/lib/turn.js'],
-        nope: ['{{topdir}}vendor/turnjs4/lib/turn.html4.min.js'],
+        yep: ['{{front.domain}}vendor/turnjs4/lib/turn.js'],
+        nope: ['{{front.domain}}vendor/turnjs4/lib/turn.html4.min.js'],
         complete: loadApp
     });
 });     

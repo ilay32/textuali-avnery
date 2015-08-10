@@ -44,8 +44,9 @@ if __name__=='__main__':
             srcpath  = conf['front']['srcs_dir']+"/"+authdir+"/"+book['bookdir']+"/"
             book['srcs'] = conf['front']['domain']+os.path.basename(conf['front']['srcs_dir'])+"/"+authdir+"/"+book['bookdir']+"/"
 
-            book['topdir'] = conf['front']['domain']
-            book['coddir'] = book['topdir'] + conf['front']['coddir']
+            #book['topdir'] = conf['front']['domain']
+            #book['coddir'] = book['topdir'] + conf['front']['coddir']
+            book['front'] = conf['front']
             book['authnice'] = authnicename
             jpgslist = sorted(glob.glob(srcpath+"jpg/*.jpg"))
             foundpages = len(jpgslist)
