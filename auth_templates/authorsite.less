@@ -1,6 +1,6 @@
 
 /* convenience vars. (real vars  -- user parameters and sides are handeled by mustache */
-@topheight:60px;
+@topheight:70px;
 @horizspace: 20px;
 @vertspace: 20px;
 @light-bg: #F2F2F2;
@@ -16,14 +16,14 @@ body {
     direction: {{dir}};
 }
 
-[data-href] {
+[data-href],[data-dismiss] {
     cursor:pointer;
 }
 
 /** header **/
-header {
-    background-color:{{primary_color}};
-    border-bottom: 2px solid {{textcolor}};
+#masthead {
+    background-color:{{header_bg}};
+    border-bottom: 5px solid {{header_text_color}};
     height:@topheight;
     .container.wide {
         margin-top: @vertspace/2;
@@ -50,12 +50,14 @@ header {
 
 /* main */
 main {
+    min-height:100%;
+    background-color:{{primary_color}};
     margin-top: @topheight;
     a,a:hover {
-        color: {{primary_color}};
+        color: {{header_text_color}};
     }
     h1,h2,h3,h4,h5,h6 {
-        color: {{primary_color}};
+        color: {{header_text_color}};
         text-align:center;
         font-weight:600;
     }
@@ -93,6 +95,9 @@ main {
     margin: 0 @horizspace;
     background-color:@light-bg;
     height:100%;
+    h3 a {
+        color: {{primary_color}};
+    }
 }
 .book-cover{
     height:100%;
@@ -128,6 +133,39 @@ main {
         width:100%;
         opacity:1;
    }
+}
+
+/* modal fixes */
+.modal-content {
+    border:none;
+    padding: 0;
+}
+.modal-header {
+    border-bottom:none;
+}
+.modal-lg {
+    margin:@vertspace/2 auto;
+    left:@horizspace*2;
+    direction:rtl;
+    width: 90%;
+    .modal-body {
+        padding-bottom: 0;
+     }
+    .close {
+        position:absolute;
+        //{{side}}: @horizspace/2;
+        z-index:5;
+        top:@vertspace/2;
+        img,& {
+            opacity:1;
+        }
+    }
+    iframe {
+        width: 100%;
+        border:none;
+        height: 900px;
+    }
+
 }
 
 /** iframes **/

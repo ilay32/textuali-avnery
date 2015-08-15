@@ -13,9 +13,10 @@
 	<meta http-equiv="X-UA-Compatible" content="IE=edge">
 	<meta name="viewport" content="width = 1050, user-scalable = no">
 	<title>{{string_translations.title}}</title>
-	<link href="{{front.domain}}/media/Alef-Webfont/stylesheet.css" rel="stylesheet" type="text/css">
+	<link rel="icon" type="image/png" href="{{favicon}}">
+    <link href="{{front.domain}}/media/Alef-Webfont/stylesheet.css" rel="stylesheet" type="text/css">
     <link href="{{front.domain}}/bootstrap/css/bootstrap.min.css" rel="stylesheet" type="text/css">
-	<link href="../css/style-{{dir}}.css" rel="stylesheet" type="text/css">
+	<link href="{{baseurl}}/css/style-{{dir}}.css?{{ver}}" rel="stylesheet" type="text/css">
     {{#cssoverride}}
 	<link href="../css/local-override.css" rel="stylesheet" type="text/css">
     {{/cssoverride}}
@@ -25,7 +26,7 @@
 </head>
 
 <body class="{{dir}}">
-    <header class="navbar navbar-fixed-top">
+    <header id="masthead" class="navbar navbar-fixed-top">
         <div class="container">
             <div class="row">
                 <nav id="primary-navigation" class="col-sm-4">
@@ -41,17 +42,28 @@
                 </nav>
                 <nav id="logos" class="col-sm-4">
                     <a href="{{baseurl}}/he" >
-                        <img src="img/logo-heb.png" alt="{{auth_name_he}}"/>
+                        <img src="{{baseurl}}/img/logo-heb.png" alt="{{auth_name_he}}"/>
                     </a>
                     <span>|</span>
                     <a href="{{baseurl}}/en">
-                        <img src="img/logo-en.png" alt="{{auth_name_en}}" />
+                        <img src="{{baseurl}}/img/logo-eng.png" alt="{{auth_name_en}}" />
                     </a>
                 </nav>
                 <div class="col-sm-4" id="util-buttons">
-                   <span id="info-trigger" class="glyphicon glyphicon-pencil"></span>
-                   <span id="share-trigger" class="glyphicon glyphicon-share"></span>
-                   <span id="search-trigger" class="glyphicon glyphicon-search"></span>
+                    {{#videos}}
+                    <a class="glyphicon" href="{{videos.file}}.html" title="{{videos.title}}">
+                        <img src="{{front.domain}}/media/play.png" alt="{{videos.label}}"/>
+                    </a> 
+                    {{/videos}}
+                    <span id="info-trigger" class="glyphicon">
+                        <img src="{{front.domain}}/media/info.png"/>
+                    </span>
+                    <span id="share-trigger" class="glyphicon">
+                        <img src="{{front.domain}}/media/share.png"/>
+                    </span>
+                    <span id="search-trigger" class="glyphicon">
+                        <img src="{{front.domain}}/media/search.png"/>
+                    </span>
                 </div>
             </div>
         </div>

@@ -23,7 +23,9 @@
                     </a>
                 </div>
                 <div class="col-sm-8 book-details">
-                    <a href="{{url}}">{{book_nicename}}</a>
+                    <h3>
+                        <a class="flip-modal-trigger" href="{{url}}">{{book_nicename}}</a>
+                    </h3>
                     {{#publisher}}
                     <div class="book-detail">
                         {{string_translations.publisher}}: {{publisher}}
@@ -39,14 +41,11 @@
                         {{editorial_info}}
                     </div>
                     {{/editorial_info}}
+                    {{#link}}
                     <div class="book-detail">
-                        {{#link}}
                         <a target="_blank" href="{{link}}">{{link}}</a>
-                        {{/link}}
-                        {{#google}}
-                        <a target="_blank" href="{{google}}">{{string_translations.google}}</a>
-                        {{/google}}
                     </div>
+                    {{/link}}
                     {{#remark}}
                     <div class="book-detail">
                         {{remark}}
@@ -60,6 +59,11 @@
                        {{string_translations.orig}}: <a class="flip-modal-trigger" href="{{orig_url}}">{{orig_name}}</a>
                     </div>
                     {{/orig_id}}
+                    {{#google}}
+                    <div class="book-detail">
+                        <a target="_blank" href="{{google}}">{{string_translations.google}}</a>
+                    </div>
+                    {{/google}}
                 </div>
             </div>
         </div>

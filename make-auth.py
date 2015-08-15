@@ -1,10 +1,11 @@
 
 
-import csv,json,jsoncomment,urllib2,re,logging,sys,os,glob,jsonmerge,lesscpy,six, optparse,textualangs,pystache,string
+import csv,json,jsoncomment,urllib2,re,logging,sys,os,glob,jsonmerge,lesscpy,six, optparse,textualangs,pystache,string,random
 
 #lets you compile the css with -s or skip it without
 op = optparse.OptionParser()
 op.add_option("-s", action="store_true", dest="render_styles", help="render style files")
+op.add_option("-n", action="store_true", dest="squash_english", help="change the English index.html to _index.html and put 'soon' as index")
 
 logging.basicConfig(level=logging.DEBUG) 
 logger=logging.getLogger('make-auth')
@@ -60,7 +61,7 @@ class AuthorSiteGenerator:
             if 'orig_id' in book:
                 book['orig_name'] = self.get_book_name(book['orig_id'])
                 book['orig_url'] = auth_base_url+book['orig_id']
-            if 'link' not in book:
+            if 'link' not in book or book['link']=="":
                 q = '+'.join(self.puncpat.sub('',book['book_nicename']+" "+self.authorblock['nicename']).split(' '))
                 book['google'] = google.format(q.encode('utf-8')) 
             
@@ -121,17 +122,24 @@ class AuthorSiteGenerator:
          
     def render_header(self,lang):
         templatedata=self.get_globals(lang)
+        templatedata['ver'] = str(random.randint(999,9999)) 
         menu_items = []
+        favicon = self.conf['front']['domain']+"/media/favicon.ico"
+        if isinstance(self.siteconfig['favicon'],six.string_types):
+            favicon = self.siteconfig['baseurl']+"/img/"+self.siteconfig['favicon']
+        templatedata['favicon'] = favicon
+        videos = None
         for menu_item in self.siteconfig['menu'][lang]:
             try :
                 it = self.siteconfig['pages'][menu_item]
-                menu_items.append(                
-                {
+                item_block = {
                     "file": 'index' if menu_item == 'home' else menu_item,
                     "label": it['label'][lang],
                     "title" : it['label'][lang] if 'mouseover' not in it else it['mouseover'][lang]
                 }
-             )
+                if menu_item == "videos":
+                    templatedata['videos'] = item_block
+                else: menu_items.append(item_block)
             except:
                 logger.error(menu_item+" not configured in 'pages' block")
         templatedata['menu_items'] = menu_items
@@ -153,6 +161,7 @@ class AuthorSiteGenerator:
         contf= self.indexpath+"/"+lang+"/"+page+"-maintext.txt"
         statf = self.indexpath+"/"+lang+"/"+page+"-static.html"
         tempf = "auth_templates/"+template+".html"
+        addf = self.indexpath+"/"+lang+"/"+page+"-additional.html"
         if template in self.body_blocks:
             block = jsonmerge.merge(block,self.body_blocks[template](lang))
         if template == "external":
@@ -182,7 +191,13 @@ class AuthorSiteGenerator:
             return
         if template == 'timeline':
             self.render_timeline_src(lang)
-        return  stache.render(stache.load_template(template+".html"),block).encode('utf-8')
+        
+        if os.path.isfile(addf) :
+            logger.info(u'loading '+lang+'/'+page+' addtional html')
+            add = open(addf).read()
+        else:
+            add = ""
+        return  stache.render(stache.load_template(template+".html"),block).encode('utf-8')+add
     
     def render_timeline_src(self,lang):
         tfilepath = "../timeline/"+self.auth+"_"+lang+".html"
@@ -294,6 +309,11 @@ class AuthorSiteGenerator:
             for page in men:
                 self.render_page(page,lang,header,footer)
         logger.info(authdir+" site done")
+        if options.squash_english:
+            eng_index = self.indexpath+"/en/index.html"
+            os.rename(eng_index,self.indexpath+"/en/_index.html")
+            soon = open(eng_index,"w")
+            soon.write("soon")
 
     def get_cover(self,book):
         jpgs = sorted(glob.glob(self.conf['front']['srcs_dir']+"/"+self.auth+"/"+book+"/jpg/*.jpg"))

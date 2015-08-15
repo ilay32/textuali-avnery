@@ -1,14 +1,29 @@
-textuali-avnery
+book indexes
+============
+* run: python make-in.py 
+errors should explain themselves, usually they're due to faulty config.json
+* uses the language module
+generic site
 ================
+* an author's site diectory is (dev)-texts/<auhthor>/site -- this is SITEROOT
+* the site is rendered with python and mustache as by a sitecofing.json.
+* most data is stored in json files in the site directory but some depend on the language module and on the authors flip data: home/sidelang/webapps/phptextuali/textuali(-dev)/config.json
+* siteconfig usage :
+    ** menu -- see comments in the json itself 
+    ** social -- see comments in the json itself 
+    ** pages -- see general comments in the json, but also: 
+        *** templates:
+            **** isotope -- requires an isotope-blocks.json in SITEROOT/<lang>/. see the json for instructions about block options
+            **** static -- requires a SITEROOT/<lang>/<page>-static.html -- good for arbitrary html
+            **** timeline -- requires a SITEROOT/timeline.json see instructions there
+            **** videos -- requires a SITEROOT/videos.json see instructions there
+       
+* any SITEROOT/<lang>/<page>-adittional.html will be appended at the bottom of the <main> element common to all templates.
+* run: python2.7 make-auth.py <author_directory>
 
-Minimal "book" to experiment with features for textuali flipbook etc.
-
-Note that `css/responsive.css` is not really responsive.
-It's a modified copy of `basic.css` with the *intention* of one day becoming responsive ;)
-
-#### Note (true for all kolmilim projects)
-
-Some files are not part of the repository. It is assumed that this folder is being served so that
-
-* `../scans/avnery/` is where we put the scans (too large to manage in a repo)
-* `../vendor/turnjs4` contains what it should (license [probably] doesn't allow putting it in a repo)
+language module
+===============
+* for language meta-data (the language name, it's directionality)
+* for string translations common to many textuali pages ("by", "book", "page" etc.)
+* directory:  home/sidelang/webapps/phptextuali/langs
+* fill in what you like textuali-langs.json. it is self explanatory.
