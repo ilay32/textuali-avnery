@@ -7,7 +7,7 @@ logging.basicConfig(level=logging.DEBUG)
 logger=logging.getLogger('make-in')
 
 
-stache = pystache.Renderer(search_dirs='.',file_encoding='utf-8',string_encoding='utf-8',file_extension=False)
+stache = pystache.Renderer(search_dirs='book_templates',file_encoding='utf-8',string_encoding='utf-8',file_extension=False)
 htmlparser = HTMLParser()
 
 def unescape(s):
@@ -22,13 +22,13 @@ if __name__=='__main__':
             type  = conf['book_types'].get(book['bookdir'][:1],"book")
             book['type'] = textualangs.translate(type,'he')
     conf['string_translations'] = textualangs.translations('he') 
-    file('index.html','w').write(stache.render(stache.load_template('front-template.html'),conf).encode('utf-8'))
+    file('index.html','w').write(stache.render(stache.load_template('front.html'),conf).encode('utf-8'))
     logger.info("rendering flip ltr/rtl styles")
     fliprtl = open("css/flip-rtl.css","w")
-    fliprtl.write(stache.render(stache.load_template("flip-style-template.css"),{ "dir" : "rtl", "side": "right", "oposide":"left", "even": "even", "odd": "odd"}).encode('utf-8')) 
+    fliprtl.write(stache.render(stache.load_template("flip-style.css"),{ "dir" : "rtl", "side": "right", "oposide":"left", "even": "even", "odd": "odd"}).encode('utf-8')) 
     fliprtl.close()
     flipltr = open("css/flip-ltr.css","w")
-    flipltr.write(stache.render(stache.load_template("flip-style-template.css"),{ "dir" : "ltr", "side": "left", "oposide":"right","even":"odd", "odd":"even"}).encode('utf-8')) 
+    flipltr.write(stache.render(stache.load_template("flip-style.css"),{ "dir" : "ltr", "side": "left", "oposide":"right","even":"odd", "odd":"even"}).encode('utf-8')) 
     flipltr.close()
     logger.info(u"rendering book indices")
     #book_type_pattern = re.compile('"^([a-zA-Z])(\d)$"')
@@ -92,7 +92,7 @@ if __name__=='__main__':
                 ind = open(indexpath+"index.html",'w')
                 ind.write(stache.render(stache.load_template('index-template.html'),book).encode('utf-8'))
                 sc = open(indexpath+"bookscript.js", 'w')
-                sc.write(stache.render(stache.load_template('bookscript-template.js'),book).encode('utf-8'))
+                sc.write(stache.render(stache.load_template('bookscript.js'),book).encode('utf-8'))
                 logger.info(book['book_shortname']+ " complete")
             else:
                 logger.info(book['book_shortname'] + " couldn't find pages")
