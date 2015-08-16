@@ -6,6 +6,7 @@ import csv,json,jsoncomment,urllib2,re,logging,sys,os,glob,jsonmerge,lesscpy,six
 op = optparse.OptionParser()
 op.add_option("-s", action="store_true", dest="render_styles", help="render style files")
 op.add_option("-n", action="store_true", dest="squash_english", help="change the English index.html to _index.html and put 'soon' as index")
+#op.add_option("-a", action="store_true", dest="do_htaccess", help="add a .htaccess file according to the 'primary_language' specified in siteconfig.json")
 
 logging.basicConfig(level=logging.DEBUG) 
 logger=logging.getLogger('make-auth')
@@ -178,7 +179,7 @@ class AuthorSiteGenerator:
             if(os.path.exists(statf)):
                 logger.info(u'loading '+lang+'/'+page+' static html')
                 stat = open(statf).read() 
-                return stat  
+                return '<div id="static-container">'+stat+'</div><!-- static-container-->'
             else:
                 logger.error(page+" ("+lang+") "+"has template 'static' but no " + page + "-static.html found in ...site/"+lang)
                 return
@@ -314,7 +315,12 @@ class AuthorSiteGenerator:
             os.rename(eng_index,self.indexpath+"/en/_index.html")
             soon = open(eng_index,"w")
             soon.write("soon")
-
+        '''if options.do_htaccess:
+            lang = self.siteconfig['primary_language'] if 'primary_language' in self.siteconfig else 'he'
+            hf = open(self.indexpath+"/.htaccess","w")
+            hf.write(stache.render(stache.load_template('htaccess.mustache'),{"lang": self.siteconfig['primary_language']}))
+            hf.close()'''
+           
     def get_cover(self,book):
         jpgs = sorted(glob.glob(self.conf['front']['srcs_dir']+"/"+self.auth+"/"+book+"/jpg/*.jpg"))
         if len(jpgs) == 0:

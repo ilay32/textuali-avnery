@@ -18,13 +18,13 @@
         <div class="col-sm-4 book-item">
             <div class="book-wrap clearfix"> 
                 <div class="col-sm-4 book-cover">
-                    <a class="flip-modal-trigger" href="{{url}}">
+                    <a data-book="{{bookdir}}" class="flip-modal-trigger" href="{{url}}">
                         <img class="cover-image" src="{{cover}}" alt="{{book_nicename}}"/>
                     </a>
                 </div>
                 <div class="col-sm-8 book-details">
                     <h3>
-                        <a class="flip-modal-trigger" href="{{url}}">{{book_nicename}}</a>
+                        <a data-book="{{bookdir}}" class="flip-modal-trigger" href="{{url}}">{{book_nicename}}</a>
                     </h3>
                     {{#publisher}}
                     <div class="book-detail">

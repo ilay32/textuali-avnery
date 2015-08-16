@@ -10,10 +10,14 @@
 </div> -->
 <div class="modal fade" id="auth-mod" tabindex="-1" role="dialog" aria-hidden="true">
     <div class="modal-dialog modal-lg">
-        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+        <button title="{{string_translations.close}}" d="close-modal" ype="button" data-dismiss="modal" class="close" data-dismiss="modal" aria-label="Close">
             
-            <img data-dismiss="modal" id="close-modal" title="{{string_translations.close}}" src="{{front.domain}}/media/close.png"/>
+            <img src="{{front.domain}}/media/close.png"/>
         </button>
+        <button type="button" class="close fade"  title="{{string_translations.share}}" id="share-modal" type="button"  aria-label="share">
+            <img  src="{{front.domain}}/media/share.png"/>
+        </button>
+        <input id="share-input"  type="text"/>
         <div class="modal-content">
             <div class="modal-body"></div>
         </div>
@@ -44,6 +48,7 @@
     window.TextualiStrings=JSON.parse(trns);
     window.TextualiSearchBase = '{{front.domain}}search/websearch.py/?pretty=1&f={{auth}}';
     window.TextualiAuthorBase ='{{front.domain}}{{front.srcs_dir}}/{{auth}}';
+    window.TextualiBase='{{front.domain}}';
 </script>
 <script src="{{front.domain}}{{front.coddir}}js/authorscripts.js"></script>
 </body>

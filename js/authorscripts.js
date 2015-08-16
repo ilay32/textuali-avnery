@@ -16,6 +16,15 @@ function iframe_in_modal(url) {
         $('#auth-mod').find('iframe').attr('src',url);
     },100);
 }
+
+function share(url) {
+    $('#share-modal').click(function() {
+        $('#share-input').fadeIn(300).val(url).mouseleave(function() {
+            $(this).delay(3000).fadeOut(400);
+        });
+    });
+}
+
 function filename2pagenum(name) {
     m = name.match(/^([a-z]\d{3}p)(\d{3})$/);
     return m[2];
@@ -48,14 +57,15 @@ function process_search_results(results) {
 } 
 
 $(document).ready(function() {
-    var youtube = "http://www.youtube.com/embed/ID?autoplay=1";
     var display_params  = location.search.match(/^\?(vid|book)=(.*)$/);
     $('#isotope').isotope({
         isOriginLeft: $('body').css('direction') == 'rtl' ? false : true,
         itemSelector: window.isoIt,
         layoutMode: 'masonry'
     });
-
+    $('#auth-mod').on('hide.bs.modal',function() {
+        $(this).find('.modal-body').empty();
+    });
     $('[data-href]').click(function() {
         var h = $(this).data('href');
         window.location.assign(h);
@@ -78,14 +88,20 @@ $(document).ready(function() {
     
     $('.flip-modal-trigger').click(function(c) {
         c.preventDefault();
-        h = this.href; 
+        h = $(this).attr('href'); 
         iframe_in_modal(h);        
+        if('string' == typeof($(this).data('book')) ) {
+            share(window.TextualiAuthorBase+'/?book='+$(this).data('book'));
+        }
+        if('string' == typeof($(this).data('vid'))) {
+            share(window.TextualiAuthorBase+'/?vid='+$(this).data('vid'));
+        }
     });
     
-    $('.vid').click(function() {
+    /*$('.vid').click(function() {
         var id = $(this).data('vidid');
         iframe_in_modal(youtube.replace('ID',id));
-    });
+    });*/
     
     $('#searchform').submit(function() {
         var query = $(this).serialize();

@@ -3,7 +3,6 @@
 @topheight:70px;
 @horizspace: 20px;
 @vertspace: 20px;
-@light-bg: #F2F2F2;
 
 html {
     font-size:{{font_size_base}};
@@ -19,6 +18,11 @@ body {
 [data-href],[data-dismiss] {
     cursor:pointer;
 }
+
+a {
+    transition: color 0.2s;
+}
+
 
 /** header **/
 #masthead {
@@ -93,10 +97,10 @@ main {
 }
 .book-wrap {
     margin: 0 @horizspace;
-    background-color:@light-bg;
+    background-color:{{light_bg}};
     height:100%;
-    h3 a {
-        color: {{primary_color}};
+    a,a:hover {
+        color:{{primary_color}};
     }
 }
 .book-cover{
@@ -108,8 +112,18 @@ main {
         }
     }
 }
-
-
+/* static template */
+#static-container {
+    margin:@vertspace auto;
+    width: 80%;
+    max-width: 1200px;
+    min-width: 460px;
+    background-color:{{light_bg}};
+    color:{{textcolor}};
+    a,h2,h3,h4,h5,h6 {
+        color:{{primary_color}};
+   }
+} 
 #util-buttons {
     .glyphicon {
         cursor:pointer;
@@ -159,7 +173,15 @@ main {
         img,& {
             opacity:1;
         }
+        &#share-modal {
+            {{side}} : 50px;
+        }
     }
+    #share-input {
+        display:none;
+        width: 500px;
+        text-align:left;
+    } 
     iframe {
         width: 100%;
         border:none;

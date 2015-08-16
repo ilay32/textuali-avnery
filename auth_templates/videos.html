@@ -13,7 +13,7 @@
 <div class="row">
     {{#videos}}
      <div class="col-sm-3 vidwrap">
-        <div class="vid" data-vidid="{{id}}" >
+        <div class="vid flip-modal-trigger" href="http://www.youtube.com/embed/{{id}}?autoplay=1" data-vid={{id}}>
             <img  src="{{firstframe}}"/>
             <h4  class="vid-title">{{title}}</h4>
         </div>
