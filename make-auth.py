@@ -5,7 +5,9 @@ import csv,json,jsoncomment,urllib2,re,logging,sys,os,glob,jsonmerge,lesscpy,six
 #lets you compile the css with -s or skip it without
 op = optparse.OptionParser()
 op.add_option("-s", action="store_true", dest="render_styles", help="render style files")
-op.add_option("-n", action="store_true", dest="squash_english", help="change the English index.html to _index.html and put 'soon' as index")
+op.add_option("--hidelang", action="store", type="string", dest="hidelang", help="hides the specified language wihtout rendering the site")
+op.add_option("--showlang", action="store", type="string", dest="showlang", help="hides the specified language without rendering the site")
+
 #op.add_option("-a", action="store_true", dest="do_htaccess", help="add a .htaccess file according to the 'primary_language' specified in siteconfig.json")
 
 logging.basicConfig(level=logging.DEBUG) 
@@ -30,7 +32,8 @@ class AuthorSiteGenerator:
         self.conf = jc.load(file('config.json'))
         self.auth = auth
         self.found = self.search_auth()
-        self.langpat = re.compile("(.*)\-(\w{2})$")
+        #self.langpat = re.compile("(.*)\-(\w{2})$")
+        self.langpat = re.compile("^[a-z]{2}$")
         self.body_blocks = {
             "books": self.books_template_data,
             "videos" : self.videos_template_data,
@@ -81,9 +84,11 @@ class AuthorSiteGenerator:
                 {
                     "id": vid['id'],
                     "title": vid['title'][lang],
-                    "firstframe" : frame0.format(vid['id'])
+                    "firstframe" : frame0.format(vid['id']),
+                    "date" : vid['date']
                 }
             )
+            videos.sort(key=lambda x : x['date'],reverse=True)
         return {"videos" : videos}
 
     def timeline_template_data(self,lang):
@@ -126,21 +131,35 @@ class AuthorSiteGenerator:
         templatedata['ver'] = str(random.randint(999,9999)) 
         menu_items = []
         favicon = self.conf['front']['domain']+"/media/favicon.ico"
+        logo = None
+        dlang = 'he' if textualangs.dir(lang) == 'right' else 'en'
+        try:
+            logo  = os.path.basename(glob.glob(self.indexpath+"/img/logo-"+lang+".*")[0])
+        except:
+            logos  = glob.glob(self.indexpath+"/img/logo-"+dlang+".*")
+            if len(logos) > 0:
+                logo = os.path.basename(logos[0])
+                logger.info("using "+logo+" for "+lang+" header")
+        if isinstance(logo,six.string_types):
+            templatedata['logo'] = logo
+        else:
+            logger.error("both /img/logo-"+lang+" and /img/logo-"+self.siteconfig['primary_language']+" not found")
+
         if isinstance(self.siteconfig['favicon'],six.string_types):
             favicon = self.siteconfig['baseurl']+"/img/"+self.siteconfig['favicon']
         templatedata['favicon'] = favicon
-        videos = None
         for menu_item in self.siteconfig['menu'][lang]:
             try :
                 it = self.siteconfig['pages'][menu_item]
-                item_block = {
+                menu_items.append({
                     "file": 'index' if menu_item == 'home' else menu_item,
                     "label": it['label'][lang],
                     "title" : it['label'][lang] if 'mouseover' not in it else it['mouseover'][lang]
-                }
-                if menu_item == "videos":
+                })
+
+                '''if menu_item == "videos":
                     templatedata['videos'] = item_block
-                else: menu_items.append(item_block)
+                else: menu_items.append(item_block)'''
             except:
                 logger.error(menu_item+" not configured in 'pages' block")
         templatedata['menu_items'] = menu_items
@@ -253,8 +272,11 @@ class AuthorSiteGenerator:
         g['string_translations']=jsonmerge.merge(textualangs.translations(lang),textualangs.translations(lang,self.siteconfig['string_translations']))
         g['dir'] = textualangs.dir(lang)
         g['lang'] = lang
-        g['auth_name_he'] = self.siteconfig['string_translations']['author']['he']
-        g['auth_name_en'] = self.siteconfig['string_translations']['author']['en']
+        try:
+            a = self.siteconfig['string_translations']['author']
+            g['auth_name'] = a[lang] if lang in a else a[self.siteconfig['primary_language']]
+        except:
+            logger.error("the author name is not specified for "+lang+" nor for "+self.siteconfig['primary_language'])
         g['front'] = self.conf['front']
         g['auth'] = self.auth
         return g
@@ -277,7 +299,7 @@ class AuthorSiteGenerator:
         stylertl = open(self.indexpath+"/css/style-rtl.css", 'w')
         styleltr = open(self.indexpath+"/css/style-ltr.css", 'w')
         rtlvars = jsonmerge.merge(self.siteconfig['stylevars'], {"dir": "rtl", "side": "right", "oposide": "left" })
-        stylertl.write(lesscpy.compile(six.StringIO(stache.render(stache.load_template('authorsite.less'),rtlvars)),minify=True)) 
+        stylertl.write(lesscpy.compile(six.StringIO(stache.render(stache.load_template('authorsite.less'),rtlvars).encode('utf-8')),minify=True)) 
         #stylertl.write(lesscpy.compile(six.StringIO(self.json2less(rtlvars)+open('auth_templates/authorsite.less').read()),minify=True)) 
         stylertl.close()
         logger.info('rtl styles done')
@@ -310,16 +332,12 @@ class AuthorSiteGenerator:
             for page in men:
                 self.render_page(page,lang,header,footer)
         logger.info(authdir+" site done")
-        if options.squash_english:
-            eng_index = self.indexpath+"/en/index.html"
-            os.rename(eng_index,self.indexpath+"/en/_index.html")
-            soon = open(eng_index,"w")
-            soon.write("soon")
-        '''if options.do_htaccess:
-            lang = self.siteconfig['primary_language'] if 'primary_language' in self.siteconfig else 'he'
-            hf = open(self.indexpath+"/.htaccess","w")
-            hf.write(stache.render(stache.load_template('htaccess.mustache'),{"lang": self.siteconfig['primary_language']}))
-            hf.close()'''
+        
+        #if options.do_htaccess:
+        #lang = self.siteconfig['primary_language'] if 'primary_language' in self.siteconfig else 'he'
+        #hf = open(self.indexpath+"/.htaccess","w")
+        #hf.write(stache.render(stache.load_template('htaccess.mustache'),{"lang": self.siteconfig['primary_language']}))
+        #hf.close()
            
     def get_cover(self,book):
         jpgs = sorted(glob.glob(self.conf['front']['srcs_dir']+"/"+self.auth+"/"+book+"/jpg/*.jpg"))
@@ -335,12 +353,55 @@ class AuthorSiteGenerator:
                name = book['book_nicename']
                break;
        return name
-        
+    
+    def hide_lang(self,lang):
+        base  = self.indexpath+"/"+lang+"/"
+        os.rename(base+"index.html",self.indexpath+"_index.html")
+        soon = open(base+"index.html","w")
+        soon.write("soon")
+        soon.close()
+        h = open(base+".htaccess","w")
+        h.write("RewriteEngine on\nRewriteRule ^.+$ /")
+        h.write(self.indexpath.replace('../','')+"/"+lang+"/ [R=302,NC,L]\n")
+        h.close()
+        logger.info(lang+" hidden") 
+
+    def show_lang(self,lang):
+        base  = self.indexpath+"/"+lang+"/"
+        if not os.path.isfile(base+"_index.html") and  not os.path.isfile(base+".htaccess"):
+            logger.error(base+" should be showing. use the --show option only after --hide")
+            quit();
+        else:
+            os.remove(base+"index.html")
+            os.remove(base+".htaccess")
+            os.rename(base+"_index.html",base+"index.html")
+        logger.info(lang+" reinstated")
+
+
 if __name__=='__main__':
     (options, args) = op.parse_args()
-    authdir = args[0]
-    asg = AuthorSiteGenerator(authdir)
-    if(asg.good_to_go()):
-        logger.info(u"rendering "+authdir)
-        asg.render_site()
-    
+    if not args:
+        logger.error("usage:python2.7 make-auth.py [options] [lang (to show/hide]  <author>")
+        quit()
+    else:
+        authdir = args[0]
+        asg = AuthorSiteGenerator(authdir)
+        if(asg.good_to_go()):
+            if options.hidelang:
+                if asg.langpat.match(options.hidelang):
+                    logger.info("hiding "+options.hidelang)
+                    asg.hide_lang(options.hidelang)
+                else:
+                    logger.error("bad lang to hide: "+options.hidelang+". aborting")
+                quit()
+            elif options.showlang:
+                if asg.langpat.match(options.showlang):
+                    logger.info("showing "+options.showlang)
+                    asg.show_lang(options.showlang)
+                else:
+                    logger.error("bad lang to show: "+options.showlang+". aborting")
+                quit() 
+            else:
+                logger.info(u"rendering "+authdir)
+                asg.render_site()
+            

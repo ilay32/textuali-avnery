@@ -29,7 +29,12 @@
     <header id="masthead" class="navbar navbar-fixed-top">
         <div class="container">
             <div class="row">
-                <nav id="primary-navigation" class="col-sm-4">
+                <div class="col-sm-2" id="logo">
+                    <a href="{{baseurl}}/{{lang}}" >
+                        <img src="{{baseurl}}/img/{{logo}}" alt="{{auth_name}}"/>
+                    </a>
+                </div>
+                <nav id="primary-navigation" class="col-sm-7">
                     <ul class="nav nav-pills nav-justified">
                         {{#menu_items}}
                          <li>
@@ -40,7 +45,7 @@
                         {{/menu_items}}
                     </ul>
                 </nav>
-                <nav id="logos" class="col-sm-4">
+                <!--<nav id="logos" class="col-sm-4">
                     <a href="{{baseurl}}/he" >
                         <img src="{{baseurl}}/img/logo-heb.png" alt="{{auth_name_he}}"/>
                     </a>
@@ -48,13 +53,13 @@
                     <a href="{{baseurl}}/en">
                         <img src="{{baseurl}}/img/logo-eng.png" alt="{{auth_name_en}}" />
                     </a>
-                </nav>
-                <div class="col-sm-4" id="util-buttons">
-                    {{#videos}}
+                </nav>-->
+                <div class="col-sm-3" id="util-buttons">
+                    <!--{{#videos}}
                     <a class="glyphicon" href="{{videos.file}}.html" title="{{videos.title}}">
                         <img src="{{front.domain}}/media/play.png" alt="{{videos.label}}"/>
                     </a> 
-                    {{/videos}}
+                    {{/videos}}-->
                     <span id="info-trigger" class="glyphicon">
                         <img src="{{front.domain}}/media/info.png"/>
                     </span>

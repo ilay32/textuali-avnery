@@ -3,6 +3,13 @@ book indexes
 * run: python make-in.py 
 errors should explain themselves, usually they're due to faulty config.json
 * uses the language module
+* flip  styling: 
+to overrride default styles use (create if needed) the following files:
+    ** for all <author> flips:
+    .../(dev)-texts/<author>/authorstyle.css
+    ** for particular <book>:
+    .../(dev)-texts/uri_avnery/<book>/bookstyle.css
+
 generic site
 ================
 * an author's site diectory is (dev)-texts/<auhthor>/site -- this is SITEROOT

@@ -67,8 +67,19 @@ $(document).ready(function() {
         $(this).find('.modal-body').empty();
     });
     $('[data-href]').click(function() {
-        var h = $(this).data('href');
-        window.location.assign(h);
+        var h = $(this).data('href'),
+            o = $(this).data('open');
+        switch(o) {
+            case 'blank':
+                window.open(h, '_blank');
+            break;
+            case 'modal':
+                iframe_in_modal(h);
+            break;
+            default:
+            case undefined:
+                window.location.assign(h);
+        }
     });
     if(display_params != null) {
         if(display_params[1] == 'book') {

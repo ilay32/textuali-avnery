@@ -1,6 +1,7 @@
 
 /* convenience vars. (real vars  -- user parameters and sides are handeled by mustache */
 @topheight:70px;
+@topborderwidth: 5px;
 @horizspace: 20px;
 @vertspace: 20px;
 
@@ -27,11 +28,17 @@ a {
 /** header **/
 #masthead {
     background-color:{{header_bg}};
-    border-bottom: 5px solid {{header_text_color}};
+    border-bottom: @topborderwidth solid {{light_bg}};    
+    box-sizing:border-box;
     height:@topheight;
     .container.wide {
         margin-top: @vertspace/2;
     }
+    nav,#util-buttons {
+        margin-top: @vertspace;
+        font-size:110%;
+    }
+   
 }
 #primary-navigation {
     .nav {
@@ -48,8 +55,8 @@ a {
     }
 }
 
-#logos {
-    text-align:center;
+#logo img{
+    height:@topheight - @topborderwidth;    
 }
 
 /* main */
@@ -71,6 +78,7 @@ main {
 .vidwrap {
     margin: 10px 0;
     .vid {
+        border: @topborderwidth solid {{light_bg}};
         position: relative;
         cursor: pointer;
         > img {
@@ -188,7 +196,7 @@ main {
         height: 900px;
     }
 
-}
+} 
 
 /** iframes **/
 iframe{
@@ -200,12 +208,14 @@ iframe{
 /* isotope */
 .isotope-item {
     margin: @vertspace @horizspace;
-    width: 200px;
-    height: 200px;
+    padding:@vertspace @horizspace;
+    background-color:{{header_text_color}};
     .item-image {
         width:100%;
     }
-    border: 2px solid {{primary_color}};
+    .item-text{
+        max-width:300px;
+    }
 }
 
 /** bootstrap overrides **/
