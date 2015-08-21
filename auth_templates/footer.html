@@ -42,6 +42,13 @@
         </ul>
     </nav>
 </div>
+{{#about}}
+<div id="info-container" class="fade utilbox">
+    <div class="row">
+        <p class="col-sm-12">{{about}}</p>
+    </div>
+</div>
+{{/about}}
 <script type="text/javascript">
     var trns = "{{string_translations}}".replace(/u'(?=[\W\w])/g,"'");
     trns = trns.replace(/'/g,'"');

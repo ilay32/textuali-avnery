@@ -4,7 +4,7 @@
 @topborderwidth: 5px;
 @horizspace: 20px;
 @vertspace: 20px;
-
+@header_text_color: lighten({{light_bg}},30%);
 html {
     font-size:{{font_size_base}};
 }
@@ -45,10 +45,9 @@ a {
         list-style: none;
         padding-{{side}}:0;
         li > a {
-            color: {{header_text_color}};
+            color: @header_text_color;
             &:hover{
                 background-color: transparent;
-                color:darken({{header_text_color}},20%);
                 text-decoration:underline;
            }
         }
@@ -65,10 +64,10 @@ main {
     background-color:{{primary_color}};
     margin-top: @topheight;
     a,a:hover {
-        color: {{header_text_color}};
+        color:@header_text_color;
     }
     h1,h2,h3,h4,h5,h6 {
-        color: {{header_text_color}};
+        color:@header_text_color;
         text-align:center;
         font-weight:600;
     }
@@ -144,17 +143,22 @@ main {
     height: 0px;
     width: 0px;
     overflow: hidden;
+    padding: @vertspace @horizspace;
     text-align:{{oposide}};
     opacity: 0;
     transition: opacity 0.15s linear 0s;
     position: fixed;
     top: @topheight;
-    background-color: {{primary_color}};
+    background-color: {{header_bg}};
+    color:@header_text_color;
     &.in {
         height:auto;
         width:100%;
         opacity:1;
    }
+   form {
+       color: {{textcolor}};
+    }
 }
 
 /* modal fixes */
@@ -209,7 +213,7 @@ iframe{
 .isotope-item {
     margin: @vertspace @horizspace;
     padding:@vertspace @horizspace;
-    background-color:{{header_text_color}};
+    background-color:{{light_bg}};
     .item-image {
         width:100%;
     }

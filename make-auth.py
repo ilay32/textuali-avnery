@@ -40,6 +40,7 @@ class AuthorSiteGenerator:
             "isotope": self.isotope_template_data
         } 
         self.puncpat = re.compile('[%s]' % re.escape(string.punctuation)) 
+        self.hidden =  eval(open('.makeauthignore').read())
     
     def isotope_template_data(self,lang): 
         blocksf = self.indexpath+"/isotope-blocks.json";
@@ -128,9 +129,12 @@ class AuthorSiteGenerator:
          
     def render_header(self,lang):
         templatedata=self.get_globals(lang)
+        # prevents css caching
         templatedata['ver'] = str(random.randint(999,9999)) 
         menu_items = []
+        utils = [] 
         favicon = self.conf['front']['domain']+"/media/favicon.ico"
+        #try to find the right logo for this language
         logo = None
         dlang = 'he' if textualangs.dir(lang) == 'right' else 'en'
         try:
@@ -148,6 +152,7 @@ class AuthorSiteGenerator:
         if isinstance(self.siteconfig['favicon'],six.string_types):
             favicon = self.siteconfig['baseurl']+"/img/"+self.siteconfig['favicon']
         templatedata['favicon'] = favicon
+        # collect menu items for lang
         for menu_item in self.siteconfig['menu'][lang]:
             try :
                 it = self.siteconfig['pages'][menu_item]
@@ -162,12 +167,28 @@ class AuthorSiteGenerator:
                 else: menu_items.append(item_block)'''
             except:
                 logger.error(menu_item+" not configured in 'pages' block")
+        # simliarly, colect the uti buttons (search, info, share)
+        for util in self.siteconfig['utils']:
+            icon = self.conf['front']['domain']+"media/"+util['icon']
+            if os.path.isfile(self.indexpath+"/img/"+util['icon']):
+                icon = self.siteconfig['baseurl']+"/img/"+util['icon']
+            utils.append({
+                "name" : util['name'],
+                "icon" : icon,
+                "title" : util['mouseover'][lang] if lang in util['mouseover'] else ""}) 
+        templatedata['utils'] = utils
         templatedata['menu_items'] = menu_items
         templatedata['cssoverride']=os.path.exists(self.indexpath+"/css/local-override.css") 
         return stache.render(stache.load_template('header.html'),templatedata).encode('utf-8')
     
     def render_footer(self,lang):
         templatedata=self.get_globals(lang)
+        aboutf = self.indexpath+"/"+lang+"/about.txt"
+        if os.path.isfile(aboutf):
+            about = open(aboutf).read()
+            templatedata['about'] = about
+        else: 
+            logger.info("missing "+aboutf)
         socials =[]
         for social in self.siteconfig['socials'] :
             socials.append(jsonmerge.merge(social,{"label":social['label'][lang]}))
@@ -304,7 +325,7 @@ class AuthorSiteGenerator:
         stylertl.close()
         logger.info('rtl styles done')
         ltrvars = jsonmerge.merge(self.siteconfig['stylevars'],{ "dir": "ltr", "side": "left", "oposide": "right" }) 
-        styleltr.write(lesscpy.compile(six.StringIO(stache.render(stache.load_template('authorsite.less'),ltrvars)),minify=True))
+        styleltr.write(lesscpy.compile(six.StringIO(stache.render(stache.load_template('authorsite.less'),ltrvars).encode('utf-8')),minify=True))
         #styleltr.write(lesscpy.compile(six.StringIO(self.json2less(ltrvars)+open('auth_templates/authorsite.less').read()),minify=True)) 
         styleltr.close()
         logger.info('ltr styles done')
@@ -325,14 +346,18 @@ class AuthorSiteGenerator:
         if options.render_styles:
             self.render_styles()
         for lang,men in self.siteconfig['menu'].iteritems():
-            header = self.render_header(lang)
-            footer = self.render_footer(lang)
-            if not 'home' in men:
-                self.render_page('home',lang,header,footer)
-            for page in men:
-                self.render_page(page,lang,header,footer)
+            if lang in self.hidden:
+                logger.info("skipping "+textualangs.langname(lang)+" -- it is hidden. to render it use '--showlang "+lang+"' and render the site again")
+            else:
+                header = self.render_header(lang)
+                footer = self.render_footer(lang)
+                #if not 'home' in men:
+                #    self.render_page('home',lang,header,footer)
+                for page in self.siteconfig['pages']:
+                    self.render_page(page,lang,header,footer)
+                logger.info(textualangs.langname(lang)+" rendered")
         logger.info(authdir+" site done")
-        
+    
         #if options.do_htaccess:
         #lang = self.siteconfig['primary_language'] if 'primary_language' in self.siteconfig else 'he'
         #hf = open(self.indexpath+"/.htaccess","w")
@@ -355,27 +380,40 @@ class AuthorSiteGenerator:
        return name
     
     def hide_lang(self,lang):
-        base  = self.indexpath+"/"+lang+"/"
-        os.rename(base+"index.html",self.indexpath+"_index.html")
-        soon = open(base+"index.html","w")
-        soon.write("soon")
-        soon.close()
-        h = open(base+".htaccess","w")
-        h.write("RewriteEngine on\nRewriteRule ^.+$ /")
-        h.write(self.indexpath.replace('../','')+"/"+lang+"/ [R=302,NC,L]\n")
-        h.close()
-        logger.info(lang+" hidden") 
+        if lang in self.hidden:
+            logger.info(lang+" already hidden")
+        else:
+            base  = self.indexpath+"/"+lang+"/"
+            os.rename(base+"index.html",base+"_index.html")
+            soon = open(base+"index.html","w")
+            soon.write("soon")
+            soon.close()
+            h = open(base+".htaccess","w")
+            h.write("RewriteEngine on\nRewriteRule ^.+$ /")
+            h.write(self.indexpath.replace('../','')+"/"+lang+"/ [R=302,NC,L]\n")
+            h.close()
+            self.hidden.append(lang)
+            logger.info(lang+" hidden") 
+            ig = open(".makeauthignore","w")
+            ig.write(jc.dumps(self.hidden))
+            ig.close()
+            
 
     def show_lang(self,lang):
-        base  = self.indexpath+"/"+lang+"/"
-        if not os.path.isfile(base+"_index.html") and  not os.path.isfile(base+".htaccess"):
-            logger.error(base+" should be showing. use the --show option only after --hide")
-            quit();
+        if lang not in self.hidden:
+            logger.error(lang+" should be showing. use the --show option only after --hide")
         else:
+            base  = self.indexpath+"/"+lang+"/"
             os.remove(base+"index.html")
             os.remove(base+".htaccess")
             os.rename(base+"_index.html",base+"index.html")
-        logger.info(lang+" reinstated")
+            ig = open(".makeauthignore","w")
+            h = jc.dumps(self.hidden.remove(lang))
+            if h == 'null':
+                h = '[]'
+            ig.write(h)
+            ig.close()
+            logger.info(lang+" reinstated")
 
 
 if __name__=='__main__':

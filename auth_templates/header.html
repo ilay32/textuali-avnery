@@ -60,15 +60,11 @@
                         <img src="{{front.domain}}/media/play.png" alt="{{videos.label}}"/>
                     </a> 
                     {{/videos}}-->
-                    <span id="info-trigger" class="glyphicon">
-                        <img src="{{front.domain}}/media/info.png"/>
+                    {{#utils}}
+                    <span id="{{name}}-trigger" title="{{title}}" class="glyphicon">
+                        <img alt="{{title}}" src="{{icon}}"/>
                     </span>
-                    <span id="share-trigger" class="glyphicon">
-                        <img src="{{front.domain}}/media/share.png"/>
-                    </span>
-                    <span id="search-trigger" class="glyphicon">
-                        <img src="{{front.domain}}/media/search.png"/>
-                    </span>
+                    {{/utils}}
                 </div>
             </div>
         </div>
