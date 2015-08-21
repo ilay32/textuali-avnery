@@ -210,7 +210,7 @@ function loadApp() {
     
     if(Math.abs(1 - openbook_ratio/screen_ratio) > Math.abs(1 - screen_ratio/openbook_ratio)) {
         openbook_ratio = 1/openbook_ratio;
-        book_width = Math.floor($(window).width() * 0.95);
+        book_width = Math.floor($(window).width() * 0.8);
         book_height = Math.floor(book_width*openbook_ratio);
     }   
     else {
@@ -412,7 +412,14 @@ $(document).ready(function() {
     $('.flb-prev').click(function() {
         $('.flipbook').turn('previous');
     });
-
+    
+    $('.flb-seek').click(function() {
+        seek = $(this).data('seek');
+        console.log(seek);
+        if(/^\d+$/.test(seek)) {
+            $('.flipbook').turn('page',seek);
+        }
+    });
     $('.mode-toggle').click(function() {
         $('.mode-toggle').removeClass('on');
         var d=$('.flipbook').data();
@@ -429,7 +436,7 @@ $(document).ready(function() {
 
     {{#toc}}
     $('#totoc').click(function() {
-        if(!$(this).hasClass('jpg-toe')) {  
+        if(!$(this).hasClass('jpg-toc')) {  
             $('.flipbook').turn('page',{{toc}});
         }
     });

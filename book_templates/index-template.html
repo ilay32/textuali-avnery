@@ -59,6 +59,9 @@
                      </button>
                 </div>
                 <div class="btn-group btn-group-xs" id="next-prev-toc">
+                    <button title="to front cover" type="button" class="btn btn-default flb-seek" data-seek="1">
+                        <span class="glyphicon glyphicon-{{backward}}"></span>
+                    </button>
                     <button title="previous page" type="button" class="btn flb-prev btn-default">
                         <span class="glyphicon glyphicon-chevron-{{side}}"></span>
                     </button>
@@ -78,6 +81,10 @@
                     <button title="next page" type="button" class="btn btn-default flb-next" >
                         <span class="glyphicon glyphicon-chevron-{{oposide}}"></span>
                     </button>
+                    <button title="to back cover" type="button" class="btn btn-default flb-seek" data-seek="{{pages}}">
+                        <span class="glyphicon glyphicon-{{forward}}"></span>
+                    </button>
+
                 </div>
                 <div class="btn-group btn-group-xs">
                     {{#pdf_downloads}}

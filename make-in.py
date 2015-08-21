@@ -85,6 +85,8 @@ if __name__=='__main__':
                 book['openbook_ratio'] = float(2*fsize[0])/fsize[1]
                 book['flipdirection'] = textualangs.dir(book['language'])
                 book['side'] = 'right' if book['flipdirection'] == 'rtl' else 'left'
+                book['backward'] = 'backward' if book['side'] == 'left' else 'forward'
+                book['forward'] = 'forward' if book['side']  == 'left' else 'backward'
                 book['oposide'] = 'left' if book['side'] == 'right' else 'right'
                 if not os.path.exists(indexpath):
                     os.makedirs(indexpath)
