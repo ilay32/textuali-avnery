@@ -68,8 +68,10 @@ main {
     }
     h1,h2,h3,h4,h5,h6 {
         color:@header_text_color;
-        text-align:center;
         font-weight:600;
+        main > & {
+            text-align:center;
+        }
     }
 }
 
@@ -98,26 +100,64 @@ main {
 
 /** publications page **/
 .book-item{
-    height:300px;
+    height:325px;
     overflow:hidden;
     margin: @vertspace 0;
 }
-.book-wrap {
-    margin: 0 @horizspace;
+.item-inner {
+    padding:@vertspace/2 @horizspace/2;
     background-color:{{light_bg}};
-    height:100%;
     a,a:hover {
+        color:{{primary_color}};
+    }
+    &.top {
+        height:75%;
+        padding-top:0;
+    }
+    &.bottom {
+        height:25%;
+        > * {
+            display:inline-block;
+            margin-{{oposide}}:@horizspace;
+            margin-bottom:@vertspace/2;
+            overflow:hidden;
+            img {
+                width:100%;
+                height:auto;
+            }
+        }
+        #back-cover{
+            width:10%;
+            max-height:65px;
+        }
+        #flip-icon {
+            width: 15%;
+        }
+    }
+    .pipe {
+        margin: 0 5px;
         color:{{primary_color}};
     }
 }
 .book-cover{
+    width:30%;
+    float:{{side}};
     height:100%;
+    margin-top:@vertspace;
+    overflow:hidden;
     a {
         display:block;
-        img {
-            width:100%;
-        }
+        height:100%;
     }
+    .cover-image{
+        width:100%;
+        max-height:100%;
+    }
+}
+.book-details {
+    width:70%;
+    float:{{side}};
+    padding:0 @horizspace;
 }
 /* static template */
 #static-container {
@@ -171,7 +211,6 @@ main {
 }
 .modal-lg {
     margin:@vertspace/2 auto;
-    left:@horizspace*2;
     direction:rtl;
     width: 90%;
     .modal-body {

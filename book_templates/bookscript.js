@@ -221,6 +221,7 @@ function loadApp() {
     $('.textuali-container').width(book_width + 20);
     $('.flb-next.largenav').css('{{oposide}}', largenav_offset);
     $('.flb-prev.largenav').css('{{side}}',largenav_offset);
+    $('.largenav').css('top',book_height/2+'px');
     $('.largenav').removeClass('hidden');
     $('.flipbook').turn({
         width:book_width,

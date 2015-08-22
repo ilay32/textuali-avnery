@@ -1,6 +1,6 @@
 var minuses = {
     'main' : 50,
-    '#auth-mod': 150
+    '#auth-mod': 30
 }
 function frame_height(elem) {
     var height = $(window).height() - minuses[elem];

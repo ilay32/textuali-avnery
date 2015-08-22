@@ -60,7 +60,11 @@ class AuthorSiteGenerator:
         auth_base_url = front['domain']+"/"+front['indices_dir']+"/"+self.authorblock['dir']+"/"
         google = "https://www.google.com/search?q={0}"
         for book in block['books']:
-            book['cover'] = self.get_cover(book['bookdir'])
+            files = self.book_files(book['bookdir'])
+            if files != None:
+                book['cover'] = files['front']
+                book['backcover'] = files['back']
+                book['pages'] = files['count']
             book['url'] = auth_base_url+book['bookdir']
             book['language_name'] = textualangs.langname(book['language'])
             if 'orig_id' in book:
@@ -364,12 +368,18 @@ class AuthorSiteGenerator:
         #hf.write(stache.render(stache.load_template('htaccess.mustache'),{"lang": self.siteconfig['primary_language']}))
         #hf.close()
            
-    def get_cover(self,book):
+    def book_files(self,book):
+        urlbase = self.conf['front']['domain']+os.path.basename(self.conf['front']['srcs_dir'])+"/"+self.auth+"/"+book+"/jpg/"
         jpgs = sorted(glob.glob(self.conf['front']['srcs_dir']+"/"+self.auth+"/"+book+"/jpg/*.jpg"))
         if len(jpgs) == 0:
             logger.error("no jpgs for "+book)
-            return
-        return self.conf['front']['domain']+os.path.basename(self.conf['front']['srcs_dir'])+"/"+self.auth+"/"+book+"/jpg/"+os.path.basename(jpgs[0])
+            return None
+        return {
+            "front" : urlbase+os.path.basename(jpgs[0]),
+            "back" : urlbase+os.path.basename(jpgs[len(jpgs) - 1]),
+            "count" : len(jpgs)
+        }
+
 
     def get_book_name(self,bookdir):
        name = ''
