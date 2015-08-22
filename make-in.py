@@ -1,5 +1,5 @@
 
-import csv,json,urllib2,re,logging,sys,os,glob,pystache,textualangs
+import csv,json,urllib2,re,logging,sys,os,glob,pystache,textualangs,optparse
 from HTMLParser import HTMLParser
 from PIL import Image
 from webconfig import folders
@@ -8,14 +8,32 @@ logger=logging.getLogger('make-in')
 
 
 stache = pystache.Renderer(search_dirs='book_templates',file_encoding='utf-8',string_encoding='utf-8',file_extension=False)
+
 htmlparser = HTMLParser()
+op = optparse.OptionParser()
+op.add_option("-u", "--update-config", action="store_true", dest="update_config", help="copy the config.json file from ../textuali")
 
 def unescape(s):
     return htmlparser.unescape(s).encode('utf-8')
 
 if __name__=='__main__':
     conf = json.load(file('config.json'))
-    #execfile("../webconfig.py")
+    (options, args) = op.parse_args()
+    if options.update_config:
+        if 'textuali-dev' not in os.path.realpath(__file__):
+            logger.error("you are using the --update-config option in the wrong place. quitting.")
+            quit()
+        logger.info("updating config.json")
+        old = conf
+        new = json.load(file('../textuali/config.json'))
+        new['front'] = old['front']
+        new['book_types'] = old['book_types']
+        conf = new
+        os.remove('_config.json')
+        os.rename('config.json','_config.json')
+        newconfig = open('config.json', 'w')
+        newconfig.write(json.dumps(new,encoding='utf-8', sort_keys=False, indent=4))
+        newconfig.close()
     logger.info(u"rendering front page")
     for author in conf['authors']:
         for book in author['books']:

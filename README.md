@@ -9,6 +9,8 @@ to overrride default styles use (create if needed) the following files:
     .../(dev)-texts/<author>/authorstyle.css
     ** for particular <book>:
     .../(dev)-texts/uri_avnery/<book>/bookstyle.css
+* to update the dev config json from the live one, use the update option:
+    ** python make-in.py -u or python make-in.py --update-config
 
 generic site
 ================
