@@ -37,11 +37,25 @@
                 <nav id="primary-navigation" class="col-sm-7">
                     <ul class="nav nav-pills nav-justified">
                         {{#menu_items}}
-                         <li>
-                            <a title="{{title}}" href="{{file}}.html">
-                                {{label}}
+                        {{#dropdown}}
+                         <li class="dropdown">
+                            <a class="dropdown-toggle" data-toggle="dropdown"title="{{title}}" href="{{file}}.html">
+                                {{label}} <span class="caret"></span>
                             </a>
+                            <ul class="dropdown-menu">
+                                {{#items}}
+                                <li>
+                                    <a title="{{title}}" href="{{file}}.html">{{label}}</a>
+                               </li>
+                               {{/items}}
+                            </ul>
                          </li>
+                        {{/dropdown}}
+                        {{^dropdown}}
+                        <li>
+                            <a title="{{title}}" href="{{file}}.html">{{label}}</a>
+                        </li>
+                        {{/dropdown}}
                         {{/menu_items}}
                     </ul>
                 </nav>

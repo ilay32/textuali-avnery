@@ -158,19 +158,12 @@ class AuthorSiteGenerator:
         templatedata['favicon'] = favicon
         # collect menu items for lang
         for menu_item in self.siteconfig['menu'][lang]:
-            try :
-                it = self.siteconfig['pages'][menu_item]
-                menu_items.append({
-                    "file": 'index' if menu_item == 'home' else menu_item,
-                    "label": it['label'][lang],
-                    "title" : it['label'][lang] if 'mouseover' not in it else it['mouseover'][lang]
-                })
-
-                '''if menu_item == "videos":
-                    templatedata['videos'] = item_block
-                else: menu_items.append(item_block)'''
-            except:
-                logger.error(menu_item+" not configured in 'pages' block")
+            menu_items.append(self.menu_items(menu_item,lang))
+            # keep this in case the videos page link has to move to the "utilities" element again
+            '''if menu_item == "videos":
+                templatedata['videos'] = item_block
+            else: menu_items.append(item_block)'''
+        
         # simliarly, colect the uti buttons (search, info, share)
         for util in self.siteconfig['utils']:
             icon = self.conf['front']['domain']+"media/"+util['icon']
@@ -179,11 +172,31 @@ class AuthorSiteGenerator:
             utils.append({
                 "name" : util['name'],
                 "icon" : icon,
-                "title" : util['mouseover'][lang] if lang in util['mouseover'] else ""}) 
+                "title" : util['mouseover'][lang] if lang in util['mouseover'] else ""
+            }) 
         templatedata['utils'] = utils
         templatedata['menu_items'] = menu_items
         templatedata['cssoverride']=os.path.exists(self.indexpath+"/css/local-override.css") 
         return stache.render(stache.load_template('header.html'),templatedata).encode('utf-8')
+    
+    # recursively generate the menu items list
+    def menu_items(self,pagename,lang):
+        if pagename not in self.siteconfig['pages']:
+            logger.error("the menu item "+pagename+" is not defined in the pages list")
+            return None
+        it = self.siteconfig['pages'][pagename]
+        dropdown = {"items":[]}
+        if 'dropdown' in it and isinstance(it['dropdown'],list):
+            for menu_item in it['dropdown']:
+                dropdown['items'].append(self.menu_items(menu_item,lang))
+        else:
+            dropdown = ""
+        return {
+            "file": 'index' if pagename == 'home' else pagename,
+            "label": it['label'][lang],
+            "title" : it['label'][lang] if 'mouseover' not in it else it['mouseover'][lang],
+            "dropdown" : dropdown
+        }
     
     def render_footer(self,lang):
         templatedata=self.get_globals(lang)

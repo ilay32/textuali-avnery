@@ -46,10 +46,14 @@ a {
         padding-{{side}}:0;
         li > a {
             color: @header_text_color;
-            &:hover{
+            &:hover,&:focus,&.active{
                 background-color: transparent;
                 text-decoration:underline;
            }
+        }
+        .dropdown-menu {
+            text-align:{{side}};
+            background-color:{{header_bg}};
         }
     }
 }
