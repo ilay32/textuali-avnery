@@ -1,5 +1,5 @@
 
-import csv,json,urllib2,re,logging,sys,os,glob,pystache,textualangs,optparse
+import csv,json,urllib2,re,logging,sys,os,glob,pystache,textualangs,optparse,random
 from HTMLParser import HTMLParser
 from PIL import Image
 from webconfig import folders
@@ -98,10 +98,11 @@ if __name__=='__main__':
                 book['phispage_count'] = right - left + 1
                 book['authdir'] = authdir
                 book['frontjpg'] = os.path.basename(jpgslist[0])
+                book['ver'] = str(random.randint(999,9999))
                 frontjpg = Image.open(jpgslist[0])
                 fsize = frontjpg.size
                 book['openbook_ratio'] = float(2*fsize[0])/fsize[1]
-                book['flipdirection'] = textualangs.dir(book['language'])
+                book['flipdirection'] = textualangs.direc(book['language'])
                 book['side'] = 'right' if book['flipdirection'] == 'rtl' else 'left'
                 book['backward'] = 'backward' if book['side'] == 'left' else 'forward'
                 book['forward'] = 'forward' if book['side']  == 'left' else 'backward'

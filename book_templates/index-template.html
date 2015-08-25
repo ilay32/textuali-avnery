@@ -120,7 +120,7 @@
                 <div class="flipbook-viewport">
                     <div class="flipbook-container">   
                         <div class="flipbook">
-                            {{#hard_cover}}
+                            <!--{{#hard_cover}}
 							<div class="hard" style="background-image:url({{srcs}}/jpg/{{bookdir}}p000a.jpg)"></div>
 							<div class="hard" style="background-image:url({{srcs}}/jpg/{{bookdir}}p000b.jpg)"></div> 
 							{{/hard_cover}}
@@ -128,7 +128,7 @@
 							<div style="background-image:url({{srcs}}/jpg/{{frontjpg}}); background-size: contain">
 								<div class="page-html hidden"></div>
 							</div>
-							{{/hard_cover}}          				
+							{{/hard_cover}}-->     				
                         </div><!-- flipbook -->          
                    	</div>
                 </div><!--flipbook-viewport -->
@@ -163,6 +163,6 @@
     <script src="{{front.domain}}vendor/turnjs4/extras/modernizr.2.5.3.min.js" type="text/javascript"></script>
     <script src="{{front.domain}}bootstrap/js/bootstrap.min.js" type="text/javascript"></script> 
     <script src="{{front.domain}}bootstrap/js/bootstrap-modal-popover.js" type="text/javascript"></script> 
-    <script type="text/javascript" src="bookscript.js"></script>
+    <script type="text/javascript" src="bookscript.js?{{ver}}"></script>
 </body>
 </html>

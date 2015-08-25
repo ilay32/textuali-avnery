@@ -1,13 +1,16 @@
 var first_flipto = location.href.match(/(\/#page\/)(\d*)$/);
 
 function page_files(page) {
-   var filename = {{page_list}}[page-1], 
+    if(page > {{pages}}  || page < 1) {
+        return false    
+    }
+    var filename = {{page_list}}[page-1], 
         hard = /[a-z]/.test(filename.slice(-1)) && (page >= {{page_list}}.length - 1 || page <= 2);
     return {
         jpg : '{{srcs}}jpg/'+ filename + '.jpg', 
         html : '{{srcs}}html/' + filename + '.htm', 
         hard : hard
-   };
+    };
 }
 
 function unenlarge_flip() {
@@ -47,10 +50,14 @@ function flip2phis(num) {
 }
 
 function loadPage(page, pageElement) {
-    pageElement.css('background-image','url('+page_files(page).jpg+')');			
+    var pf = page_files(page);
+    if (!pf) {
+        return;
+    }
+    pageElement.css('background-image','url('+pf.jpg+')');
     foundHtml = false;
     if('{{has_texts}}' == 'True' ) {			
-        $.ajax({url: page_files(page).html}).done(function(pageHtml) {
+        $.ajax({url: pf.html}).done(function(pageHtml) {
             if('{{whole_docs}}'=='True') {
                 pageHtml = $(pageHtml).get(7);
             }
@@ -72,9 +79,16 @@ function loadPage(page, pageElement) {
 }
 
 function addPage(page, book) {
-    var id, pages = $('.flipbook').turn('pages');
-    var pageElement = $('<div/>').html('<div class="loader"></div><div class="spine-gradient">{{#has_texts}}<div class="page-html"></div>{{/has_texts}}');
-    if(page_files(page).hard) {
+    var id, pages = $('.flipbook').turn('pages'), 
+        hidden = $('.flipbook').data('displayMode') == 'scan' ? ' hidden' : '';
+    var pageElement = $('<div/>').html('<div class="spine-gradient"/>');
+    {{#has_texts}}
+    pageElement.find('.spine-gradient').append('<div class="page-html'+hidden+'"></div>')
+    /*if(displayMode == 'html') {
+        pageElement.find('.page-html').removeClass('hidden');
+    }*/   
+    {{/has_texts}}
+    if(page > 0 && page_files(page).hard) {
         pageElement.addClass('hard');
     }
     if (book.turn('addPage', pageElement, page))  {
@@ -178,7 +192,6 @@ function hide_html(pages) {
             'background-size' : '100% 100%'
         });
     }
-
     $('#totoc').attr('data-toggle', 'dropdown').addClass('jpg-toc');
 }
 
@@ -255,9 +268,9 @@ function loadApp() {
                 }
             },
             'start' : function(event,pageObject,corner) {
-                toggleHtml(pageObject.turn.turn('view'));                        
-            },
-            'missing': function (e, pages) {
+                toggleHtml(pageObject.turn.turn('view'));
+            }, 
+            'missing': function (e, pages) { 
                 for (var i = 0; i < pages.length; i++) {
                     addPage(pages[i], $(this));
                 }					
@@ -309,16 +322,19 @@ function loadApp() {
 } //loadApp
 
 $(window).resize(function() {
-    var rememberme = {page:  $('.flipbook').turn('page'), displaymode : $('.flipbook').data('displayMode')};
+    var rememberme = {
+        page:  $('.flipbook').turn('page'), 
+        displaymode : $('.flipbook').data('displayMode')
+    };
     $('.flipbook').turn('destroy');
     loadApp();
     var book = $('.flipbook');
     book.data('displayMode',rememberme.displaymode);
     Hash.go('page/'+rememberme.page);
     book.turn('page',rememberme.page);
-    for(p in book.turn('view')) {
+    /*for(p in book.turn('view')) {
         addPage(p,book);
-    }
+    }*/
     toggleHtml(); 
 });
 
@@ -416,7 +432,6 @@ $(document).ready(function() {
     
     $('.flb-seek').click(function() {
         seek = $(this).data('seek');
-        console.log(seek);
         if(/^\d+$/.test(seek)) {
             $('.flipbook').turn('page',seek);
         }
@@ -427,6 +442,10 @@ $(document).ready(function() {
         if(this.id == 'showhtmls' && d.displayMode == 'scan')  {
             d.displayMode = 'html';
             $('#showhtmls').addClass('on');
+            if($('#next-prev-toc').hasClass('open')) {
+                $('.toc-list').dropdown('toggle');
+                $('#next-prev-toc').removeClass('open');
+            } 
        }
        else if(this.id == 'showscans' && d.displayMode == 'html') {
             d.displayMode = 'scan';
@@ -438,9 +457,12 @@ $(document).ready(function() {
     {{#toc}}
     $('#totoc').click(function() {
         if(!$(this).hasClass('jpg-toc')) {  
+            //show_html([{{toc}},{{toc}} -1, {{toc}} + 1]);
             $('.flipbook').turn('page',{{toc}});
         }
+        
     });
+    
     $('#next-prev-toc').on('shown.bs.dropdown',function() {
         $(this).find('.toc-list').css('max-height',$('body').height()*0.85+'px');
     });
