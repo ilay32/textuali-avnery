@@ -1,8 +1,9 @@
 
 
 import csv,json,jsoncomment,urllib2,re,logging,sys,os,glob,jsonmerge,lesscpy,six, optparse,textualangs,pystache,string,random
+from urlparse import urlparse
+#from HTMLParser import HTMLParser
 
-#lets you compile the css with -s or skip it without
 op = optparse.OptionParser()
 op.add_option("-s", action="store_true", dest="render_styles", help="render style files")
 op.add_option("--hidelang", action="store", type="string", dest="hidelang", help="hides the specified language wihtout rendering the site")
@@ -21,14 +22,18 @@ stache = pystache.Renderer(
 #hetran = gettext.translation('avnery_heb',os.getcwd()+'/lang',['he_IL'])
 #hetran.install('avnery_heb')
 
-def unescape(s):
-    return htmlparser.unescape(s).encode('utf-8')
+#def unescape(s):
+#    return htmlparser.unescape(s).encode('utf-8')
 
 class AuthorSiteGenerator:
+    puncpat = re.compile('[%s]' % re.escape(string.punctuation))
+    frame0 = 'http://img.youtube.com/vi/{0}/0.jpg' 
     def __init__(self,auth):
-        self.indexpath = ""
+        self.lang = None
+        self.indexpath = None
         self.siteconfig = None
         self.authorblock = None
+        self.langpath = None
         self.conf = jc.load(file('config.json'))
         self.auth = auth
         self.found = self.search_auth()
@@ -39,78 +44,150 @@ class AuthorSiteGenerator:
             "videos" : self.videos_template_data,
             "isotope": self.isotope_template_data
         } 
-        self.puncpat = re.compile('[%s]' % re.escape(string.punctuation)) 
         self.hidden =  eval(open('.makeauthignore').read())
     
-    def isotope_template_data(self,lang): 
+    def isotope_template_data(self,pagedict): 
         blocksf = self.indexpath+"/isotope-blocks.json";
         if os.path.isfile(blocksf):
             blocks = jc.load(file(blocksf))
             for block in blocks:
                 if 'text' in block:
-                    block['text'] = block['text'][lang]
+                    block['text'] = block['text'][self.lang]
         else:
             logger.error("could not find "+blocksf)
             blocks = []
         return {"iblocks" : blocks}
     
-    def books_template_data(self,lang):
+    def books_template_data(self,pagedict):
+        prim = self.siteconfig['primary_language']
+        if self.lang ==  prim:
+            cats = self.books_by_cat()
+        else:
+            cats = self.books_by_lang(prim)
+        return {"cats":cats}
+    
+    def books_by_lang(self,skiplang):
+        ret = []
+        tempdict = {}
+        for book in self.authorblock['books']:
+            lang = book['language']
+            if lang != skiplang:
+                if lang not in tempdict:
+                    tempdict[lang] = {
+                        "lang" : lang,
+                        "title" : textualangs.langname(lang),
+                        "books" : [self.book_item(book)]
+                    }
+                else:
+                    tempdict[lang]['books'].append(self.book_item(book))
+        for obj in tempdict.itervalues():
+            ret.append(obj)
+        ret.sort(cmp=lambda x,y : -1 if x['lang'] == self.lang else 1)
+        return ret    
+    
+    def books_by_cat(self):
+        langbooks = [x for x in self.authorblock['books'] if x['language'] == self.lang]
+        ret = []
+        tempdict = {}
+        for book in  langbooks:
+            booktype = self.conf['book_types'].get(book['bookdir'][:1],"book")
+            if booktype  not in tempdict:
+                tempdict[booktype] = {
+                    "type" : booktype,
+                    "title" : textualangs.translate(booktype,self.lang,plural=True),
+                    "books": [self.book_item(book)]
+                }
+            else:
+                tempdict[booktype]['books'].append(self.book_item(book))
+        for obj in tempdict.itervalues():
+            ret.append(obj)
+
+        ret.sort(cmp=lambda x,y : -1 if x['type'] == 'book' else 1)
+        return ret
+
+    def book_item(self,bookdict):
         block = self.authorblock
         front = self.conf['front']
         auth_base_url = front['domain']+"/"+front['indices_dir']+"/"+self.authorblock['dir']+"/"
-        google = "https://www.google.com/search?q={0}"
-        for book in block['books']:
-            files = self.book_files(book['bookdir'])
-            if files != None:
-                book['cover'] = files['front']
-                book['backcover'] = files['back']
-                book['pages'] = files['count']
-            book['url'] = auth_base_url+book['bookdir']
-            book['language_name'] = textualangs.langname(book['language'])
-            if 'orig_id' in book:
-                book['orig_name'] = self.get_book_name(book['orig_id'])
-                book['orig_url'] = auth_base_url+book['orig_id']
-            if 'link' not in book or book['link']=="":
-                q = '+'.join(self.puncpat.sub('',book['book_nicename']+" "+self.authorblock['nicename']).split(' '))
-                book['google'] = google.format(q.encode('utf-8')) 
-            
-        return {"author_books":block}
+        #google = "https://www.google.com/search?q={0}"
+        book = bookdict
+        files = self.book_files(book['bookdir'])
+        if files != None:
+            book['cover'] = files['front']
+            book['backcover'] = files['back']
+            book['pages'] = files['count']
+        book['url'] = auth_base_url+book['bookdir']
+        book['language_name'] = textualangs.langname(book['language'])
+        if 'orig_match_id' in book:
+            book['orig_name'] = self.get_book_name(book['orig_match_id'])
+            book['orig_url'] = auth_base_url+book['orig_match_id']
+        book['other_langs'] = self.get_other_langs(book['bookdir'])
+        #if 'link' not in book or book['link']=="":
+        #    q = '+'.join(self.puncpat.sub('',book['book_nicename']+" "+self.authorblock['nicename']).split(' '))
+        #    book['google'] = google.format(q.encode('utf-8')) 
+        return book
     
-    def videos_template_data(self,lang):
+    def videos_template_data(self,pagedict):
+        ret = None
         vidlistsrc = self.indexpath+"/videos.json" 
         if not os.path.isfile(vidlistsrc):
             logger.error("videos.json missing from "+self.indexpath)
-            return {}
-        vidlist = jc.load(file(vidlistsrc))
+        vidict = jc.load(file(vidlistsrc))
         videos = []
-        frame0 = 'http://img.youtube.com/vi/{0}/0.jpg' 
-        for vid in vidlist:
-            videos.append(                
-                {
-                    "id": vid['id'],
-                    "title": vid['title'][lang],
-                    "firstframe" : frame0.format(vid['id']),
-                    "date" : vid['date']
-                }
-            )
+        if self.lang == self.siteconfig['primary_language']:
+            for vid in vidict[self.lang]:
+                videos.append(self.video_item(vid))                
             videos.sort(key=lambda x : x['date'],reverse=True)
-        return {"videos" : videos}
+            ret = {"primary" : True,  "videos" : videos}
+        else:
+            for lang,vids in vidict.iteritems():
+                if lang != self.siteconfig['primary_language']:
+                    langvids = []
+                    for vid in vids:
+                        langvids.append(self.video_item(vid))
+                    langvids.sort(key=lambda x : x['date'], reverse=True)
+                    videos.append({
+                        "lang": lang,
+                        "groupname": textualangs.langname(lang,self.lang),
+                        "videos" : langvids
+                    })
+            videos.sort(cmp=lambda x,y : -1 if x['lang'] == self.lang else 1)
+            ret = {"video_groups":videos} 
+        return ret 
+                
+    def video_item(self,vid): 
+        return jsonmerge.merge(vid, {"firstframe" : self.video_frame(vid), "title": vid['title'][self.lang]})
+     
+    def video_frame(self,vid):
+        ret = self.frame0.format(vid['id'])
+        ext = '.jpg'
+        if 'local_video_frame_extension' in self.siteconfig:
+            ext = self.siteconfig['local_video_frame_extension']
+        if os.path.isfile(self.vidframepath.format(vid['id'],ext)):
+            ret = self.vidframeurl.format(vid['id'],ext) 
+        if 'startframe' in vid:
+            if bool(urlparse(vid['startframe']).scheme):
+                ret = vid['startframe']
+            elif os.path.isfile(self.vidframepath.format(vid['startframe'],'')):
+                ret = self.vidframeurl.format(vid['startframe'],'')
+        return ret
 
-    def timeline_template_data(self,lang):
-        src = self.conf['front']['domain']+"/timeline"
-        vars = {}
-        defaults = {"src": src, "theme_color" : "#288EC3", "auth":self.auth}
-        varsf = self.indexpath+"/"+lang+"/timeline.json"
-        if os.path.exists(varsf) :
-            vars = jc.load(file(varsf))
-        elif lang != "he":
-            try:
-                vars = jc.load(self.indexpath+"/he/"+page+".json")
-                logger.info("timline - "+lang+" using defaults found in the hebrew directory")
-            except:
-                logger.info("no timeline configuration, using general defaults")
+    #def timeline_template_data(self,pagedict):
+    #    src = self.conf['front']['domain']+"/timeline"
+    #    vars = {}
+    #    dlang = self.siteconfig['primary_language']
+    #    defaults = {"src": src, "theme_color" : "#288EC3", "auth":self.auth}
+    #    varsf = self.langpath+"/timeline.json"
+    #    if os.path.exists(varsf) :
+    #        vars = jc.load(file(varsf))
+    #    elif self.lang != dlang:
+    #        try:
+    #            vars = jc.load(self.indexpath+"/"+dlang+"/"+page+".json")
+    #            logger.info("timline - "+self.lang+" using defaults found in the hebrew directory")
+    #        except:
+    #            logger.info("no timeline configuration, using general defaults")
 
-        return jsonmerge.merge(defaults,vars)
+    #    return jsonmerge.merge(defaults,vars)
           
 
     def search_auth(self):
@@ -120,6 +197,8 @@ class AuthorSiteGenerator:
                 self.authorblock = authorblock
                 self.indexpath = self.conf['front']['indices_dir']+"/"+authdir+"/site"
                 self.siteconfig = jc.load(file(self.indexpath+"/siteconfig.json"))
+                self.vidframeurl = self.siteconfig['baseurl']+'/img/video/{0}{1}' 
+                self.vidframepath = self.indexpath+'/img/video/{0}{1}' 
                 return True
          
     def good_to_go(self):
@@ -131,8 +210,9 @@ class AuthorSiteGenerator:
             return False        
     
          
-    def render_header(self,lang):
-        templatedata=self.get_globals(lang)
+    def render_header(self):
+        lang = self.lang
+        templatedata=self.get_globals()
         # prevents css caching
         templatedata['ver'] = str(random.randint(999,9999)) 
         menu_items = []
@@ -140,7 +220,7 @@ class AuthorSiteGenerator:
         favicon = self.conf['front']['domain']+"/media/favicon.ico"
         #try to find the right logo for this language
         logo = None
-        dlang = 'he' if textualangs.dir(lang) == 'right' else 'en'
+        dlang = 'he' if textualangs.direc(lang) == 'right' else 'en'
         try:
             logo  = os.path.basename(glob.glob(self.indexpath+"/img/logo-"+lang+".*")[0])
         except:
@@ -158,7 +238,7 @@ class AuthorSiteGenerator:
         templatedata['favicon'] = favicon
         # collect menu items for lang
         for menu_item in self.siteconfig['menu'][lang]:
-            menu_items.append(self.menu_items(menu_item,lang))
+            menu_items.append(self.menu_items(menu_item))
             # keep this in case the videos page link has to move to the "utilities" element again
             '''if menu_item == "videos":
                 templatedata['videos'] = item_block
@@ -180,7 +260,7 @@ class AuthorSiteGenerator:
         return stache.render(stache.load_template('header.html'),templatedata).encode('utf-8')
     
     # recursively generate the menu items list
-    def menu_items(self,pagename,lang):
+    def menu_items(self,pagename):
         if pagename not in self.siteconfig['pages']:
             logger.error("the menu item "+pagename+" is not defined in the pages list")
             return None
@@ -188,19 +268,19 @@ class AuthorSiteGenerator:
         dropdown = {"items":[]}
         if 'dropdown' in it and isinstance(it['dropdown'],list):
             for menu_item in it['dropdown']:
-                dropdown['items'].append(self.menu_items(menu_item,lang))
+                dropdown['items'].append(self.menu_items(menu_item))
         else:
             dropdown = ""
         return {
             "file": 'index' if pagename == 'home' else pagename,
-            "label": it['label'][lang],
-            "title" : it['label'][lang] if 'mouseover' not in it else it['mouseover'][lang],
+            "label": it['label'][self.lang],
+            "title" : it['label'][self.lang] if 'mouseover' not in it else it['mouseover'][self.lang],
             "dropdown" : dropdown
         }
     
-    def render_footer(self,lang):
-        templatedata=self.get_globals(lang)
-        aboutf = self.indexpath+"/"+lang+"/about.txt"
+    def render_footer(self):
+        templatedata=self.get_globals()
+        aboutf = self.langpath+"/about.txt"
         if os.path.isfile(aboutf):
             about = open(aboutf).read()
             templatedata['about'] = about
@@ -208,30 +288,32 @@ class AuthorSiteGenerator:
             logger.info("missing "+aboutf)
         socials =[]
         for social in self.siteconfig['socials'] :
-            socials.append(jsonmerge.merge(social,{"label":social['label'][lang]}))
+            socials.append(jsonmerge.merge(social,{"label":social['label'][self.lang]}))
     
         templatedata['socials'] = socials
         return stache.render(stache.load_template('footer.html'),templatedata).encode('utf-8') 
      
-    def render_body(self,page,lang):
-        block = self.get_globals(lang)
-        template = self.siteconfig['pages'][page]['template']
-        contf= self.indexpath+"/"+lang+"/"+page+"-maintext.txt"
-        statf = self.indexpath+"/"+lang+"/"+page+"-static.html"
+    def render_body(self,page):
+        pagedict = self.siteconfig['pages'][page]
+        lang = self.lang
+        block = self.get_globals()
+        if 'page_title' in pagedict and lang in pagedict['page_title']:
+            block['pagetitle'] = pagedict['page_title'][lang]
+        template = pagedict['template']
+        contf= self.langpath+"/"+page+"-maintext.txt"
+        statf = self.langpath+"/"+page+"-static.html"
         tempf = "auth_templates/"+template+".html"
-        addf = self.indexpath+"/"+lang+"/"+page+"-additional.html"
+        addf = self.langpath+"/"+page+"-additional.html"
         if template in self.body_blocks:
-            block = jsonmerge.merge(block,self.body_blocks[template](lang))
+            block = jsonmerge.merge(block,self.body_blocks[template](pagedict))
         if template == "external":
-            pageblock = self.siteconfig['pages'][page]
-            if lang in pageblock['url']:
-                block['url'] = pageblock['url'][lang]
+            if lang in pagedict['url']:
+                block['url'] = pagedict['url'][lang]
             else:
                 try:
-                    block['url'] = pageblock['url']['he']
+                    block['url'] = pagedict['url'][self.siteconfig['primary_language']]
                 except:
-                    logger.error("cannot find url for external site page "+lang+"/"+page)
-
+                    logger.error("cannot find iframe url for  "+lang+"/"+page)
         if template == "static":
             if(os.path.exists(statf)):
                 logger.info(u'loading '+lang+'/'+page+' static html')
@@ -248,7 +330,7 @@ class AuthorSiteGenerator:
             logger.error("can't find template '"+template+"'")
             return
         if template == 'timeline':
-            self.render_timeline_src(lang)
+            self.render_timeline_src()
         
         if os.path.isfile(addf) :
             logger.info(u'loading '+lang+'/'+page+' addtional html')
@@ -257,17 +339,23 @@ class AuthorSiteGenerator:
             add = ""
         return  stache.render(stache.load_template(template+".html"),block).encode('utf-8')+add
     
-    def render_timeline_src(self,lang):
+    def render_timeline_src(self):
+        lang = self.lang
         tfilepath = "../timeline/"+self.auth+"_"+lang+".html"
-        block = self.get_globals(lang)
+        block = self.get_globals()
         vars = {}
-        defaults = {"theme_color" : "#288EC3",  "skin":"timeline.dark", "tlconfig" : self.auth, "src" : self.conf['front']['domain']+"/timeline" }
-        varsf = self.indexpath+"/"+lang+"/timeline_src_params.json"
+        defaults = {
+            "theme_color" : "#288EC3",  
+            "skin":"timeline.dark", 
+            "tlconfig" : self.auth, 
+            "src" : self.conf['front']['domain']+"/timeline" 
+        }
+        varsf = self.langpath+"/timeline_src_params.json"
         if os.path.exists(varsf) :
             vars = jc.load(file(varsf))
         elif lang != "he":
             try:
-                vars = jc.load(self.indexpath+"/he/timeline_src_params.json")
+                vars = jc.load(self.indexpath+"/"+self.siteconfig['primary_language']+"/timeline_src_params.json")
                 logger.info("timline - "+lang+" using defaults found in the hebrew directory")
             except:
                 logger.info("no timeline configuration, using general defaults")
@@ -283,23 +371,24 @@ class AuthorSiteGenerator:
         except Exception as e:
             logger.error(e)
          
-    def render_page(self,page,lang,header,footer):
-        body = self.render_body(page,lang)
-        dir = self.indexpath+"/"+lang
+    def render_page(self,page,header,footer):
+        body = self.render_body(page)
         #home as index
         if(page == 'home'):
             page = 'index'
-        if not os.path.exists(dir):
-            os.makedirs(dir)
-        try:
-            htmlfile = open(dir+"/"+page+".html",'w')
-            htmlfile.write(header+body+footer)
-            htmlfile.close()
-            logger.info(lang+"/"+page+ u' done')
-        except Exception as e:
-            logger.error(e)
+        if not os.path.exists(self.langpath):
+            os.makedirs(self.langpath)
+        if isinstance(body,six.string_types):
+            try:
+                htmlfile = open(self.langpath+"/"+page+".html",'w')
+                htmlfile.write(header+body+footer)
+                htmlfile.close()
+                logger.info(textualangs.langname(self.lang,"en")+" "+page+" done")
+            except Exception as e:
+                logger.error(e)
              
-    def get_globals(self,lang):
+    def get_globals(self):
+        lang = self.lang
         g={"baseurl": self.siteconfig['baseurl']}
         #string_translations = {}
         #for p,v in self.siteconfig['string_translations'].iteritems():
@@ -308,7 +397,7 @@ class AuthorSiteGenerator:
         #    except:
         #        logger.info(u'missing '+p+' in '+lang)
         g['string_translations']=jsonmerge.merge(textualangs.translations(lang),textualangs.translations(lang,self.siteconfig['string_translations']))
-        g['dir'] = textualangs.dir(lang)
+        g['dir'] = textualangs.direc(lang)
         g['lang'] = lang
         try:
             a = self.siteconfig['string_translations']['author']
@@ -317,6 +406,14 @@ class AuthorSiteGenerator:
             logger.error("the author name is not specified for "+lang+" nor for "+self.siteconfig['primary_language'])
         g['front'] = self.conf['front']
         g['auth'] = self.auth
+        langs = []
+        for l in self.siteconfig['menu'].iterkeys():
+            if l != lang:
+                langs.append({
+                    "name" : textualangs.langname(l),
+                    "code" : l
+                })
+        g['langs'] = langs
         return g
          
     #def parse_lang(self,str):
@@ -366,13 +463,17 @@ class AuthorSiteGenerator:
             if lang in self.hidden:
                 logger.info("skipping "+textualangs.langname(lang)+" -- it is hidden. to render it use '--showlang "+lang+"' and render the site again")
             else:
-                header = self.render_header(lang)
-                footer = self.render_footer(lang)
+                self.lang = lang
+                self.langpath = self.indexpath+"/"+lang
+                header = self.render_header()
+                footer = self.render_footer()
                 #if not 'home' in men:
                 #    self.render_page('home',lang,header,footer)
-                for page in self.siteconfig['pages']:
-                    self.render_page(page,lang,header,footer)
-                logger.info(textualangs.langname(lang)+" rendered")
+                for page,defs in self.siteconfig['pages'].iteritems():
+                    if 'template' in defs and not not defs['template']:
+                        self.render_page(page,header,footer)
+                logger.info(textualangs.langname(lang,"en")+" rendered")
+                print "======"
         logger.info(authdir+" site done")
     
         #if options.do_htaccess:
@@ -392,7 +493,17 @@ class AuthorSiteGenerator:
             "back" : urlbase+os.path.basename(jpgs[len(jpgs) - 1]),
             "count" : len(jpgs)
         }
-
+    
+    
+    def get_other_langs(self,bookdir):
+        langs = {"langs" : []}
+        for book in self.authorblock['books']:
+            if book['bookdir'] != bookdir and 'orig_match_id' in book:
+                if book['orig_match_id'] == bookdir:
+                    langs['langs'].append(textualangs.langname(book['language']))
+        if len(langs['langs']) == 0:
+            langs = ""
+        return langs
 
     def get_book_name(self,bookdir):
        name = ''
@@ -465,4 +576,4 @@ if __name__=='__main__':
             else:
                 logger.info(u"rendering "+authdir)
                 asg.render_site()
-            
+                print "if you like what you see in %s, type:\ncopy-generic %s %s" %(asg.siteconfig['baseurl'], asg.auth,asg.siteconfig['destination_folder'])

@@ -74,14 +74,23 @@
                         <img src="{{front.domain}}/media/play.png" alt="{{videos.label}}"/>
                     </a> 
                     {{/videos}}-->
-                    {{#utils}}
-                    <span id="{{name}}-trigger" title="{{title}}" class="glyphicon">
-                        <img alt="{{title}}" src="{{icon}}"/>
-                    </span>
-                    {{/utils}}
-                </div>
+                    <div class="extremist">
+                        {{#langs}}
+                        <span class="glyphicon langswitch" data-langcode="{{code}}">
+                            {{name}}
+                        </span>
+                        {{/langs}}
+
+                        {{#utils}}
+                        <span id="{{name}}-trigger" title="{{title}}" class="glyphicon util-button">
+                            <img alt="{{title}}" src="{{icon}}"/>
+                        </span>
+                        {{/utils}}
+                    </div>
+                </div><!-- #util-buttons-->
             </div>
         </div>
     </header>
     
     <main class="container" id="content">
+        

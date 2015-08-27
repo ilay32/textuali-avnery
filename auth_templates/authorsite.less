@@ -23,8 +23,10 @@ body {
 a {
     transition: color 0.2s;
 }
-
-
+/** helper classes **/
+.extremist {
+    float: {{oposide}};
+}
 /** header **/
 #masthead {
     background-color:{{header_bg}};
@@ -83,13 +85,14 @@ main {
 .vidwrap {
     margin: 10px 0;
     .vid {
-        border: @topborderwidth solid {{light_bg}};
-        position: relative;
+        //border: @topborderwidth solid {{light_bg}};
+        //position: relative;
         cursor: pointer;
+        color: @header_text_color;
         > img {
             max-width:100%;
         }
-        h4 {
+        /*h4 {
             text-align:center;
             position: absolute;
             bottom: 0;
@@ -98,7 +101,7 @@ main {
             line-height: 40px;
             color: white;
             background: rgba(0,0,0,0.7);
-        }
+        }*/
     }
 }
 
@@ -165,7 +168,7 @@ main {
 }
 /* static template */
 #static-container {
-    margin:@vertspace auto;
+    margin:0  auto;
     width: 80%;
     max-width: 1200px;
     min-width: 460px;
@@ -178,9 +181,13 @@ main {
 #util-buttons {
     .glyphicon {
         cursor:pointer;
-        float: {{oposide}};
         font-size: 30px; 
         margin-{{oposide}}:@horizspace;
+        &.langswitch {
+            font-size:110%;
+            color:{{primary_color}};
+            padding-top: @vertspace*0.75;
+        }
     }
 }
 .utilbox {

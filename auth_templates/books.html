@@ -1,8 +1,6 @@
-<div class="row">
-    <div class="col-sm-12">
-        <h1>{{string_translations.books_by}} {{string_translations.author}}</h1>
-    </div>
-</div>
+{{#pagetitle}}
+    {{> pagetitle.html}}
+{{/pagetitle}}
 {{#content}}
 <div class="row">
     <div class="col-sm-12">
@@ -12,11 +10,12 @@
 {{/content}}
 
 
-{{#author_books}}
+{{#cats}}
 <div class="row">
+    <h2 class="col-xs-12">{{title}}</h2>
     {{#books}}
         {{> book.html}}
     {{/books}}
 </div><!-- row -->
-{{/author_books}}
+{{/cats}}
 

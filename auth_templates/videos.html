@@ -1,8 +1,6 @@
-<div class="row">
-    <div class="col-sm-12">
-        <h1>{{string_translations.videos}}</h1>
-    </div>
-</div>
+{{#pagetitle}}
+    {{> pagetitle.html}}
+{{/pagetitle}}
 {{#content}}
 <div class="row">
     <div class="col-sm-12">
@@ -10,13 +8,24 @@
     </div>
 </div>
 {{/content}}
+
+
+{{#primary}}
 <div class="row">
     {{#videos}}
-     <div class="col-sm-3 vidwrap">
-        <div class="vid flip-modal-trigger" href="http://www.youtube.com/embed/{{id}}?autoplay=1" data-vid={{id}}>
-            <img  src="{{firstframe}}"/>
-            <h4  class="vid-title">[{{date}}] {{title}}</h4>
-        </div>
-     </div>
-    {{/videos}}
+        {{> video.html}}
+    {{/videos}} 
 </div>
+{{/primary}}
+{{^primary}}
+<div class="row">
+    {{#video_groups}}
+    <div class="col-lg-3 col-md-4 col-sm-6">
+        <h2 class="col-xs-12">{{groupname}}</h2>
+        {{#videos}}
+            {{> video.html}}
+        {{/videos}}
+    </div>
+    {{/video_groups}}
+</div>
+{{/primary}}
