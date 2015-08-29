@@ -67,11 +67,12 @@ function loadPage(page, pageElement) {
                     sr = sr.replace('{{bookdir}}', '{{bookdir}}/html');
                     $(this).attr('src',sr);
                 });
-                pageElement.find('.page-html').html(pageHtml);
+                hidden = $('.flipbook').data('displayMode') == 'scan' ? ' hidden' : '';
+                pageElement.find('.spine-gradient').append($('<div class="page-html'+hidden+'"/>').html(pageHtml));
             }
-            else {
+            /* else {
                 pageElement.find('.page-html').remove();
-            }   
+            } */  
        }).fail(function() {
            pageElement.find('.page-html').remove();    
        });
@@ -80,14 +81,7 @@ function loadPage(page, pageElement) {
 
 function addPage(page, book) {
     var id, pages = $('.flipbook').turn('pages'), 
-        hidden = $('.flipbook').data('displayMode') == 'scan' ? ' hidden' : '';
-    var pageElement = $('<div/>').html('<div class="spine-gradient"/>');
-    {{#has_texts}}
-    pageElement.find('.spine-gradient').append('<div class="page-html'+hidden+'"></div>')
-    /*if(displayMode == 'html') {
-        pageElement.find('.page-html').removeClass('hidden');
-    }*/   
-    {{/has_texts}}
+        pageElement = $('<div/>').html('<div class="spine-gradient"/>');
     if(page > 0 && page_files(page).hard) {
         pageElement.addClass('hard');
     }
