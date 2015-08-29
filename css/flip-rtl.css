@@ -30,6 +30,10 @@ body {
     float: right;
 }
 
+.btn-group > .btn:first-child:not(:last-child):not(.dropdown-toggle) {
+    border-top-left-radius: 0px;
+    border-bottom-left-radius: 0px;
+}
 .page.odd .spine-gradient /*, .page.odd .page-html*/{
    background: -moz-linear-gradient(left,  rgba(247,247,247,0) 0%, rgba(245,245,245,0) 1%, rgba(213,213,209,0.06) 16%, rgba(50,49,25,0) 92%, rgba(37,36,11,0.15) 98%, rgba(33,32,6,0.4) 100%); /* FF3.6+ */
    

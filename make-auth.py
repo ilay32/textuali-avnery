@@ -1,6 +1,7 @@
 
 
 import csv,json,jsoncomment,urllib2,re,logging,sys,os,glob,jsonmerge,lesscpy,six, optparse,textualangs,pystache,string,random
+#from distutils.dir_util import copy_tree
 from urlparse import urlparse
 #from HTMLParser import HTMLParser
 
@@ -69,7 +70,7 @@ class AuthorSiteGenerator:
     def books_by_lang(self,skiplang):
         ret = []
         tempdict = {}
-        for book in self.authorblock['books']:
+        for book in self.displaybooks:
             lang = book['language']
             if lang != skiplang:
                 if lang not in tempdict:
@@ -86,12 +87,12 @@ class AuthorSiteGenerator:
         return ret    
     
     def books_by_cat(self):
-        langbooks = [x for x in self.authorblock['books'] if x['language'] == self.lang]
+        langbooks = [x for x in self.displaybooks if x['language'] == self.lang]
         ret = []
         tempdict = {}
         for book in  langbooks:
-            booktype = self.conf['book_types'].get(book['bookdir'][:1],"book")
-            if booktype  not in tempdict:
+            booktype = self.get_book_type(book['bookdir']) 
+            if booktype not in tempdict:
                 tempdict[booktype] = {
                     "type" : booktype,
                     "title" : textualangs.translate(booktype,self.lang,plural=True),
@@ -108,7 +109,7 @@ class AuthorSiteGenerator:
     def book_item(self,bookdict):
         block = self.authorblock
         front = self.conf['front']
-        auth_base_url = front['domain']+"/"+front['indices_dir']+"/"+self.authorblock['dir']+"/"
+        auth_base_url = front['domain']+front['srcs_dir'].replace("../","")+"/"+self.authorblock['dir']+"/"
         #google = "https://www.google.com/search?q={0}"
         book = bookdict
         files = self.book_files(book['bookdir'])
@@ -199,6 +200,8 @@ class AuthorSiteGenerator:
                 self.siteconfig = jc.load(file(self.indexpath+"/siteconfig.json"))
                 self.vidframeurl = self.siteconfig['baseurl']+'/img/video/{0}{1}' 
                 self.vidframepath = self.indexpath+'/img/video/{0}{1}' 
+                self.devurl = self.conf['front']['domain']+self.indexpath.replace("/home/sidelang/webapps/phptextuali","")
+                self.displaybooks = [x for x in authorblock['books'] if self.get_book_type(x['bookdir'])]
                 return True
          
     def good_to_go(self):
@@ -280,19 +283,44 @@ class AuthorSiteGenerator:
     
     def render_footer(self):
         templatedata=self.get_globals()
-        aboutf = self.langpath+"/about.txt"
-        if os.path.isfile(aboutf):
-            about = open(aboutf).read()
-            templatedata['about'] = about
-        else: 
-            logger.info("missing "+aboutf)
+        footf = self.indexpath+"/footer.html"
+        if os.path.isfile(self.langpath+"/footer.html") :
+            footf = self.langpath+"/footer.html"
+        foot = ""
+        if os.path.isfile(footf):
+            foot = '<footer id="site-footer"><div class="container><div class="row">'
+            foot += open(footf).read()            
+            foot += '</div></div></footer>';
+        else:
+            logger.info("no footer.html found in "+self.indexpath+" or "+self.langpath) 
+        #aboutf = self.langpath+"/about.txt"
+        #if os.path.isfile(aboutf):
+        #    about = open(aboutf).read()
+        #    templatedata['about'] = about
+        #else: 
+        #    logger.info("missing "+aboutf)
         socials =[]
         for social in self.siteconfig['socials'] :
             socials.append(jsonmerge.merge(social,{"label":social['label'][self.lang]}))
     
         templatedata['socials'] = socials
-        return stache.render(stache.load_template('footer.html'),templatedata).encode('utf-8') 
-     
+        return foot+stache.render(stache.load_template('footer.html'),templatedata).encode('utf-8') 
+    
+    def get_additional(self,page):
+        if 'no_additional' in self.siteconfig['pages'][page]:
+            return ""
+        addf = self.indexpath+"/additional.html"
+        if os.path.isfile(self.langpath+"/additional.html"):
+            addf = self.langpath+"/additional.html"
+        if os.path.isfile(self.langpath+"/"+page+"-additional.html"):
+            addf = self.langpath+"/"+page+"-additional.html" 
+        if os.path.isfile(addf) :
+            logger.info(u'loading '+addf)
+            add = open(addf).read()
+        else:
+            add = ""
+        return add
+         
     def render_body(self,page):
         pagedict = self.siteconfig['pages'][page]
         lang = self.lang
@@ -303,7 +331,7 @@ class AuthorSiteGenerator:
         contf= self.langpath+"/"+page+"-maintext.txt"
         statf = self.langpath+"/"+page+"-static.html"
         tempf = "auth_templates/"+template+".html"
-        addf = self.langpath+"/"+page+"-additional.html"
+        add = self.get_additional(page)        
         if template in self.body_blocks:
             block = jsonmerge.merge(block,self.body_blocks[template](pagedict))
         if template == "external":
@@ -332,11 +360,6 @@ class AuthorSiteGenerator:
         if template == 'timeline':
             self.render_timeline_src()
         
-        if os.path.isfile(addf) :
-            logger.info(u'loading '+lang+'/'+page+' addtional html')
-            add = open(addf).read()
-        else:
-            add = ""
         return  stache.render(stache.load_template(template+".html"),block).encode('utf-8')+add
     
     def render_timeline_src(self):
@@ -406,11 +429,15 @@ class AuthorSiteGenerator:
             logger.error("the author name is not specified for "+lang+" nor for "+self.siteconfig['primary_language'])
         g['front'] = self.conf['front']
         g['auth'] = self.auth
+        g['analyticsid'] = self.siteconfig['analyticsid']
         langs = []
         for l in self.siteconfig['menu'].iterkeys():
             if l != lang:
+                name = textualangs.langname(l)
+                if 'langswitch' in g['string_translations']:
+                    name = g['string_translations']['langswitch']
                 langs.append({
-                    "name" : textualangs.langname(l),
+                    "name" : name,
                     "code" : l
                 })
         g['langs'] = langs
@@ -434,12 +461,18 @@ class AuthorSiteGenerator:
         stylertl = open(self.indexpath+"/css/style-rtl.css", 'w')
         styleltr = open(self.indexpath+"/css/style-ltr.css", 'w')
         rtlvars = jsonmerge.merge(self.siteconfig['stylevars'], {"dir": "rtl", "side": "right", "oposide": "left" })
-        stylertl.write(lesscpy.compile(six.StringIO(stache.render(stache.load_template('authorsite.less'),rtlvars).encode('utf-8')),minify=True)) 
+        srtl = lesscpy.compile(six.StringIO(stache.render(stache.load_template('authorsite.less'),rtlvars).encode('utf-8')),minify=True)
+        if srtl:
+            stylertl.write(srtl) 
         #stylertl.write(lesscpy.compile(six.StringIO(self.json2less(rtlvars)+open('auth_templates/authorsite.less').read()),minify=True)) 
         stylertl.close()
         logger.info('rtl styles done')
         ltrvars = jsonmerge.merge(self.siteconfig['stylevars'],{ "dir": "ltr", "side": "left", "oposide": "right" }) 
-        styleltr.write(lesscpy.compile(six.StringIO(stache.render(stache.load_template('authorsite.less'),ltrvars).encode('utf-8')),minify=True))
+        sltr = lesscpy.compile(six.StringIO(stache.render(stache.load_template('authorsite.less'),ltrvars).encode('utf-8')),minify=True)
+        if sltr:
+            styleltr.write(sltr)
+        if not sltr or not srtl:
+            logger.error("could not compile authorsite.less")
         #styleltr.write(lesscpy.compile(six.StringIO(self.json2less(ltrvars)+open('auth_templates/authorsite.less').read()),minify=True)) 
         styleltr.close()
         logger.info('ltr styles done')
@@ -459,6 +492,8 @@ class AuthorSiteGenerator:
     def render_site(self):
         if options.render_styles:
             self.render_styles()
+        access = open(self.indexpath+"/access", "w")
+        access.write(stache.render(stache.load_template("access"),{"lang":self.siteconfig['primary_language']}))
         for lang,men in self.siteconfig['menu'].iteritems():
             if lang in self.hidden:
                 logger.info("skipping "+textualangs.langname(lang)+" -- it is hidden. to render it use '--showlang "+lang+"' and render the site again")
@@ -497,7 +532,7 @@ class AuthorSiteGenerator:
     
     def get_other_langs(self,bookdir):
         langs = {"langs" : []}
-        for book in self.authorblock['books']:
+        for book in self.displaybooks:
             if book['bookdir'] != bookdir and 'orig_match_id' in book:
                 if book['orig_match_id'] == bookdir:
                     langs['langs'].append(textualangs.langname(book['language']))
@@ -507,12 +542,22 @@ class AuthorSiteGenerator:
 
     def get_book_name(self,bookdir):
        name = ''
-       for book in self.authorblock['books']:
+       for book in self.displaybooks:
            if book['bookdir'] == bookdir:
                name = book['book_nicename']
                break;
        return name
     
+    def get_book_type(self,bookdir):
+        t = bookdir[:1]
+        if t in self.conf['book_types']:
+            ret = self.conf['book_types'][t]
+        elif re.match("[a-z]",t):
+            ret = "book"
+        else:
+            ret = None
+        return ret
+
     def hide_lang(self,lang):
         if lang in self.hidden:
             logger.info(lang+" already hidden")
@@ -576,4 +621,28 @@ if __name__=='__main__':
             else:
                 logger.info(u"rendering "+authdir)
                 asg.render_site()
-                print "if you like what you see in %s, type:\ncopy-generic %s %s" %(asg.siteconfig['baseurl'], asg.auth,asg.siteconfig['destination_folder'])
+                if os.path.exists("/home/sidelang/webapps/"+asg.siteconfig['destination_folder']):
+                    print "if you like what you see in %s, type 'copy-generic %s %s':" %(asg.devurl, asg.auth,asg.siteconfig['destination_folder'])
+                else:
+                    logger.error("specified live destination "+asg.siteconfig['destination_folder']+" doesn't exist.")
+                #u = raw_input("\n********\ncheck out "+asg.siteconfig['baseurl']+", do you want to update the live site?[y/n]: ")
+                #if u == "yes" or u=="y":
+                #    devbase = asg.siteconfig['baseurl']
+                #    asg.siteconfig['baseurl'] = "/"
+                #    logger.info("rendering with null url")
+                #    asg.render_site()
+                #    logger.info("copying to "+asg.siteconfig['destination_folder'])
+                #    try:
+                #        dst = "/home/sidelang/webapps/"+asg.siteconfig['destination_folder']
+                #        if not os.path.exists(dst):
+                #            logger.error(dst+" doesn't exist. quitting")
+                #            quit()
+                #        else:
+                #            copy_tree(asg.indexpath,dst)
+                #    except Exception as e: 
+                #        logger.error(str(e)) 
+                #    asg.siteconfig['baseurl']=devbase
+                #    logger.info("rerendering dev site")
+                #    asg.render_site()
+                #else:
+                #    print("fine")

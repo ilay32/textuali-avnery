@@ -28,7 +28,14 @@ generic site
             **** videos -- requires a SITEROOT/videos.json see instructions there
             **** external -- requires a url object where iframes urls are given per-language
        
-* any SITEROOT/<lang>/<page>-adittional.html will be appended at the bottom of the <main> element common to all templates.
+* dittional html will be appended at the bottom of the <main> element common to all templates. the files for this are, in cascading override order:
+    *** SITEROOT/additional.html
+    *** SITEROOT/<lang>/additional.html
+    *** SITEROOT/<lang>/<pagename>-additional.html
+except if the page block in siteconfig includes "no_additional" with any value
+
+* if found, SITEROOT/footer.html will be appended inside a  <footer> tag after </main>
+
 * run: python2.7 make-auth.py <author_directory>
 
 language module

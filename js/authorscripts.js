@@ -2,6 +2,7 @@ var minuses = {
     'main' : 50,
     '#auth-mod': 30
 }
+
 function frame_height(elem) {
     var height = $(window).height() - minuses[elem];
     $(elem).each(function() {
@@ -15,6 +16,13 @@ function iframe_in_modal(url) {
     setTimeout(function() {
         $('#auth-mod').find('iframe').attr('src',url);
     },100);
+}
+
+function bind_vid_adjustment() {
+    $('#auth-mod').on('shown.bs.modal',function() {
+        var d = $(this).find('.modal-dialog.modal-lg');
+        d.width(d.height() * 1.5);
+    });
 }
 
 function share(url) {
@@ -57,6 +65,7 @@ function process_search_results(results) {
 } 
 
 $(document).ready(function() {
+    var youtube = "http://www.youtube.com/embed/ID?autoplay=1";
     var display_params  = location.search.match(/^\?(vid|book)=(.*)$/);
     $('#isotope').isotope({
         isOriginLeft: $('body').css('direction') == 'rtl' ? false : true,
@@ -64,8 +73,13 @@ $(document).ready(function() {
         layoutMode: 'masonry'
     });
     $('.langswitch').click(function() {
-        var l = $(this).data('langcode'),
-            h = window.location.href.replace(/site\/[a-z]{2}\//,'site/'+l+'/')
+        var l = $(this).data('langcode');
+        if (window.location.pathname == "/") {
+            h = l;
+        }
+        else {
+            h = window.location.href.replace(/\/[a-z]{2}(?=((\/.*\.[a-z]{2,4})|\/)$)/,'/'+l);
+        }
         window.location.assign(h);
     });
 
@@ -93,6 +107,7 @@ $(document).ready(function() {
             iframe_in_modal(window.TextualiAuthorBase+'/'+display_params[2]);        }
         else if(display_params[1] == 'vid') {
             iframe_in_modal(youtube.replace('ID',display_params[2]));
+            bind_vid_adjustment()
         }
     }
     $(window).load(function() {
@@ -113,10 +128,7 @@ $(document).ready(function() {
         }
         if('string' == typeof($(this).data('vid'))) {
             share(window.TextualiAuthorBase+'/?vid='+$(this).data('vid'));
-            $('#auth-mod').on('shown.bs.modal',function() {
-                var d = $(this).find('.modal-dialog.modal-lg');
-                d.width(d.height() * 1.5);
-            });
+            bind_vid_adjustment()
         }
     });
     
