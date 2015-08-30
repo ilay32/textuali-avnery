@@ -12,7 +12,7 @@ body, html {
     height:100%;
     font-family: Alef;
 }
-body {
+body > * {
     direction: {{dir}};
 }
 
@@ -37,8 +37,16 @@ a {
         margin-top: @vertspace/2;
     }
     nav,#util-buttons {
-        margin-top: @vertspace;
+        margin-top: @vertspace/2;
         font-size:110%;
+    }
+    .header-component {
+        float: {{side}};
+        margin-{{oposide}}: @horizspace;
+        &:last-child {
+            float:{{oposide}};
+            margin-{{oposide}}:0;
+        }
     }
 }
 .navbar-toggle {
@@ -48,9 +56,13 @@ a {
 }
 
 #primary-navigation {
+    background-color: {{header_bg}};
     .nav {
         list-style: none;
         padding-{{side}}:0;
+        > li {
+            width: auto;
+        }
         li > a {
             color: @header_text_color;
             &:hover,&:focus,&.active{
@@ -63,8 +75,14 @@ a {
             background-color:{{header_bg}};
         }
     }
-    &.collapse {
-        background-color: {{header_bg}};
+    &.collapse,&.collapsing{
+        top: @topheight - @vertspace/2;
+        
+        overflow:visible;
+        .nav-justified .dropdown-menu {
+            top: 100%;
+            {{oposide}}:0;
+        }
     }
 }
 
@@ -218,6 +236,7 @@ main {
     top: @topheight;
     background-color: {{header_bg}};
     color:@header_text_color;
+    z-index:3;
     &.in {
         height:auto;
         width:100%;
@@ -299,7 +318,12 @@ iframe{
     }
 }
    
-
+@media only screen and (max-width: 768px) {
+    .navbar-collapse {
+        position: absolute;
+        width:100%;
+    }
+}
 /** bootstrap overrides **/
 .container {
     width: 100%;

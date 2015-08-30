@@ -1,22 +1,22 @@
-{{#pagetitle}}
-    {{> pagetitle.html}}
-{{/pagetitle}}
-{{#content}}
-<div class="row">
-    <div class="col-sm-12">
-        {{content}}
+<main class="container {{template}} {{page}}" id="content">
+    {{#pagetitle}}
+        {{> pagetitle.html}}
+    {{/pagetitle}}
+    {{#content}}
+    <div class="row">
+        <div class="col-sm-12">
+            {{content}}
+        </div>
     </div>
-</div>
-{{/content}}
+    {{/content}}
 
 
-{{#cats}}
-<div class="row">
-    <h2 class="col-xs-12">{{title}}</h2>
-    {{#books}}
-        {{> book.html}}
-    {{/books}}
-</div><!-- row -->
-{{/cats}}
-
+    {{#cats}}
+    <div class="row">
+        <h2 class="col-xs-12">{{title}}</h2>
+        {{#books}}
+            {{> book.html}}
+        {{/books}}
+    </div><!-- row -->
+    {{/cats}}
 </main>

@@ -1,18 +1,19 @@
-{{#pagetitle}}
-    {{>pagetitle.html}}
-{{/pagetitle}}
-<div id="isotope">
-{{#iblocks}}
-    <div class="isotope-item {{^img}}no-image{{/img}}" {{#id}}id="{{id}}"{{/id}} {{#link}}data-href="{{link}}"{{/link}} style="{{#width}}width:{{width}};{{/width}}{{#height}}height:{{height}};{{/height}}" {{#open}}data-open="{{open}}"{{/open}}>
-        {{#img}}
-        <img class="item-image" src="../img/{{img}}" />
-        {{/img}}
-        {{#text}}
-        <div class="item-text">
-            {{text}}
+<main class="container {{template}} {{page}}" id="content">
+    {{#pagetitle}}
+        {{>pagetitle.html}}
+    {{/pagetitle}}
+    <div id="isotope">
+    {{#iblocks}}
+        <div class="isotope-item {{^img}}no-image{{/img}}" {{#id}}id="{{id}}"{{/id}} {{#link}}data-href="{{link}}"{{/link}} style="{{#width}}width:{{width}};{{/width}}{{#height}}height:{{height}};{{/height}}" {{#open}}data-open="{{open}}"{{/open}}>
+            {{#img}}
+            <img class="item-image" src="{{relative}}{{img}}" />
+            {{/img}}
+            {{#text}}
+            <div class="item-text">
+                {{text}}
+            </div>
+            {{/text}}
         </div>
-        {{/text}}
-    </div>
-{{/iblocks}}
-</div><!-- isotope -->
+    {{/iblocks}}
+    </div><!-- isotope -->
 </main>

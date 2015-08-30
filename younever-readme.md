@@ -22,11 +22,12 @@ generic site
     ** social -- see comments in the json itself 
     ** pages -- see general comments in the json, but also: 
         *** templates:
-            **** isotope -- requires an isotope-blocks.json in SITEROOT/<lang>/. see the json for instructions about block options
+            **** isotope -- requires a SITEROOT/<lang>/<pagename>-isotope-blocks.json. see the json for instructions about block options
+            defaults to siteconfig.primary_language/<pagename>-isotope-blocks.json
             **** static -- requires a SITEROOT/<lang>/<page>-static.html -- good for arbitrary html
-            **** timeline -- requires a SITEROOT/timeline.json see instructions there
+            
             **** videos -- requires a SITEROOT/videos.json see instructions there
-            **** external -- requires a url object where iframes urls are given per-language
+            **** external (good for timelines too) -- requires a url dictionary where iframe urls are given per-language (defaults to the url.primary_language value)
        
 * dittional html will be appended at the bottom of the <main> element common to all templates. the files for this are, in cascading override order:
     *** SITEROOT/additional.html

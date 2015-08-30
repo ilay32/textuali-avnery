@@ -73,12 +73,16 @@ $(document).ready(function() {
         layoutMode: 'masonry'
     });
     $('.langswitch').click(function() {
-        var l = $(this).data('langcode');
-        if (window.location.pathname == "/") {
+        var l = $(this).data('langcode'),
+            loc = window.location;
+        if (loc.pathname == "/") {
             h = l;
         }
+        else if (/^\/[^\/]+html$/.test(loc.pathname)) {
+            h = l+loc.pathname;
+        }
         else {
-            h = window.location.href.replace(/\/[a-z]{2}(?=((\/.*\.[a-z]{2,4})|\/)$)/,'/'+l);
+            h = loc.href.replace(/\/[a-z]{2}(?=((\/.*\.[a-z]{2,4})|\/)$)/,'/'+l);
         }
         window.location.assign(h);
     });

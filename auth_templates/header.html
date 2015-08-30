@@ -40,77 +40,65 @@
     <header id="masthead" class="navbar navbar-fixed-top">
         <div class="container">
             <div class="row">
-                <div class="col-md-2 col-xs-1 hidden-xs hidden-sm" id="logo">
+                <div class="header-component hidden-xs hidden-sm" id="logo">
                     <a href="{{baseurl}}/{{lang}}" >
                         <img src="{{baseurl}}/img/{{logo}}" alt="{{auth_name}}"/>
                     </a>
                 </div>
-                <div class="col-sm-1 hidden-md hidden-lg"> 
-                <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#primary-navigation">
-                    <span class="sr-only">Toggle navigation</span>
-                    <span class="icon-bar"></span>
-                    <span class="icon-bar"></span>
-                    <span class="icon-bar"></span>
-                    <span class="icon-bar"></span>
-                </button>
+                <div class="header-component col-sm-1 hidden-md hidden-lg"> 
+                    <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target=".navbar-collapse">
+                        <span class="sr-only">Toggle navigation</span>
+                        <span class="icon-bar"></span>
+                        <span class="icon-bar"></span>
+                        <span class="icon-bar"></span>
+                        <span class="icon-bar"></span>
+                    </button>
                 </div>
-                <nav id="primary-navigation" class="col-sm-7">
-                    <ul class="nav nav-pills nav-justified">
-                        {{#menu_items}}
-                        {{#dropdown}}
-                         <li class="dropdown">
-                            <a class="dropdown-toggle" data-toggle="dropdown"title="{{title}}" href="{{file}}.html">
-                                {{label}} <span class="caret"></span>
-                            </a>
-                            <ul class="dropdown-menu">
-                                {{#items}}
-                                <li>
-                                    <a title="{{title}}" href="{{file}}.html">{{label}}</a>
-                               </li>
-                               {{/items}}
-                            </ul>
-                         </li>
-                        {{/dropdown}}
-                        {{^dropdown}}
-                        <li>
-                            <a title="{{title}}" href="{{file}}.html">{{label}}</a>
-                        </li>
-                        {{/dropdown}}
-                        {{/menu_items}}
-                    </ul>
-                </nav>
-                <!--<nav id="logos" class="col-sm-4">
-                    <a href="../he" >
-                        <img src="../img/logo-heb.png" alt="{{auth_name_he}}"/>
-                    </a>
-                    <span>|</span>
-                    <a href="../en">
-                        <img src="../img/logo-eng.png" alt="{{auth_name_en}}" />
-                    </a>
-                </nav>-->
-                <div class="col-sm-3" id="util-buttons">
+                    <nav id="primary-navigation" class="header-component navbar-collapse collapse">
+                        <ul class="nav nav-pills nav-justified">
+                            {{#menu_items}}
+                            {{#dropdown}}
+                             <li class="dropdown">
+                                <a class="dropdown-toggle" data-toggle="dropdown"title="{{title}}" href="{{file}}.html">
+                                    {{label}} <span class="caret"></span>
+                                </a>
+                                <ul class="dropdown-menu">
+                                    {{#items}}
+                                    <li>
+                                        <a title="{{title}}" href="{{file}}.html">{{label}}</a>
+                                   </li>
+                                   {{/items}}
+                                </ul>
+                             </li>
+                            {{/dropdown}}
+                            {{^dropdown}}
+                            <li>
+                                <a title="{{title}}" href="{{file}}.html">{{label}}</a>
+                            </li>
+                            {{/dropdown}}
+                            {{/menu_items}}
+                        </ul>
+                    </nav>
+                    <div class="header-component" id="util-buttons">
                     <!--{{#videos}}
                     <a class="glyphicon" href="{{videos.file}}.html" title="{{videos.title}}">
                         <img src="{{front.domain}}/media/play.png" alt="{{videos.label}}"/>
                     </a> 
                     {{/videos}}-->
-                    <div class="extremist">
-                        {{#langs}}
-                        <span class="glyphicon langswitch" data-langcode="{{code}}">
-                            {{name}}
-                        </span>
-                        {{/langs}}
+                    {{#langs}}
+                    <span class="glyphicon langswitch" data-langcode="{{code}}">
+                        {{name}}
+                    </span>
+                    {{/langs}}
 
-                        {{#utils}}
-                        <span id="{{name}}-trigger" title="{{title}}" class="glyphicon util-button">
-                            <img alt="{{title}}" src="{{icon}}"/>
-                        </span>
-                        {{/utils}}
-                    </div>
-                </div><!-- #util-buttons-->
-            </div>
+                    {{#utils}}
+                    <span id="{{name}}-trigger" title="{{title}}" class="glyphicon util-button">
+                        <img alt="{{title}}" src="{{icon}}"/>
+                    </span>
+                    {{/utils}}
+                </div>
+            </div><!-- #util-buttons-->
         </div>
     </header>
     
-    <main class="container" id="content">
         

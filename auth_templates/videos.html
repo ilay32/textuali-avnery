@@ -1,32 +1,32 @@
-{{#pagetitle}}
-    {{> pagetitle.html}}
-{{/pagetitle}}
-{{#content}}
-<div class="row">
-    <div class="col-sm-12">
-        {{content}}
+<main class="container {{template}} {{page}}" id="content">
+    {{#pagetitle}}
+        {{> pagetitle.html}}
+    {{/pagetitle}}
+    {{#content}}
+    <div class="row">
+        <div class="col-sm-12">
+            {{content}}
+        </div>
     </div>
-</div>
-{{/content}}
+    {{/content}}
 
 
-{{#primary}}
-<div class="row">
-    {{#videos}}
-        {{> video.html}}
-    {{/videos}} 
-</div>
-{{/primary}}
-{{^primary}}
-<div class="row">
-    {{#video_groups}}
-    <div class="col-lg-3 col-md-4 col-sm-6">
-        <h2 class="col-xs-12">{{groupname}}</h2>
+    {{#primary}}
+    <div class="row">
         {{#videos}}
             {{> video.html}}
-        {{/videos}}
+        {{/videos}} 
     </div>
-    {{/video_groups}}
-</div>
-{{/primary}}
+    {{/primary}}
+    
+    {{^primary}}
+        {{#video_groups}}
+        <div class="row">
+            <h2 class="col-xs-12">{{groupname}}</h2>
+            {{#videos}}
+                {{> video.html}}
+            {{/videos}}
+        </div>
+        {{/video_groups}}
+    {{/primary}}
 </main>

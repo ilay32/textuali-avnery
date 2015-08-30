@@ -48,12 +48,18 @@ class AuthorSiteGenerator:
         self.hidden =  eval(open('.makeauthignore').read())
     
     def isotope_template_data(self,pagedict): 
-        blocksf = self.indexpath+"/isotope-blocks.json";
+        bfilename = pagedict['pagename']+"-isotope-blocks.json"
+        blocksf = self.langpath+"/"+bfilename;
+        if not os.path.isfile(blocksf):
+            blocksf = self.indexpath+"/"+self.siteconfig['primary_language']+"/"+bfilename
         if os.path.isfile(blocksf):
             blocks = jc.load(file(blocksf))
             for block in blocks:
                 if 'text' in block:
                     block['text'] = block['text'][self.lang]
+                if not bool(urlparse(block['img']).scheme):
+                    block['relative'] = "../img/"
+
         else:
             logger.error("could not find "+blocksf)
             blocks = []
@@ -152,7 +158,8 @@ class AuthorSiteGenerator:
                         "groupname": textualangs.langname(lang,self.lang),
                         "videos" : langvids
                     })
-            videos.sort(cmp=lambda x,y : -1 if x['lang'] == self.lang else 1)
+            videos.sort(key=lambda x : x['lang'])
+            videos.sort(cmp=lambda x,y : -1 if x['lang'] == self.lang else 0)
             ret = {"video_groups":videos} 
         return ret 
                 
@@ -200,7 +207,7 @@ class AuthorSiteGenerator:
                 self.siteconfig = jc.load(file(self.indexpath+"/siteconfig.json"))
                 self.vidframeurl = self.siteconfig['baseurl']+'/img/video/{0}{1}' 
                 self.vidframepath = self.indexpath+'/img/video/{0}{1}' 
-                self.devurl = self.conf['front']['domain']+self.indexpath.replace("/home/sidelang/webapps/phptextuali","")
+                self.devurl = self.conf['front']['domain']+self.indexpath.replace("/home/sidelang/webapps/phptextuali","").replace("../","")
                 self.displaybooks = [x for x in authorblock['books'] if self.get_book_type(x['bookdir'])]
                 return True
          
@@ -315,7 +322,7 @@ class AuthorSiteGenerator:
         if os.path.isfile(self.langpath+"/"+page+"-additional.html"):
             addf = self.langpath+"/"+page+"-additional.html" 
         if os.path.isfile(addf) :
-            logger.info(u'loading '+addf)
+            #logger.info(u'loading '+addf)
             add = open(addf).read()
         else:
             add = ""
@@ -325,6 +332,8 @@ class AuthorSiteGenerator:
         pagedict = self.siteconfig['pages'][page]
         lang = self.lang
         block = self.get_globals()
+        block['page'] = page
+        block['template'] = pagedict['template']
         if 'page_title' in pagedict and lang in pagedict['page_title']:
             block['pagetitle'] = pagedict['page_title'][lang]
         template = pagedict['template']
@@ -333,20 +342,22 @@ class AuthorSiteGenerator:
         tempf = "auth_templates/"+template+".html"
         add = self.get_additional(page)        
         if template in self.body_blocks:
+            pagedict['pagename'] = page
             block = jsonmerge.merge(block,self.body_blocks[template](pagedict))
         if template == "external":
-            if lang in pagedict['url']:
+            if lang in pagedict['url'] and urlparse(pagedict['url'][lang]).netloc:
                 block['url'] = pagedict['url'][lang]
             else:
                 try:
                     block['url'] = pagedict['url'][self.siteconfig['primary_language']]
+                    logger.info(block['url'])
                 except:
                     logger.error("cannot find iframe url for  "+lang+"/"+page)
         if template == "static":
             if(os.path.exists(statf)):
                 logger.info(u'loading '+lang+'/'+page+' static html')
                 stat = open(statf).read() 
-                return '<div id="static-container">'+stat+'</div><!-- static-container-->'
+                return '<main class="container"><div id="static-container">'+stat+'</div><!-- static-container--></main>'+add
             else:
                 logger.error(page+" ("+lang+") "+"has template 'static' but no " + page + "-static.html found in ...site/"+lang)
                 return
@@ -357,8 +368,8 @@ class AuthorSiteGenerator:
         if not os.path.exists(tempf):
             logger.error("can't find template '"+template+"'")
             return
-        if template == 'timeline':
-            self.render_timeline_src()
+        #if template == 'timeline':
+        #    self.render_timeline_src()
         
         return  stache.render(stache.load_template(template+".html"),block).encode('utf-8')+add
     
