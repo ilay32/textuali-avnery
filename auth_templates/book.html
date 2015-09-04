@@ -1,59 +1,31 @@
 <div class="col-lg-3 col-md-4 col-sm-6 book-item">
-    <div class="clearfix item-inner top"> 
-        <div class="book-cover">
-            <a data-book="{{bookdir}}" class="flip-modal-trigger" href="{{url}}">
-                <img class="cover-image" src="{{cover}}" alt="{{book_nicename}}"/>
+    <div class="clearfix item-inner"> 
+        <h3>
+            <a data-book="{{bookdir}}" class="flip-modal-trigger" href="{{url}}{{#toc}}/#page/{{toc}}{{/toc}}">{{book_nicename}}</a>
+        </h3>
+        <div class="book-detail">
+            {{#year}}{{year}}<span class="pipe">|</span>{{/year}} {{pages}} {{string_translations.pages}}
+        </div>
+        <div class="book-detail">
+            {{publisher}}
+        </div>
+        <div class="book-detail">
+            {{string_translations.language}}: {{language_name}}
+            {{#other_langs}} 
+                <span class="pipe">|</span>
+                {{string_translations.also_in}}: 
+                {{#langs}}
+                    <a href="{{link}}" title="{{string_translations.flip_title}}">{{name}}</a> 
+                {{/langs}}
+            {{/other_langs}}
+        </div>
+        <div class="book-item-covers">
+            <a  title="{{string_translations.flip_title}}" data-book="{{bookdir}}" class="flip-modal-trigger book-cover" href="{{url}}">
+                <img class="{{aspect}}" src="{{cover}}" alt="{{book_nicename}}"/>
+            </a>
+            <a  title="{{string_translations.flip_title}}" class="flip-modal-trigger book-cover" id="back-cover" href="{{url}}/#page/{{pages}}" title="back cover">
+                <img class="{{aspect}}" src="{{backcover}}"/>
             </a>
         </div>
-        <div class="book-details">
-            <h3>
-                <a data-book="{{bookdir}}" class="flip-modal-trigger" href="{{url}}{{#toc}}/#page/{{toc}}{{/toc}}">{{book_nicename}}</a>
-            </h3>
-            <div class="book-detail">
-                {{#year}}{{year}}<span class="pipe">|</span>{{/year}}{{publisher}}
-            </div>
-            {{#editorial_info}}
-            <div class="book-detail">
-                {{editorial_info}}
-            </div>
-            {{/editorial_info}}
-            {{#link}}
-            <div class="book-detail">
-                <a target="_blank" href="{{link}}">{{link}}</a>
-            </div>
-            {{/link}}
-            {{#remark}}
-            <div class="book-detail">
-                {{remark}}
-            </div>
-            {{/remark}}
-            <div class="book-detail">
-                {{string_translations.language}}: {{language_name}}
-            </div>
-            {{#other_langs}}
-            <div class="book-detail">
-            {{string_translations.also_in}}: {{#langs}} {{.}} {{/langs}}
-            </div>
-            {{/other_langs}}
-            {{#orig_id}}
-            <div class="book-detail">
-               {{string_translations.orig}}: <a class="flip-modal-trigger" href="{{orig_url}}">{{orig_name}}</a>
-            </div>
-            {{/orig_id}}
-        </div><!-- book-details -->
-    </div><!-- clearfix -->
-    
-    <div class="clearfix item-inner bottom"> 
-        <a class="flip-modal-trigger" id="back-cover" href="{{url}}/#page/{{pages}}" title="back cover">
-            <img src="{{backcover}}"/>
-        </a>
-        <a class="flip-modal-trigger" id="flip-icon" href="{{url}}{{#toc}}/#page/{{toc}}{{/toc}}" title="to toc">
-            <img src="{{front.domain}}/media/flip-icon.png"/>
-        </a>
-        {{#google}}
-        <div class="book-detail">
-            <a target="_blank" href="{{google}}">{{string_translations.google}}</a>
-        </div>
-        {{/google}}
-   </div> 
+    </div><!-- item-inner -->
 </div><!-- book-item -->

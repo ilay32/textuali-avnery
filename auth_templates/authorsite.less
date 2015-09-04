@@ -5,6 +5,7 @@
 @horizspace: 20px;
 @vertspace: 20px;
 @header_text_color: lighten({{light_bg}},30%);
+@font-size-large: {{font_size_base}}*1.1; 
 html {
     font-size:{{font_size_base}};
 }
@@ -23,10 +24,27 @@ body > * {
 a {
     transition: color 0.2s;
 }
+.pipe {
+    margin: 0 5px;
+    color:{{primary_color}};
+}
+
+.color-anchor(@color:{{primary_color}}) {
+    &,&:hover,&:focus {
+        outline:none;
+        color: @color;
+   }
+   &:hover {
+       color: darken(@color,10%);
+  }
+}
+
 /** helper classes **/
 .extremist {
     float: {{oposide}};
 }
+
+
 /** header **/
 #masthead {
     background-color:{{header_bg}};
@@ -119,82 +137,91 @@ main {
 .vidwrap {
     margin: 10px 0;
     .vid {
-        //border: @topborderwidth solid {{light_bg}};
-        //position: relative;
         cursor: pointer;
         color: @header_text_color;
-        > img {
-            max-width:100%;
-        }
-        /*h4 {
-            text-align:center;
-            position: absolute;
-            bottom: 0;
-            width:100%;
-            margin:0;
-            line-height: 40px;
-            color: white;
-            background: rgba(0,0,0,0.7);
-        }*/
     }
 }
-
+.startframe {
+    position: relative;
+    overflow:hidden;
+    &:hover svg {
+        opacity: 1;
+    }
+    img {
+        width:100%;
+    }
+    svg {
+        @buttoncolor : lighten({{primary_color}},20%);
+        position: absolute;
+        transform: scale(0.8);
+        top: 32%;
+        {{side}}:32%;
+        transition: opacity 0.2s;
+        opacity: 0.8;
+        &:hover {
+            opacity: 1;
+        }
+        * {
+            stroke: none;
+        }
+        path {
+            fill:@buttoncolor; 
+        }
+        polygon {
+            fill: @header_text_color;
+        }
+        .rect1 {
+           fill:  @buttoncolor;
+        } 
+        .rect2 {
+            fill: @buttoncolor;
+            stroke: @header_text_color;
+            stroke-width: 5;
+        }
+        .rect3 {
+            fill: @header_text_color;
+        }
+    }
+}
 /** publications page **/
 .book-item{
-    height:325px;
-    overflow:hidden;
+    height: 350px;
     margin: @vertspace 0;
+    overflow:hidden;
 }
+
 .item-inner {
     padding:@vertspace/2 @horizspace/2;
     background-color:{{light_bg}};
-    a,a:hover {
-        color:{{primary_color}};
-    }
-    &.top {
-        height:75%;
-        padding-top:0;
-    }
-    &.bottom {
-        height:25%;
-        > * {
-            display:inline-block;
-            margin-{{oposide}}:@horizspace;
-            margin-bottom:@vertspace/2;
-            overflow:hidden;
-            img {
-                width:100%;
-                height:auto;
-            }
-        }
-        #back-cover{
-            width:10%;
-            max-height:65px;
-        }
-        #flip-icon {
-            width: 15%;
-        }
-    }
-    .pipe {
-        margin: 0 5px;
-        color:{{primary_color}};
-    }
-}
-.book-cover{
-    width:30%;
-    float:{{side}};
     height:100%;
-    margin-top:@vertspace;
-    overflow:hidden;
-    a {
-        display:block;
-        height:100%;
+    h3 {
+        margin-top: 0;
     }
-    .cover-image{
-        width:100%;
-        max-height:100%;
+    a:not(.book-cover) {
+        .color-anchor();
+    }
+    .book-detail {
+        margin:@vertspace/4 0;
+        font-size:@font-size-large;
+    }
+    .book-item-covers {
+        margin: @vertspace/2 0;
+        max-height: 55%;
+        overflow: hidden;
+    }
+    .book-cover{
+        margin-top:@vertspace;
+        margin-{{oposide}}:@horizspace;
+        overflow:hidden;
+        img.vertical {
+            height: 200px;
+        }
+        img.horizontal {
+            width: 150px;
+        }
     }
 }
+
 .book-details {
     width:70%;
     float:{{side}};
@@ -259,12 +286,8 @@ main {
     margin:@vertspace/2 auto;
     direction:rtl;
     width: 90%;
-    .modal-body {
-        padding-bottom: 0;
-     }
     .close {
         position:absolute;
-        //{{side}}: @horizspace/2;
         z-index:5;
         top:@vertspace/2;
         img,& {
@@ -336,3 +359,14 @@ iframe{
 .modal-dialog {
     width: 90%;
 }
+
+.carousel-inner {
+    height: 100%;
+    > .item {
+        height:100%;
+        > img {
+            margin: auto;
+            height: 100%;
+        }
+    }
+} 

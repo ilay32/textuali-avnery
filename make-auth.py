@@ -1,9 +1,9 @@
 
-
-import csv,json,jsoncomment,urllib2,re,logging,sys,os,glob,jsonmerge,lesscpy,six, optparse,textualangs,pystache,string,random
+import csv,json,jsoncomment,urllib2,re,logging,sys,os,glob,jsonmerge,lesscpy,six, optparse,textualangs,pystache,string,random,cgi
 #from distutils.dir_util import copy_tree
 from urlparse import urlparse
 #from HTMLParser import HTMLParser
+from PIL import Image
 
 op = optparse.OptionParser()
 op.add_option("-s", action="store_true", dest="render_styles", help="render style files")
@@ -29,6 +29,7 @@ stache = pystache.Renderer(
 class AuthorSiteGenerator:
     puncpat = re.compile('[%s]' % re.escape(string.punctuation))
     frame0 = 'http://img.youtube.com/vi/{0}/0.jpg' 
+    booktranslink = '{0}/{1}?book={2}'    
     def __init__(self,auth):
         self.lang = None
         self.indexpath = None
@@ -43,9 +44,32 @@ class AuthorSiteGenerator:
         self.body_blocks = {
             "books": self.books_template_data,
             "videos" : self.videos_template_data,
-            "isotope": self.isotope_template_data
+            "isotope": self.isotope_template_data,
+            "pictures" : self.pictures_template_data
         } 
         self.hidden =  eval(open('.makeauthignore').read())
+    
+    def default(self,obj):
+        return textualangs.default(self.lang, self.siteconfig['primary_language'],obj)
+         
+    def pictures_template_data(self,pagedict):
+        picfile = self.indexpath+"/pictures.json"
+        slideshowid = 'slideshow-{0}'
+        if not os.path.isfile(picfile):
+            logger.error("can't use pictures template without "+self.indexpath+"/pictures.json")
+            return {}
+        slideshows = jc.load(file(picfile))
+        for index,slideshow in enumerate(slideshows):
+            slideshow['description'] = slideshow['description'][self.lang]
+            slideshow['id'] = slideshowid.format(index)
+            for index, slide in enumerate(slideshow['slides']):
+                if index == 0:
+                    slide['active'] = "active"
+                    slideshow['thumb'] = slide['slide']
+                slide['caption'] = slide['title'][self.lang]
+                slide['alt'] =  cgi.escape(slide['caption']).encode('ascii', 'xmlcharrefreplace')
+                slide['ord'] = index
+        return {"slideshows": slideshows}
     
     def isotope_template_data(self,pagedict): 
         bfilename = pagedict['pagename']+"-isotope-blocks.json"
@@ -123,6 +147,7 @@ class AuthorSiteGenerator:
             book['cover'] = files['front']
             book['backcover'] = files['back']
             book['pages'] = files['count']
+            book['aspect'] = 'vertical' if files['proportions'] > 1.0 else 'horizontal' 
         book['url'] = auth_base_url+book['bookdir']
         book['language_name'] = textualangs.langname(book['language'])
         if 'orig_match_id' in book:
@@ -262,7 +287,7 @@ class AuthorSiteGenerator:
             utils.append({
                 "name" : util['name'],
                 "icon" : icon,
-                "title" : util['mouseover'][lang] if lang in util['mouseover'] else ""
+                "title" : self.default(util['mouseover'])
             }) 
         templatedata['utils'] = utils
         templatedata['menu_items'] = menu_items
@@ -345,14 +370,11 @@ class AuthorSiteGenerator:
             pagedict['pagename'] = page
             block = jsonmerge.merge(block,self.body_blocks[template](pagedict))
         if template == "external":
-            if lang in pagedict['url'] and urlparse(pagedict['url'][lang]).netloc:
-                block['url'] = pagedict['url'][lang]
+            url = self.default(pagedict['url'])
+            if not url or not urlparse(url).netloc:
+                logger.error("cannot find iframe url for  "+lang+"/"+page)
             else:
-                try:
-                    block['url'] = pagedict['url'][self.siteconfig['primary_language']]
-                    logger.info(block['url'])
-                except:
-                    logger.error("cannot find iframe url for  "+lang+"/"+page)
+                block['url'] = url
         if template == "static":
             if(os.path.exists(statf)):
                 logger.info(u'loading '+lang+'/'+page+' static html')
@@ -435,7 +457,7 @@ class AuthorSiteGenerator:
         g['lang'] = lang
         try:
             a = self.siteconfig['string_translations']['author']
-            g['auth_name'] = a[lang] if lang in a else a[self.siteconfig['primary_language']]
+            g['auth_name'] = self.default(a)
         except:
             logger.error("the author name is not specified for "+lang+" nor for "+self.siteconfig['primary_language'])
         g['front'] = self.conf['front']
@@ -534,22 +556,32 @@ class AuthorSiteGenerator:
         if len(jpgs) == 0:
             logger.error("no jpgs for "+book)
             return None
+        frontjpg = Image.open(jpgs[0])
+        fsize = frontjpg.size
+        ratio = float(fsize[1])/fsize[0]
         return {
             "front" : urlbase+os.path.basename(jpgs[0]),
             "back" : urlbase+os.path.basename(jpgs[len(jpgs) - 1]),
-            "count" : len(jpgs)
+            "count" : len(jpgs),
+            "proportions" : ratio
         }
     
     
     def get_other_langs(self,bookdir):
-        langs = {"langs" : []}
+        if 'book_translations_base' not in self.siteconfig:
+            logger.error("please set 'book_translations_base', e.g en/publications.html, in siteconfig.json for books template to be complete")
+            return ""
+        olangs = {"langs" : []}
         for book in self.displaybooks:
             if book['bookdir'] != bookdir and 'orig_match_id' in book:
                 if book['orig_match_id'] == bookdir:
-                    langs['langs'].append(textualangs.langname(book['language']))
-        if len(langs['langs']) == 0:
-            langs = ""
-        return langs
+                    olangs['langs'].append({
+                        "name" : textualangs.langname(book['language']),
+                        "link": self.booktranslink.format(self.siteconfig['baseurl'],self.siteconfig['book_translations_base'],book['bookdir'])
+                    }) 
+        if len(olangs['langs']) == 0:
+            olangs = ""
+        return olangs
 
     def get_book_name(self,bookdir):
        name = ''

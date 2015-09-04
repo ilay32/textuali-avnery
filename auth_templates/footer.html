@@ -51,7 +51,7 @@
 <script type="text/javascript">
     var trns = "{{string_translations}}".replace(/u'(?=[\W\w])/g,"'");
     trns = trns.replace(/'/g,'"');
-    window.TextualiStrings=JSON.parse(trns);
+    //window.TextualiStrings=JSON.parse(trns);
     window.TextualiSearchBase = '{{front.domain}}search/websearch.py/?pretty=1&f={{auth}}';
     window.TextualiAuthorBase ='{{front.domain}}{{front.srcs_dir}}/{{auth}}';
     window.TextualiBase='{{front.domain}}';
