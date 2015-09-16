@@ -13,10 +13,10 @@
             
             <img src="{{front.domain}}/media/close.png"/>
         </button>
-        <button type="button" class="close fade"  title="{{string_translations.share}}" id="share-modal" type="button"  aria-label="share">
+        <button type="button" class="close fade share-modal"  title="{{string_translations.share}}" type="button"  aria-label="share">
             <img  src="{{front.domain}}/media/share.png"/>
         </button>
-        <input id="share-input"  type="text"/>
+        <input type="text"/>
         <div class="modal-content">
             <div class="modal-body"></div>
         </div>
@@ -48,13 +48,13 @@
     </div>
 </div>
 {{/about}}
-<script type="text/javascript">
-    var trns = "{{string_translations}}".replace(/u'(?=[\W\w])/g,"'");
-    trns = trns.replace(/'/g,'"');
+<!--<script type="text/javascript">
+    //var trns = "{{string_translations}}".replace(/u'(?=[\W\w])/g,"'");
+    //trns = trns.replace(/'/g,'"');
     //window.TextualiStrings=JSON.parse(trns);
     window.TextualiSearchBase = '{{front.domain}}search/websearch.py/?pretty=1&f={{auth}}';
     window.TextualiAuthorBase ='{{front.domain}}{{front.srcs_dir}}/{{auth}}';
     window.TextualiBase='{{front.domain}}';
 </script>
-<script src="{{front.domain}}{{front.coddir}}js/authorscripts.js"></script>
+<script src="{{front.domain}}{{front.coddir}}js/authorscripts.js"></script>-->
 </body>

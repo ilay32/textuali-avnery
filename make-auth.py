@@ -1,7 +1,7 @@
 
-import csv,json,jsoncomment,urllib2,re,logging,sys,os,glob,jsonmerge,lesscpy,six, optparse,textualangs,pystache,string,random,cgi
+import csv,json,jsoncomment,urllib2,re,logging,sys,os,glob,jsonmerge,lesscpy,six, optparse,textualangs,pystache,string,random,cgi,urlparse
 #from distutils.dir_util import copy_tree
-from urlparse import urlparse
+#from urlparse import urlparse
 #from HTMLParser import HTMLParser
 from PIL import Image
 
@@ -81,8 +81,10 @@ class AuthorSiteGenerator:
             for block in blocks:
                 if 'text' in block:
                     block['text'] = block['text'][self.lang]
-                if not bool(urlparse(block['img']).scheme):
+                if not bool(urlparse.urlparse(block['img']).scheme):
                     block['relative'] = "../img/"
+                if 'vid' in urlparse.parse_qs(urlparse.urlparse(block['link']).query):
+                    block['playbutton'] = True
 
         else:
             logger.error("could not find "+blocksf)
@@ -153,7 +155,10 @@ class AuthorSiteGenerator:
         if 'orig_match_id' in book:
             book['orig_name'] = self.get_book_name(book['orig_match_id'])
             book['orig_url'] = auth_base_url+book['orig_match_id']
-        book['other_langs'] = self.get_other_langs(book['bookdir'])
+        translation_of = None
+        if 'orig_match_id' in bookdict:
+            translation_of = bookdict['orig_match_id']
+        book['other_langs'] = self.get_other_langs(book['bookdir'],translation_of)
         #if 'link' not in book or book['link']=="":
         #    q = '+'.join(self.puncpat.sub('',book['book_nicename']+" "+self.authorblock['nicename']).split(' '))
         #    book['google'] = google.format(q.encode('utf-8')) 
@@ -199,7 +204,7 @@ class AuthorSiteGenerator:
         if os.path.isfile(self.vidframepath.format(vid['id'],ext)):
             ret = self.vidframeurl.format(vid['id'],ext) 
         if 'startframe' in vid:
-            if bool(urlparse(vid['startframe']).scheme):
+            if bool(urlparse.urlparse(vid['startframe']).scheme):
                 ret = vid['startframe']
             elif os.path.isfile(self.vidframepath.format(vid['startframe'],'')):
                 ret = self.vidframeurl.format(vid['startframe'],'')
@@ -371,15 +376,16 @@ class AuthorSiteGenerator:
             block = jsonmerge.merge(block,self.body_blocks[template](pagedict))
         if template == "external":
             url = self.default(pagedict['url'])
-            if not url or not urlparse(url).netloc:
+            if not url or not urlparse.urlparse(url).netloc:
                 logger.error("cannot find iframe url for  "+lang+"/"+page)
             else:
                 block['url'] = url
+                block['pagename'] = page
         if template == "static":
             if(os.path.exists(statf)):
                 logger.info(u'loading '+lang+'/'+page+' static html')
                 stat = open(statf).read() 
-                return '<main class="container"><div id="static-container">'+stat+'</div><!-- static-container--></main>'+add
+                return '<main id="content" class="container '+str(page)+' static"><div id="static-container">'+stat+'</div><!-- static-container--></main>'+add
             else:
                 logger.error(page+" ("+lang+") "+"has template 'static' but no " + page + "-static.html found in ...site/"+lang)
                 return
@@ -509,6 +515,17 @@ class AuthorSiteGenerator:
         #styleltr.write(lesscpy.compile(six.StringIO(self.json2less(ltrvars)+open('auth_templates/authorsite.less').read()),minify=True)) 
         styleltr.close()
         logger.info('ltr styles done')
+    
+    def render_script(self):
+        scriptf = self.indexpath+"/js/authorscript-"+self.lang+".js"
+        s = open(scriptf,"w")
+        script = stache.render(stache.load_template('authorscript.js'),self.get_globals()).encode('utf-8')
+        if not script:
+            logger.error("could not render author script")
+        else:
+            s.write(script) 
+            logger.info(scriptf+" written")
+        s.close()
         
     #def json2less(self,dict) :
     #    ret = "/* Variables from */"
@@ -535,6 +552,7 @@ class AuthorSiteGenerator:
                 self.langpath = self.indexpath+"/"+lang
                 header = self.render_header()
                 footer = self.render_footer()
+                self.render_script()
                 #if not 'home' in men:
                 #    self.render_page('home',lang,header,footer)
                 for page,defs in self.siteconfig['pages'].iteritems():
@@ -567,18 +585,18 @@ class AuthorSiteGenerator:
         }
     
     
-    def get_other_langs(self,bookdir):
+    def get_other_langs(self,bookdir,orig):
         if 'book_translations_base' not in self.siteconfig:
             logger.error("please set 'book_translations_base', e.g en/publications.html, in siteconfig.json for books template to be complete")
             return ""
         olangs = {"langs" : []}
         for book in self.displaybooks:
             if book['bookdir'] != bookdir and 'orig_match_id' in book:
-                if book['orig_match_id'] == bookdir:
+                if book['orig_match_id'] == bookdir or book['orig_match_id'] == orig or book['bookdir'] == orig:
                     olangs['langs'].append({
                         "name" : textualangs.langname(book['language']),
                         "link": self.booktranslink.format(self.siteconfig['baseurl'],self.siteconfig['book_translations_base'],book['bookdir'])
-                    }) 
+                    })
         if len(olangs['langs']) == 0:
             olangs = ""
         return olangs

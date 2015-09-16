@@ -1,6 +1,5 @@
 
 /* convenience vars. (real vars  -- user parameters and sides are handeled by mustache */
-@topheight:70px;
 @topborderwidth: 5px;
 @horizspace: 20px;
 @vertspace: 20px;
@@ -23,6 +22,12 @@ body > * {
 
 a {
     transition: color 0.2s;
+}
+.textualiblock {
+    .col-lg-3;
+    .col-md-4;
+    .col-sm-6;
+    .col-xs-12;
 }
 .pipe {
     margin: 0 5px;
@@ -50,7 +55,7 @@ a {
     background-color:{{header_bg}};
     border-bottom: @topborderwidth solid {{light_bg}};    
     box-sizing:border-box;
-    height:@topheight;
+    height:{{header_height}};
     .container.wide {
         margin-top: @vertspace/2;
     }
@@ -85,8 +90,8 @@ a {
             color: @header_text_color;
             &:hover,&:focus,&.active{
                 background-color: transparent;
-                text-decoration:underline;
-           }
+                color: {{primary_color}};
+            }
         }
         .dropdown-menu {
             text-align:{{side}};
@@ -94,7 +99,7 @@ a {
         }
     }
     &.collapse,&.collapsing{
-        top: @topheight - @vertspace/2;
+        top: {{header_height}} - @vertspace/2;
         
         overflow:visible;
         .nav-justified .dropdown-menu {
@@ -105,11 +110,12 @@ a {
 }
 
 #logo { 
+    padding: 0 @horizspace;
     > a {
         display:block;
         width:100%;
         img{
-            max-height:@topheight - @topborderwidth - @vertspace/2;    
+            max-height:{{header_height}} - @topborderwidth - @vertspace/2;    
             max-width: 100%;
             margin-top: @vertspace/2;
         }
@@ -120,7 +126,10 @@ a {
 main {
     min-height:100%;
     background-color:{{primary_color}};
-    margin-top: @topheight;
+    margin-top: {{header_height}};
+    &.external {
+        background-color: none;
+    }
     a,a:hover {
         color:@header_text_color;
     }
@@ -153,11 +162,18 @@ main {
     svg {
         @buttoncolor : lighten({{primary_color}},20%);
         position: absolute;
-        transform: scale(0.8);
-        top: 32%;
-        {{side}}:32%;
         transition: opacity 0.2s;
         opacity: 0.8;
+        &.playbutton {
+            transform: scale(0.7);
+            top: e('calc(50% - 50px)');
+            {{side}}:e('calc(50% - 75px)') 
+        }
+        &.slidesicon {
+            top: e('calc(50% - 55px)');
+            {{side}}:e('calc(50% - 80px)');
+            transform:scale(0.8);
+        }
         &:hover {
             opacity: 1;
         }
@@ -219,6 +235,9 @@ main {
         img.horizontal {
             width: 150px;
         }
+        img {
+            max-width:45%;
+        }
     }
 }
 
@@ -227,6 +246,14 @@ main {
     float:{{side}};
     padding:0 @horizspace;
 }
+
+/* pictures template */
+.slideshow-modal {
+    margin-top: @vertspace;
+}
+
+
+
 /* static template */
 #static-container {
     margin:0  auto;
@@ -260,7 +287,7 @@ main {
     opacity: 0;
     transition: opacity 0.15s linear 0s;
     position: fixed;
-    top: @topheight;
+    top: {{header_height}};
     background-color: {{header_bg}};
     color:@header_text_color;
     z-index:3;
@@ -293,11 +320,11 @@ main {
         img,& {
             opacity:1;
         }
-        &#share-modal {
+        &.share-modal {
             {{side}} : 50px;
         }
     }
-    #share-input {
+    .share-modal + input[type="text"] {
         display:none;
         width: 500px;
         text-align:left;
@@ -348,6 +375,10 @@ iframe{
     }
 }
 /** bootstrap overrides **/
+.nav .open > a, .nav .open > a:hover, .nav .open > a:focus {
+    background: inherit;
+    color: inherit;
+}
 .container {
     width: 100%;
 }

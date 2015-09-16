@@ -1,16 +1,8 @@
-<div class="col-lg-3 col-md-4 col-sm-6 vidwrap">
+<div class="col-lg-3 col-md-4 col-sm-6 col-xs-12 vidwrap">
     <div class="vid flip-modal-trigger" href="http://www.youtube.com/embed/{{id}}?autoplay=1" data-vid={{id}}>
         <div class="startframe">
             <img src="{{firstframe}}"/>
-            <svg height="100" width="150">
-                <path d="M 25 0  
-                     a 10 20 0 1 0 0 100 
-                     l 100 0 
-                     a -10 20 0 1 0 0 -100 
-                     L 25 0" 
-                />
-                <polygon points="60,25 105,50 60,75" />
-            </svg>
+            {{>playbutton.svg}}
         </div>
         <h4  class="vid-title">{{title}}</h4>
         <div>[{{date}}] {{source}}</div> 

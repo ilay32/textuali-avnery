@@ -23,6 +23,7 @@
     <script src="{{front.domain}}/vendor/jquery-1.11.1.min.js" ></script>
     <script src="{{front.domain}}/bootstrap/js/bootstrap.min.js"></script>
     <script src="{{front.domain}}/vendor/isotope.min.js"></script>
+    <script src="{{baseurl}}/js/authorscript-{{lang}}.js"></script>
     {{#analyticsid}}
     <script>
     (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
@@ -51,20 +52,19 @@
                         <span class="icon-bar"></span>
                         <span class="icon-bar"></span>
                         <span class="icon-bar"></span>
-                        <span class="icon-bar"></span>
                     </button>
                 </div>
                     <nav id="primary-navigation" class="header-component navbar-collapse collapse">
                         <ul class="nav nav-pills nav-justified">
                             {{#menu_items}}
                             {{#dropdown}}
-                             <li class="dropdown">
+                             <li class="dropdown {{file}}">
                                 <a class="dropdown-toggle" data-toggle="dropdown" title="{{title}}" href="{{file}}.html">
                                     {{label}} <span class="caret"></span>
                                 </a>
                                 <ul class="dropdown-menu">
                                     {{#items}}
-                                    <li>
+                                    <li class="{{file}}">
                                         <a title="{{title}}" href="{{file}}.html">{{label}}</a>
                                    </li>
                                    {{/items}}
@@ -72,7 +72,7 @@
                              </li>
                             {{/dropdown}}
                             {{^dropdown}}
-                            <li>
+                            <li class="{{file}}">
                                 <a title="{{title}}" href="{{file}}.html">{{label}}</a>
                             </li>
                             {{/dropdown}}

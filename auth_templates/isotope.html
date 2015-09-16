@@ -6,7 +6,12 @@
     {{#iblocks}}
         <div class="isotope-item {{^img}}no-image{{/img}}" {{#id}}id="{{id}}"{{/id}} {{#link}}data-href="{{link}}"{{/link}} style="{{#width}}width:{{width}};{{/width}}{{#height}}height:{{height}};{{/height}}" {{#open}}data-open="{{open}}"{{/open}}>
             {{#img}}
-            <img class="item-image" src="{{relative}}{{img}}" />
+            <div class="startframe">
+                <img class="item-image" src="{{relative}}{{img}}" />
+                {{#playbutton}}
+                    {{ > playbutton.svg}}
+                {{/playbutton}}
+            </div>
             {{/img}}
             {{#text}}
             <div class="item-text">

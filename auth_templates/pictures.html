@@ -13,11 +13,11 @@
 
     <div class="row">
         {{#slideshows}}
-        <div class="col-lg-3 col-md-4 col-sm-6 vidwrap">
-            <div class="vid slideshow-modal" data-slideshow="#{{id}}">
+        <div class="col-lg-3 col-md-4 col-sm-6 col-xs-12">
+            <div class="slideshow-modal" data-slideshow="#{{id}}">
                 <div class="startframe">
                     <img src="{{baseurl}}/{{thumb}}"/>
-                    <svg width="200" height="110">
+                    <svg class="slidesicon" width="160" height="110">
                         <rect class="rect1" width="140" height="100" />
                         <rect class="rect2" x="20" y="20" width="140" height="100" />
                         <rect class="rect3" x="40" y="40" width="100" height="50" />
@@ -38,10 +38,10 @@
             
             <img src="{{front.domain}}/media/close.png"/>
         </button>
-        <button type="button" class="close fade"  title="{{string_translations.share}}" id="share-modal" type="button"  aria-label="share">
+        <button type="button" class="close fade share-modal"  title="{{string_translations.share}}" type="button"  aria-label="share">
             <img  src="{{front.domain}}/media/share.png"/>
         </button>
-        <input id="share-input"  type="text"/>
+        <input type="text"/>
         <div class="modal-content">
             <div class="modal-body">
             {{#slideshows}}
