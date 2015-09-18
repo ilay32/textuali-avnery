@@ -4,7 +4,9 @@ import csv,json,jsoncomment,urllib2,re,logging,sys,os,glob,jsonmerge,lesscpy,six
 #from urlparse import urlparse
 #from HTMLParser import HTMLParser
 from PIL import Image
+#from shutil import copytree, ignore_patterns
 
+#copytree(source, destination, ignore=ignore_patterns('*.pyc', 'tmp*'))
 op = optparse.OptionParser()
 op.add_option("-s", action="store_true", dest="render_styles", help="render style files")
 op.add_option("--hidelang", action="store", type="string", dest="hidelang", help="hides the specified language wihtout rendering the site")
@@ -326,8 +328,9 @@ class AuthorSiteGenerator:
         foot = ""
         if os.path.isfile(footf):
             foot = '<footer id="site-footer"><div class="container><div class="row">'
-            foot += open(footf).read()            
-            foot += '</div></div></footer>';
+
+            foot += open(footf).read()      
+            foot += '</div></div></footer>'
         else:
             logger.info("no footer.html found in "+self.indexpath+" or "+self.langpath) 
         #aboutf = self.langpath+"/about.txt"

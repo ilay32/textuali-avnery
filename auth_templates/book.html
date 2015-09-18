@@ -1,7 +1,7 @@
 <div class="col-lg-3 col-md-4 col-sm-6 col-xs-12 book-item">
     <div class="clearfix item-inner"> 
         <h3>
-            <a data-book="{{bookdir}}" class="flip-modal-trigger" href="{{url}}{{#toc}}/#page/{{toc}}{{/toc}}">{{book_nicename}}</a>
+            <a data-book="{{bookdir}}" class="flip-modal-trigger" href="{{url}}{{#toc}}/#page/{{toc}}{{/toc}}" data-pages="{{pages}}">{{book_nicename}}</a>
         </h3>
         <div class="book-detail">
             {{#year}}{{year}}<span class="pipe">|</span>{{/year}} {{pages}} {{string_translations.pages}}
@@ -20,10 +20,10 @@
             {{/other_langs}}
         </div>
         <div class="book-item-covers">
-            <a  title="{{string_translations.flip_title}}" data-book="{{bookdir}}" class="flip-modal-trigger book-cover" href="{{url}}">
+            <a  title="{{string_translations.flip_title}}" data-pages="{{pages}}"data-book="{{bookdir}}" class="flip-modal-trigger book-cover" href="{{url}}">
                 <img class="{{aspect}}" src="{{cover}}" alt="{{book_nicename}}"/>
             </a>
-            <a  title="{{string_translations.flip_title}}" class="flip-modal-trigger book-cover" id="back-cover" href="{{url}}/#page/{{pages}}" title="back cover">
+            <a  title="{{string_translations.flip_title}}" class="flip-modal-trigger book-cover" id="back-cover" data-pages="{{pages}}" href="{{url}}/#page/{{pages}}" title="back cover" data-book="{{bookdir}}">
                 <img class="{{aspect}}" src="{{backcover}}"/>
             </a>
         </div>

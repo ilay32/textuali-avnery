@@ -3,6 +3,75 @@ var minuses = {
     '#auth-mod': 30
 }
 var authbase = '{{front.domain}}{{front.srcs_dir}}/{{auth}}';
+ 
+function padZeroes(i) {
+    var bar = ""+i;
+    while(bar.length < 3) {
+        bar = "0"+bar;
+   }
+   return bar;
+}  
+    
+function TextualiJpgsLoader(book,pages) {
+    this.lastloaded = 0;
+    this.hasmore = true;
+    this.book = book;
+    this.pages = parseInt(pages);
+    
+    this.destroy = function() {
+        loader  = this;
+        loader.hasmore = false;
+        p = $('#phone-scroll-boook').detach();
+        $('main#content').after(p);
+    }
+             
+    this.loadmore = function() {
+        var i = 0;
+        var loader = this;
+        while(i++ < 5 && loader.hasmore) {
+           loader.loadNext() 
+        }
+    }; 
+    
+                
+    this.loadNext = function() {
+        var loader = this;
+        var loading = new Image();
+        loading.src = loader.next();
+        loading.onload = function() {
+            $('#phone-scroll-book').append(this);
+            if(loader.hasmore && loader.lastloaded < loader.pages) {
+                loader.loadNext();
+            } 
+        }
+        loading.onerror = function() {
+            loader.hasmore = false;
+        } 
+    }
+        
+    this.next = function() {
+        this.lastloaded++;
+        var ret = authbase;
+        ret += '/'+this.book+'/jpg/'+this.book;
+        ret += 'p'+padZeroes(this.lastloaded)+'.jpg';
+        return ret;
+    }; 
+
+    this.bind_scroll = function() {
+        var h = $('#phone-scroll-book  > img').eq(0).get(0).height;
+        $(window).scroll(function() {
+            console.log($(this).scrollTop());
+            if ($(this).scrollTop() > (tjloader.lastloaded - 2) * h && tjloader.hasmore) {
+                tjloader.loadmore();
+            }
+            else {
+                console.log($(this).scrollTop(), tjloader, h);
+            }
+        });  
+    }; 
+
+} 
+
 function frame_height(elem) {
     var height = $(window).height() - minuses[elem];
     $(elem).each(function() {
@@ -95,7 +164,7 @@ function match_main_class(jqobj) {
 
 function highlight_menu(ul) {
     ul.find('li').each(function() {
-        if(match_main_class($(this))) {
+        if($('main#content').hasClass(this.id)) {
             $(this).children('a').eq(0).addClass('active');
             $(this).closest('.dropdown').find('.dropdown-toggle').addClass('active');
         }
@@ -174,12 +243,44 @@ $(document).ready(function() {
         frame_height('main');
     });
     
+    $('#close-phone-scroll').click(function() {
+        tjloader.destroy();
+        $('#phone-scroll-book').fadeOut(200);
+        $('main#content,footer').fadeIn(200);
+    }); 
+      
+   $(window).scroll(function(){
+        if ($(this).scrollTop() > 100) {
+            $('#scrollup').fadeIn();
+        } else {
+            $('#scrollup').fadeOut();
+        }
+    });
+    $('#scrollup').click(function(){
+        $("html, body").animate({ scrollTop: 0 }, 600);
+        return false;
+    });
+    
     $('.flip-modal-trigger').click(function(c) {
         c.preventDefault();
         h = $(this).attr('href'); 
-        iframe_in_modal(h);        
         if('string' == typeof($(this).data('book')) ) {
-            share('#auth-mod', authbase+'/?book='+$(this).data('book'));
+            if($(window).width() <= 768 ) {
+                if(typeof(tjloader) == 'object') {
+                    tjloader.destroy(); 
+                }
+                tjloader = new TextualiJpgsLoader($(this).data('book'), $(this).data('pages'));
+                $('main#content,footer').fadeOut(200);
+                $('#phone-scroll-book').fadeIn(200).find('> img').detach();
+                tjloader.loadmore();
+           }
+            else {
+                iframe_in_modal(h);
+                share('#auth-mod', authbase+'/?book='+$(this).data('book'));
+            }
+        }
+        else {
+            iframe_in_modal(h);        
         }
         if('string' == typeof($(this).data('vid'))) {
             share('#auth-mod', authbase+'/?vid='+$(this).data('vid'));

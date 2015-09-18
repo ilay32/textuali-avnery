@@ -11,8 +11,8 @@
 	<meta name="generator" content="HTML Tidy for Linux (vers 25 March 2009), see www.w3.org">
 	<meta charset="utf-8">
 	<meta http-equiv="X-UA-Compatible" content="IE=edge">
-	<meta name="viewport" content="width = 1050, user-scalable = no">
-	<title>{{string_translations.title}}</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">	
+    <title>{{string_translations.title}}</title>
 	<link rel="icon" type="image/png" href="{{favicon}}">
     <link href="{{front.domain}}/media/Alef-Webfont/stylesheet.css" rel="stylesheet" type="text/css">
     <link href="{{front.domain}}/bootstrap/css/bootstrap.min.css" rel="stylesheet" type="text/css">
@@ -58,13 +58,13 @@
                         <ul class="nav nav-pills nav-justified">
                             {{#menu_items}}
                             {{#dropdown}}
-                             <li class="dropdown {{file}}">
+                             <li id="{{file}}" class="dropdown">
                                 <a class="dropdown-toggle" data-toggle="dropdown" title="{{title}}" href="{{file}}.html">
                                     {{label}} <span class="caret"></span>
                                 </a>
                                 <ul class="dropdown-menu">
                                     {{#items}}
-                                    <li class="{{file}}">
+                                    <li id="{{file}}">
                                         <a title="{{title}}" href="{{file}}.html">{{label}}</a>
                                    </li>
                                    {{/items}}
@@ -72,7 +72,7 @@
                              </li>
                             {{/dropdown}}
                             {{^dropdown}}
-                            <li class="{{file}}">
+                            <li id="{{file}}">
                                 <a title="{{title}}" href="{{file}}.html">{{label}}</a>
                             </li>
                             {{/dropdown}}

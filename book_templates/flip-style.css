@@ -54,7 +54,7 @@ body {
 	background-image:-moz-linear-gradient(right,  rgba(255,255,255,0) 0%, rgba(255,255,255,0.25) 94%, rgba(255,255,255,0.5) 95%, rgba(202,202,202,1) 100%);
 	background-image:-ms-linear-gradient(right,  rgba(255,255,255,0) 0%, rgba(255,255,255,0.25) 94%, rgba(255,255,255,0.5) 95%, rgba(202,202,202,1) 100%);
 	background-image:-o-linear-gradient(right,  rgba(255,255,255,0) 0%, rgba(255,255,255,0.25) 94%, rgba(255,255,255,0.5) 95%, rgba(202,202,202,1) 100%);
-	background-image:linear-gradient(right,  rgba(255,255,255,0) 0%, rgba(255,255,255,0.25) 94%, rgba(255,255,255,0.5) 95%, rgba(202,202,202,1) 100%);*/vkkk
+	background-image:linear-gradient(right,  rgba(255,255,255,0) 0%, rgba(255,255,255,0.25) 94%, rgba(255,255,255,0.5) 95%, rgba(202,202,202,1) 100%);*/
 background: -moz-linear-gradient(left,  rgba(33,32,6,0.4) 0%, rgba(32,31,6,0.15) 2%, rgba(30,29,6,0) 8%, rgba(5,5,1,0.06) 84%, rgba(0,0,0,0) 99%, rgba(0,0,0,0) 100%); /* FF3.6+ */
 
  background: -webkit-gradient(linear, left top, right top, color-stop(0%,rgba(33,32,6,0.4)), color-stop(2%,rgba(32,31,6,0.15)), color-stop(8%,rgba(30,29,6,0)), color-stop(84%,rgba(5,5,1,0.06)), color-stop(99%,rgba(0,0,0,0)), color-stop(100%,rgba(0,0,0,0))); /* Chrome,Safari4+ */
