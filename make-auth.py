@@ -43,6 +43,7 @@ class AuthorSiteGenerator:
         self.langpath = None
         self.conf = jc.load(file('config.json'))
         self.auth = auth
+        self.authtexts = None
         self.found = self.search_auth()
         #self.langpat = re.compile("(.*)\-(\w{2})$")
         self.langpat = re.compile("^[a-z]{2}$")
@@ -145,7 +146,6 @@ class AuthorSiteGenerator:
     def book_item(self,bookdict):
         block = self.authorblock
         front = self.conf['front']
-        auth_base_url = front['domain']+front['srcs_dir'].replace("../","")+"/"+self.authorblock['dir']+"/"
         #google = "https://www.google.com/search?q={0}"
         book = bookdict
         files = self.book_files(book['bookdir'])
@@ -154,11 +154,11 @@ class AuthorSiteGenerator:
             book['backcover'] = files['back']
             book['pages'] = files['count']
             book['aspect'] = 'vertical' if files['proportions'] > 1.0 else 'horizontal' 
-        book['url'] = auth_base_url+book['bookdir']
+        book['url'] = self.authtexts+"/"+book['bookdir']
         book['language_name'] = textualangs.langname(book['language'])
         if 'orig_match_id' in book:
             book['orig_name'] = self.get_book_name(book['orig_match_id'])
-            book['orig_url'] = auth_base_url+book['orig_match_id']
+            book['orig_url'] = self.authtexts+"/"+book['orig_match_id']
         translation_of = None
         if 'orig_match_id' in bookdict:
             translation_of = bookdict['orig_match_id']
@@ -236,12 +236,14 @@ class AuthorSiteGenerator:
         for authorblock in self.conf['authors']:
             d = authorblock['dir']
             if(d == authdir):
+                front = self.conf['front']
                 self.authorblock = authorblock
-                self.indexpath = self.conf['front']['indices_dir']+"/"+authdir+"/site"
+                self.indexpath = front['indices_dir']+"/"+authdir+"/site"
                 self.siteconfig = jc.load(file(self.indexpath+"/siteconfig.json"))
                 self.vidframeurl = self.siteconfig['baseurl']+'/img/video/{0}{1}' 
                 self.vidframepath = self.indexpath+'/img/video/{0}{1}' 
-                self.devurl = self.conf['front']['domain']+self.indexpath.replace("/home/sidelang/webapps/phptextuali","").replace("../","")
+                self.devurl = front['domain']+self.indexpath.replace("/home/sidelang/webapps/phptextuali","").replace("../","")
+                self.authtexts = front['domain']+front['srcs_dir'].replace("../","")+"/"+authorblock['dir']
                 self.displaybooks = [x for x in authorblock['books'] if self.get_book_type(x['bookdir'])]
                 return True
          
@@ -480,6 +482,7 @@ class AuthorSiteGenerator:
             logger.error("the author name is not specified for "+lang+" nor for "+self.siteconfig['primary_language'])
         g['front'] = self.conf['front']
         g['auth'] = self.auth
+        g['authtexts'] = self.authtexts
         langs = []
         for l in self.siteconfig['menu'].iterkeys():
             if l != lang:

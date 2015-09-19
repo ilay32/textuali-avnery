@@ -2,7 +2,7 @@ var minuses = {
     'main' : 50,
     '#auth-mod': 30
 }
-var authbase = '{{front.domain}}{{front.srcs_dir}}/{{auth}}';
+var authbase = '{{authtexts}}';
  
 function padZeroes(i) {
     var bar = ""+i;
