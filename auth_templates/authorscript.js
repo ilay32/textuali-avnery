@@ -91,6 +91,17 @@ function slideshow_in_modal(id) {
     slideshow = $('#slides-mod').find(id);
     $('.carousel').hide();
     if (slideshow.length == 1) {
+        slideshow.find('.loader').each(function() {
+            var loader = $(this);
+            var slide = new Image();
+            slide.src = loader.data('src');
+            slide.alt = loader.data('alt'); 
+            slide.setAttribute("class", "slide");
+            slide.onload = function() {
+                loader.hide().after(this);
+            } 
+        });
+        //$(this).after(attr('src', $(this).data('src'));
         $('#slides-mod').modal('show');
         slideshow.height($(window).height()*0.9).fadeIn(200);
         share('#slides-mod',window.location.href.replace(window.location.search, '')+'?slideshow='+id.replace(/^#/,''));
@@ -177,11 +188,14 @@ function highlight_menu(ul) {
 $(document).ready(function() {
     var youtube = "http://www.youtube.com/embed/ID?autoplay=1";
     var display_params  = location.search.match(/^\?(vid|book|slideshow)=(.*)$/);
+    
+//    $.get("https://www.googleapis.com/customsearch/v1?q=%D7%A9%D7%9C%D7%95%D7%9D&cx=006641765881684709425:t3vpkc0zyvo&relatedSite=thinkil.co.il&fields=items%2Cqueries%2CsearchInformation%2FtotalResults%2Curl&key=AIzaSyCXwxmdVWn6J453z2kZhiR82DQre4gNkJs"
+ //   );
     $('.carousel.slide').hide();
     highlight_menu($('#primary-navigation > .nav'));
     $(window).load(function() {
         $('#isotope').isotope({
-            isOriginLeft: $('body').css('direction') == 'rtl' ? false : true,
+            isOriginLeft: !('{{dir}}' == 'rtl'),
             itemSelector: window.isoIt,
             layoutMode: 'masonry'
         });
@@ -276,14 +290,14 @@ $(document).ready(function() {
            }
             else {
                 iframe_in_modal(h);
-                share('#auth-mod', authbase+'/?book='+$(this).data('book'));
+                share('#auth-mod', window.location.href.replace(window.location.search, '')+'/?book='+$(this).data('book'));
             }
         }
         else {
             iframe_in_modal(h);        
         }
         if('string' == typeof($(this).data('vid'))) {
-            share('#auth-mod', authbase+'/?vid='+$(this).data('vid'));
+            share('#auth-mod', window.location.href.replace(window.location.search, '')+'/?vid='+$(this).data('vid'));
             bind_vid_adjustment()
         }
     });

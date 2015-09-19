@@ -11,6 +11,7 @@ op = optparse.OptionParser()
 op.add_option("-s", action="store_true", dest="render_styles", help="render style files")
 op.add_option("--hidelang", action="store", type="string", dest="hidelang", help="hides the specified language wihtout rendering the site")
 op.add_option("--showlang", action="store", type="string", dest="showlang", help="hides the specified language without rendering the site")
+#op.add_option("-p", "--pagelinks", action="store_true", dest="pagelinks", help="generate dummy webpages with link to book htmls")
 
 #op.add_option("-a", action="store_true", dest="do_htaccess", help="add a .htaccess file according to the 'primary_language' specified in siteconfig.json")
 
@@ -20,6 +21,8 @@ jc = jsoncomment.JsonComment(json)
 stache = pystache.Renderer(
     search_dirs='auth_templates',file_encoding='utf-8',string_encoding='utf-8',file_extension=False
 )
+
+#https://www.googleapis.com/customsearch/v1?q=%D7%A9%D7%9C%D7%95%D7%9D&cx=006641765881684709425:t3vpkc0zyvo&relatedSite=thinkil.co.il&fields=items%2Cqueries%2CsearchInformation%2FtotalResults%2Curl&key=AIzaSyCXwxmdVWn6J453z2kZhiR82DQre4gNkJs
 
 #htmlparser = HTMLParser()
 #hetran = gettext.translation('avnery_heb',os.getcwd()+'/lang',['he_IL'])
@@ -87,7 +90,6 @@ class AuthorSiteGenerator:
                     block['relative'] = "../img/"
                 if 'vid' in urlparse.parse_qs(urlparse.urlparse(block['link']).query):
                     block['playbutton'] = True
-
         else:
             logger.error("could not find "+blocksf)
             blocks = []
@@ -257,6 +259,9 @@ class AuthorSiteGenerator:
         templatedata=self.get_globals()
         # prevents css caching
         templatedata['ver'] = str(random.randint(999,9999)) 
+        templatedata['analyticsid'] = self.siteconfig['analyticsid']
+        templatedata['google_search'] = self.siteconfig['google_search']
+
         menu_items = []
         utils = [] 
         favicon = self.conf['front']['domain']+"/media/favicon.ico"
@@ -321,7 +326,11 @@ class AuthorSiteGenerator:
         }
     
     def render_footer(self):
-        templatedata=self.get_globals()
+        templatedata=jsonmerge.merge(self.get_globals(),self.pictures_template_data({}))
+        authbooks = []
+        for book in self.authorblock['books']:
+            authbooks.append(book['bookdir'])
+        templatedata['books'] = authbooks
         footf = self.indexpath+"/footer.html"
         if os.path.isfile(self.langpath+"/footer.html") :
             footf = self.langpath+"/footer.html"
@@ -471,7 +480,6 @@ class AuthorSiteGenerator:
             logger.error("the author name is not specified for "+lang+" nor for "+self.siteconfig['primary_language'])
         g['front'] = self.conf['front']
         g['auth'] = self.auth
-        g['analyticsid'] = self.siteconfig['analyticsid']
         langs = []
         for l in self.siteconfig['menu'].iterkeys():
             if l != lang:
@@ -541,12 +549,38 @@ class AuthorSiteGenerator:
     #    for pages in dict.itervalues():
     #        ret = ret + pages.append["home"]
     #    return ret
+    
+    #def render_pagelinks(self):
+    #    logger.info('generating links to book pages')
+    #    front = self.conf['front']
+    #    auth_base_url = front['domain']+front['srcs_dir'].replace("../","")+"/"+self.authorblock['dir']
+    #    pageurl = '{0}/{1}/html/{2}'
+    #    linksdir = self.indexpath+"/pagelinks" 
+    #    links = '{0}/{1}-pages.html'
+    #    if not os.path.exists(linksdir):
+    #        os.makedirs(linksdir)
+    #    for book in self.authorblock['books'] :
+    #        bookdir = book['bookdir']
+    #        #logger.info('generating links for '+book['bookdir'])
+    #        booklinks = open(links.format(linksdir,bookdir),"w")
+    #        pages = []
+    #        htmls = glob.glob(self.conf['front']['srcs_dir']+"/"+self.auth+"/"+bookdir+"/html/*.htm")
+    #        if len(htmls) == 0:
+    #            return
+    #        for p in htmls:
+    #            pages.append(pageurl.format(auth_base_url,bookdir,os.path.basename(p)))
+    #        booklinks.write(stache.render(stache.load_template('pagelinks.html'),{"pages" : pages}).encode('utf-8'))
+    #        booklinks.close()
+    #    logger.info('page links generated')
 
+            
     def render_site(self):
         if options.render_styles:
             self.render_styles()
         access = open(self.indexpath+"/access", "w")
         access.write(stache.render(stache.load_template("access"),{"lang":self.siteconfig['primary_language']}))
+        #if options.pagelinks:
+        #    self.render_pagelinks()
         for lang,men in self.siteconfig['menu'].iteritems():
             if lang in self.hidden:
                 logger.info("skipping "+textualangs.langname(lang)+" -- it is hidden. to render it use '--showlang "+lang+"' and render the site again")
@@ -556,6 +590,7 @@ class AuthorSiteGenerator:
                 header = self.render_header()
                 footer = self.render_footer()
                 self.render_script()
+                
                 #if not 'home' in men:
                 #    self.render_page('home',lang,header,footer)
                 for page,defs in self.siteconfig['pages'].iteritems():
@@ -587,7 +622,7 @@ class AuthorSiteGenerator:
             "proportions" : ratio
         }
     
-    
+     
     def get_other_langs(self,bookdir,orig):
         if 'book_translations_base' not in self.siteconfig:
             logger.error("please set 'book_translations_base', e.g en/publications.html, in siteconfig.json for books template to be complete")

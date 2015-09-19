@@ -252,7 +252,9 @@ main {
 /* pictures template */
 .slideshow-modal {
     margin-top: @vertspace;
+    cursor:pointer;
 }
+
 
 
 
@@ -328,8 +330,13 @@ main {
     }
     .share-modal + input[type="text"] {
         display:none;
-        width: 500px;
+        width: 80%;
         text-align:left;
+        padding: 5px;
+        border: 2px solid {{primary_color}};
+        border-radius: 3px;
+        position: absolute;
+        z-index:3;
     } 
     iframe {
         width: 100%;
@@ -424,11 +431,24 @@ iframe{
 
 .carousel-inner {
     height: 100%;
-    > .item {
+    .item {
         height:100%;
-        > img {
+        .slide {
             margin: auto;
             height: 100%;
         }
+        .loader {
+            height: 100px;
+            width: 100px;
+            top: e('calc(50% - 50px)');
+            {{side}} : e('calc(50% - 50px)');
+            position:absolute;
+       }
     }
 } 
+
+/* google search overrides */
+
+.utilbox .gsc-control-cse {
+    background: transparent;
+}

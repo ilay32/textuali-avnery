@@ -56,26 +56,27 @@ if __name__=='__main__':
         pdfs = authorblock['pdf_downloads']
         authnicename = authorblock['nicename']
         for book in authbooks:
+            bd = book['bookdir']
             book['pdf_downloads'] = pdfs
             book['indices_dir'] = conf['front']['indices_dir']
-            indexpath = book['indices_dir']+"/"+authdir+"/"+book['bookdir']+"/"
-            srcpath  = conf['front']['srcs_dir']+"/"+authdir+"/"+book['bookdir']+"/"
-            book['srcs'] = conf['front']['domain']+os.path.basename(conf['front']['srcs_dir'])+"/"+authdir+"/"+book['bookdir']+"/"
-
+            indexpath = book['indices_dir']+"/"+authdir+"/"+bd+"/"
+            srcpath  = conf['front']['srcs_dir']+"/"+authdir+"/"+bd+"/"
+            srcurl = conf['front']['domain']+os.path.basename(conf['front']['srcs_dir'])+"/"+authdir+"/"+bd+"/"
+            book['srcs'] = srcurl
             #book['topdir'] = conf['front']['domain']
             #book['coddir'] = book['topdir'] + conf['front']['coddir']
             book['front'] = conf['front']
             book['authnice'] = authnicename
             jpgslist = sorted(glob.glob(srcpath+"jpg/*.jpg"))
             foundpages = len(jpgslist)
-            book['type'] = conf['book_types'].get(book['bookdir'][:1],"book")
+            book['type'] = conf['book_types'].get(bd[:1],"book")
             if(foundpages > 0):
                 #logger.info("rendering "+book['book_shortname'])
                 if(os.path.isfile(book['indices_dir']+"/"+authdir+"/authorstyle.css")):
                     book['has_author_css'] = 1
                 if(os.path.isfile(indexpath+"bookstyle.css")):
                     book['has_book_css'] = 1
-                if (folders.has_key(authdir+'-'+book['bookdir'])):
+                if (folders.has_key(authdir+'-'+bd)):
                     book['has_search'] = 1
                 book['pages'] = foundpages
                 realpagename = re.compile("p\d{3,4}$")
@@ -114,6 +115,17 @@ if __name__=='__main__':
                 ind.write(stache.render(stache.load_template('index-template.html'),book).encode('utf-8'))
                 sc = open(indexpath+"bookscript.js", 'w')
                 sc.write(stache.render(stache.load_template('bookscript.js'),book).encode('utf-8'))
+                pages = []
+                pageurl = '{0}html/{1}'
+                if book['has_texts'] :
+                    htmls = glob.glob(srcpath+"/html/*.htm*")
+                    if len(htmls) >  0:
+                        for p in htmls:
+                            pages.append(pageurl.format(srcurl,os.path.basename(p)))
+                        pagelinks = open(indexpath+"pagelinks.html","w")
+                        pagelinks.write(stache.render(stache.load_template('pagelinks.html'),{"pages" : pages}).encode('utf-8'))
+                        pagelinks.close()
+
                 logger.info(book['book_shortname']+ " complete")
             else:
                 logger.info(book['book_shortname'] + " couldn't find pages")

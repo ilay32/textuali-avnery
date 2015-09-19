@@ -7,7 +7,6 @@
 <html lang="he">
 <!--<![endif]-->
 <head>
-	<meta name="robots" content="noindex, nofollow">
 	<meta name="generator" content="HTML Tidy for Linux (vers 25 March 2009), see www.w3.org">
 	<meta charset="utf-8">
 	<meta http-equiv="X-UA-Compatible" content="IE=edge">
@@ -33,6 +32,17 @@
 
     ga('create', '{{analyticsid}}', 'auto');
     ga('send', 'pageview');
+    /*(function() {
+        var cx = '{{google_search}}';
+        var gcse = document.createElement('script');
+        gcse.type = 'text/javascript';
+        gcse.async = true;
+        gcse.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') +
+            '//cse.google.com/cse.js?cx=' + cx;
+        var s = document.getElementsByTagName('script')[0];
+        s.parentNode.insertBefore(gcse, s);
+  })();*/
+</script>
     </script>
     {{/analyticsid}}
 </head>
