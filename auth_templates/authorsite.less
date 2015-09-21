@@ -11,10 +11,12 @@ html {
 body, html {
     height:100%;
     font-family: Alef;
+    background-color:{{primary_color}};
 }
 body > * {
     direction: {{dir}};
 }
+
 
 [data-href],[data-dismiss] {
     cursor:pointer;
@@ -32,6 +34,13 @@ a {
 .pipe {
     margin: 0 5px;
     color:{{primary_color}};
+}
+.loader {
+    height: 100px;
+    width: 100px;
+    top: e('calc(50% - 50px)');
+    {{side}} : e('calc(50% - 50px)');
+    position:absolute;
 }
 
 .color-anchor(@color:{{primary_color}}) {
@@ -127,11 +136,13 @@ a {
 /* main */
 main {
     min-height:100%;
-    background-color:{{primary_color}};
     margin-top: {{header_height}};
-    &.external {
-        background-color: none;
-    }
+    /*&.external {
+        background: none;
+        #page-title {
+            color: {{primary_color}};
+        }
+    } */
     a,a:hover {
         color:@header_text_color;
     }
@@ -141,6 +152,9 @@ main {
         main > & {
             text-align:center;
         }
+    }
+    body.external & {
+        padding: 0;
     }
 }
 
@@ -155,26 +169,31 @@ main {
 .startframe {
     position: relative;
     overflow:hidden;
-    &:hover svg {
-        opacity: 1;
+    &:hover {
+        svg,.glyphicon {
+            opacity: 1;
+        }
     }
     img {
         width:100%;
     }
-    svg {
-        @buttoncolor : lighten({{primary_color}},20%);
+    svg,.glyphicon{
+        @buttoncolor : {{primary_color}};
         position: absolute;
         transition: opacity 0.2s;
         opacity: 0.8;
+        color: @buttoncolor;
         &.playbutton {
             transform: scale(0.7);
             top: e('calc(50% - 50px)');
             {{side}}:e('calc(50% - 75px)') 
         }
         &.slidesicon {
-            top: e('calc(50% - 55px)');
-            {{side}}:e('calc(50% - 80px)');
-            transform:scale(0.8);
+            //top: e('calc(50% - 20px)');
+            top: e('calc(100% - 70px)');
+            //{{side}}:e('calc(50% - 20px)');
+            {{side}}:@horizspace;
+            font-size:50px;
         }
         &:hover {
             opacity: 1;
@@ -208,7 +227,7 @@ main {
     overflow:hidden;
 }
 
-.item-inner {
+.item-inner,.vid {
     padding:@vertspace/2 @horizspace/2;
     background-color:{{light_bg}};
     height:100%;
@@ -241,6 +260,9 @@ main {
             max-width:45%;
         }
     }
+    h2,h3,h4,p,div,span {
+        color: {{textcolor}};
+    }
 }
 
 .book-details {
@@ -269,16 +291,19 @@ main {
     a,h2,h3,h4,h5,h6 {
         color:{{primary_color}};
    }
+   img {
+       max-width: 100%;
+  }
 } 
 #util-buttons {
     .glyphicon {
         cursor:pointer;
         font-size: 30px; 
-        margin-{{oposide}}:@horizspace;
         &.langswitch {
             font-size:110%;
             color:{{primary_color}};
             padding-top: @vertspace*0.75;
+            margin-{{oposide}}:@horizspace;
         }
     }
 }
@@ -352,12 +377,18 @@ iframe{
     height:100%;
     border:none;
 }
+#iframe-wrap {    
+    background-color: white;
+    position:relative;
+    height:500px;
+}
 
 /* isotope */
 .isotope-item {
     margin: @vertspace @horizspace;
     padding:@vertspace @horizspace;
     background-color:{{light_bg}};
+    max-width:85%;
     .item-image {
         width:100%;
     }
@@ -366,7 +397,11 @@ iframe{
     }
 }
 
-
+/* documents */
+.document-image {
+    max-width: 100%;
+    cursor: pointer;
+}
 /* flip substitute for small screens */
 #phone-scroll-book {
     display:none;
@@ -405,13 +440,42 @@ iframe{
         margin: 5px;
     }
 }
-   
+
+@media only screen and (max-width: 1400px) {
+    #primary-navigation .nav > li > a {
+       font-size:{{font_size_base}};
+    } 
+}
+@media only screen and (max-width: 1120px) {
+    .nav > li > a {
+        padding: 5px;
+    }
+    #logo {
+        width: 130px;
+        padding:0;
+        padding-{{side}}:5px;
+        margin:10px 0;
+    }
+}
+@media only screen and (max-width: 920px) and (min-width: 768px) {
+    
+    #menu-button, #logo {
+       display:none; 
+    }
+}
+
 @media only screen and (max-width: 768px) {
     .navbar-collapse {
         position: absolute;
         width:100%;
     }
+    #static-container {
+        width: auto;
+        min-width: 2px;
+        max-width: 95%;
+   }
 }
+
 /** bootstrap overrides **/
 .nav .open > a, .nav .open > a:hover, .nav .open > a:focus {
     background: inherit;
@@ -437,18 +501,15 @@ iframe{
             margin: auto;
             height: 100%;
         }
-        .loader {
-            height: 100px;
-            width: 100px;
-            top: e('calc(50% - 50px)');
-            {{side}} : e('calc(50% - 50px)');
-            position:absolute;
-       }
     }
 } 
 
-/* google search overrides */
+/* google search results  */
+#search-results {
+    margin-top: @vertspace;
+    padding:5px;
 
-.utilbox .gsc-control-cse {
-    background: transparent;
+    h5 {
+        color : {{primary_color}};
+    }
 }

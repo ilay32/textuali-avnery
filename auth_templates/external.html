@@ -1,6 +1,5 @@
-{{#pagetitle}}
-    {{>pagetitle.html}}
-{{/pagetitle}}
-<main id="content" class="{{page}} {{template}}">
-    <iframe id="external" src="{{url}}"></iframe>
+    <div id="iframe-wrap">
+        <img class="loader" src="{{front.domain}}media/loader.gif"/>
+        <iframe id="external" src="{{url}}"></iframe>
+    </div>
 </main>

@@ -11,7 +11,7 @@
 	<meta charset="utf-8">
 	<meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">	
-    <title>{{string_translations.title}}</title>
+    <title>{{html_title}}</title>
 	<link rel="icon" type="image/png" href="{{favicon}}">
     <link href="{{front.domain}}/media/Alef-Webfont/stylesheet.css" rel="stylesheet" type="text/css">
     <link href="{{front.domain}}/bootstrap/css/bootstrap.min.css" rel="stylesheet" type="text/css">
@@ -41,22 +41,21 @@
             '//cse.google.com/cse.js?cx=' + cx;
         var s = document.getElementsByTagName('script')[0];
         s.parentNode.insertBefore(gcse, s);
-  })();*/
-</script>
+    })();*/
     </script>
     {{/analyticsid}}
 </head>
 
-<body class="{{dir}}">
+<body class="{{bodyclass}}">
     <header id="masthead" class="navbar navbar-fixed-top">
         <div class="container">
             <div class="row">
-                <div class="header-component hidden-xs hidden-sm" id="logo">
+                <div class="header-component" id="logo">
                     <a href="{{baseurl}}/{{lang}}" >
                         <img src="{{baseurl}}/img/{{logo}}" alt="{{auth_name}}"/>
                     </a>
                 </div>
-                <div class="header-component col-sm-1 hidden-md hidden-lg"> 
+                <div id="menu-button" class="header-component col-sm-1 hidden-md hidden-lg"> 
                     <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target=".navbar-collapse">
                         <span class="sr-only">Toggle navigation</span>
                         <span class="icon-bar"></span>
@@ -96,8 +95,8 @@
                     </a> 
                     {{/videos}}-->
                     {{#langs}}
-                    <span class="glyphicon langswitch" data-langcode="{{code}}">
-                        {{name}}
+                    <span title="{{name}}" class="glyphicon langswitch glyphicon-globe" data-langcode="{{code}}">
+                        
                     </span>
                     {{/langs}}
 
@@ -111,4 +110,12 @@
         </div>
     </header>
     
-        
+    <main class="container" id="content">
+        {{#pagetitle}}
+        <div class="row">
+            <div class="col-sm-12">
+                <h1 id="page-title">{{pagetitle}}</h1>
+            </div>
+        </div>
+        {{/pagetitle}}
+    

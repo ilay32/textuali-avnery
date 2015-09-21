@@ -1,8 +1,3 @@
-
-<main class="container {{template}} {{page}}" id="content">
-    {{#pagetitle}}
-        {{> pagetitle.html}}
-    {{/pagetitle}}
     {{#content}}
     <div class="row">
         <div class="col-sm-12">
@@ -17,11 +12,13 @@
             <div class="slideshow-modal" data-slideshow="#{{id}}">
                 <div class="startframe">
                     <img src="{{baseurl}}/{{thumb}}"/>
-                    <svg class="slidesicon" width="160" height="110">
+                    <!--<svg class="slidesicon" width="160" height="110">
                         <rect class="rect1" width="140" height="100" />
                         <rect class="rect2" x="20" y="20" width="140" height="100" />
                         <rect class="rect3" x="40" y="40" width="100" height="50" />
-                    </svg> 
+                    </svg> -->
+
+                    <span class="slidesicon glyphicon glyphicon-zoom-in"></span>
                 </div>
                 <h4  class="vid-title">{{description}}</h4>
             </div>

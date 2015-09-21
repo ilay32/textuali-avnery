@@ -3,7 +3,8 @@ var minuses = {
     '#auth-mod': 30
 }
 var authbase = '{{authtexts}}';
- 
+//var search_template = "https://www.googleapis.com/customsearch/v1?GOOGLESEARCHQUERY&cx={{google_search}}&fields=items%searchInformation%2FtotalResults%2Curl&key={{gapikey}}";
+var search_template = "https://www.googleapis.com/customsearch/v1?GOOGLESEARCHQUERY&cx={{google_search}}&fields=items%2Cqueries%2CsearchInformation%2FtotalResults%2Curl&key={{gapikey}}"
 function padZeroes(i) {
     var bar = ""+i;
     while(bar.length < 3) {
@@ -129,7 +130,8 @@ function filename2pagenum(name) {
     m = name.match(/^([a-z]\d{3}p)(\d{3})$/);
     return m[2];
 }
-function process_search_results(results) {
+
+function process_fts_search_results(results) {
     var htm = '<h5>{{string_translations.search_results}} "'+results.q+'"</h5>';
     if(results.status == 'success') {
         if(results.matches.length > 0) {
@@ -154,28 +156,33 @@ function process_search_results(results) {
    }
    return htm;
 } 
-
-function match_main_class(jqobj) {
-    var mc = $('main#content').attr('class').split(" ");
-    var c = jqobj.attr('class').split(" ");
-    var match = false;
-    var i  = 0;
-    while (i < c.length && !match) {
-        for (j in mc) {
-            if (c[i] == mc[j]) {
-                match = true;
-                break;
-            }
-        }
-        i++;
+function identify_book_page(url) {
+    return /textuali\.com\/texts\/\w*\/html\/\w\d{3,4}\w\d{3,4}\.html$/.test(url);
+}
+function process_google_search_results(results) {
+    var r = results.queries.request[0];
+    var htm = '<div id="search-results"><h3>{{string_translations.search_results}} "'+r.searchTerms+'"</h3>';
+    if(r.totalResults > 0) {
+        htm += '<ul class="search-results">';
+        $(results.items).each(function(index,res) {
+            htm += '<li class="search-result">';
+            var u = identify_book_page(res.link);
+            var l = typeof(u) == 'string' ? u : res.link;
+            htm += '<a href="'+l+'">'+res.title+'</a></li>';
+            htm += '<p>'+res.htmlSnippet+'</p>';
+            //htm += '?q='+results.q+'">'+m[res].match+'</a></li>';
+        });
+        htm += '</ul></div>';
     }
-
-    return match;
+    else {
+        htm += 'sorry, no matches found</div>';
+    } 
+    return htm;
 }
 
 function highlight_menu(ul) {
     ul.find('li').each(function() {
-        if($('main#content').hasClass(this.id)) {
+        if($('body').hasClass(this.id)) {
             $(this).children('a').eq(0).addClass('active');
             $(this).closest('.dropdown').find('.dropdown-toggle').addClass('active');
         }
@@ -188,11 +195,13 @@ function highlight_menu(ul) {
 $(document).ready(function() {
     var youtube = "http://www.youtube.com/embed/ID?autoplay=1";
     var display_params  = location.search.match(/^\?(vid|book|slideshow)=(.*)$/);
-    
-//    $.get("https://www.googleapis.com/customsearch/v1?q=%D7%A9%D7%9C%D7%95%D7%9D&cx=006641765881684709425:t3vpkc0zyvo&relatedSite=thinkil.co.il&fields=items%2Cqueries%2CsearchInformation%2FtotalResults%2Curl&key=AIzaSyCXwxmdVWn6J453z2kZhiR82DQre4gNkJs"
- //   );
-    $('.carousel.slide').hide();
+    //$('.carousel.slide').hide();
     highlight_menu($('#primary-navigation > .nav'));
+    $('.external iframe').load(function() {
+        $(this).prev('.loader').hide();
+        $('#iframe-wrap').css('height','auto');
+    });
+    
     $(window).load(function() {
         $('#isotope').isotope({
             isOriginLeft: !('{{dir}}' == 'rtl'),
@@ -216,10 +225,15 @@ $(document).ready(function() {
         }
         window.location.assign(h);
     });
+    $('.doc-wrap').click(function() {
+        var c = $(this).find('.document-image').clone();
+        $('#auth-mod').find('.share-modal').hide().end().find('.modal-body').html(c).end().modal('show');
+    });
 
     $('#auth-mod').on('hide.bs.modal',function() {
         $(this).find('.modal-body').empty();
         $(this).find('.modal-dialog').width('');
+        $(this).find('.share-modal').show();
     });
     $('[data-href]').click(function() {
         var h = $(this).data('href'),
@@ -310,18 +324,34 @@ $(document).ready(function() {
         iframe_in_modal(youtube.replace('ID',id));
     });*/
     
-    $('#searchform').submit(function() {
+    /*$('#searchform').submit(function() {
         var query = $(this).serialize();
         $.ajax({
             url: '{{front.domain}}search/websearch.py/?pretty=1&f={{auth}}&'+query,
             DataType: 'json'
         }).done(function(results) {
-            $('#auth-mod').modal('show').find('.modal-body').html(process_search_results(results));
+            $('#auth-mod').modal('show').find('.modal-body').html(process_fts_search_results(results));
         }).fail(function(err) {
             alert(err);
         });
        return false; 
-    });
+    }); */
+    
+    $('#searchform').submit(function() {
+        var query = $(this).serialize();
+        //query = query.replace(/\s+/,'+');
+        $.ajax({
+            url : search_template.replace('GOOGLESEARCHQUERY',query),            
+            DataType: 'json'
+        }).done(function(res) {
+            $('#auth-mod').modal('show').find('.modal-body').html(process_google_search_results(res)).end().find('.share-modal').hide();
+        }).fail(function(err) {
+            alert(err);
+        });
+        return false;
+   });
+        
+
     $('.util-button').click(function() {
         var tarid = '#'+this.id.replace('-trigger','-container'),
             tar = $(tarid);

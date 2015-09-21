@@ -36,6 +36,7 @@ class AuthorSiteGenerator:
     frame0 = 'http://img.youtube.com/vi/{0}/0.jpg' 
     booktranslink = '{0}/{1}?book={2}'    
     def __init__(self,auth):
+        self.global_template_vars = None
         self.lang = None
         self.indexpath = None
         self.siteconfig = None
@@ -51,18 +52,32 @@ class AuthorSiteGenerator:
             "books": self.books_template_data,
             "videos" : self.videos_template_data,
             "isotope": self.isotope_template_data,
-            "pictures" : self.pictures_template_data
+            "pictures" : self.pictures_template_data,
+            "documents" : self.documents_template_data
         } 
         self.hidden =  eval(open('.makeauthignore').read())
     
     def default(self,obj):
         return textualangs.default(self.lang, self.siteconfig['primary_language'],obj)
-         
+    
+    def documents_template_data(self, pagedict) :
+        ret = {}
+        docsfile = self.indexpath+"/"+pagedict['pagename']+".json"
+        if not os.path.isfile(docsfile) :
+            logger.error("can't use documents template without "+docsfile)
+            return ret
+        docs = jc.load(file(docsfile))
+        for doc in docs:
+            doc['title'] = self.default(doc['title'])
+        if len(docs) > 0 :
+            ret = {"has_docs" : True, "docs" : docs}
+        return ret
+            
     def pictures_template_data(self,pagedict):
         picfile = self.indexpath+"/pictures.json"
         slideshowid = 'slideshow-{0}'
         if not os.path.isfile(picfile):
-            logger.error("can't use pictures template without "+self.indexpath+"/pictures.json")
+            logger.error("can't use pictures template without "+picfile)
             return {}
         slideshows = jc.load(file(picfile))
         for index,slideshow in enumerate(slideshows):
@@ -255,15 +270,23 @@ class AuthorSiteGenerator:
             logger.error("sorry, "+authdir+" doesn't seem to be a correct directory name")
             return False        
     
+    def compile_title(self,pagedict,delim=" | ") :
+        ret = self.default(self.siteconfig['string_translations']['author'])
+        ret += delim+self.default(pagedict['label'])
+        if 'mouseover' in pagedict and self.lang in pagedict['mouseover'] :
+             ret += delim+pagedict['mouseover'][self.lang]
+        return ret.strip() 
          
-    def render_header(self):
+    def render_header(self,page):
         lang = self.lang
+        pagedict = self.siteconfig['pages'][page]
         templatedata=self.get_globals()
-        # prevents css caching
-        templatedata['ver'] = str(random.randint(999,9999)) 
-        templatedata['analyticsid'] = self.siteconfig['analyticsid']
-        templatedata['google_search'] = self.siteconfig['google_search']
-
+        templatedata['bodyclass'] = pagedict['template']+" "+page
+        templatedata['html_title'] = self.compile_title(pagedict)
+        if 'page_title' in pagedict and lang in pagedict['page_title']:
+            templatedata['pagetitle'] = pagedict['page_title'][lang]
+        else:
+            templatedata['pagetitle'] = None
         menu_items = []
         utils = [] 
         favicon = self.conf['front']['domain']+"/media/favicon.ico"
@@ -338,7 +361,7 @@ class AuthorSiteGenerator:
             footf = self.langpath+"/footer.html"
         foot = ""
         if os.path.isfile(footf):
-            foot = '<footer id="site-footer"><div class="container><div class="row">'
+            foot = '<footer id="site-footer"><div class="container"><div class="row">'
 
             foot += open(footf).read()      
             foot += '</div></div></footer>'
@@ -376,10 +399,8 @@ class AuthorSiteGenerator:
         pagedict = self.siteconfig['pages'][page]
         lang = self.lang
         block = self.get_globals()
-        block['page'] = page
-        block['template'] = pagedict['template']
-        if 'page_title' in pagedict and lang in pagedict['page_title']:
-            block['pagetitle'] = pagedict['page_title'][lang]
+        #block['page'] = page
+        #block['template'] = pagedict['template']
         template = pagedict['template']
         contf= self.langpath+"/"+page+"-maintext.txt"
         statf = self.langpath+"/"+page+"-static.html"
@@ -399,7 +420,7 @@ class AuthorSiteGenerator:
             if(os.path.exists(statf)):
                 logger.info(u'loading '+lang+'/'+page+' static html')
                 stat = open(statf).read() 
-                return '<main id="content" class="container '+str(page)+' static"><div id="static-container">'+stat+'</div><!-- static-container--></main>'+add
+                return '<div id="static-container">'+stat+'</div><!-- static-container--></main>'+add
             else:
                 logger.error(page+" ("+lang+") "+"has template 'static' but no " + page + "-static.html found in ...site/"+lang)
                 return
@@ -447,8 +468,9 @@ class AuthorSiteGenerator:
         except Exception as e:
             logger.error(e)
          
-    def render_page(self,page,header,footer):
+    def render_page(self,page,footer):
         body = self.render_body(page)
+        header = self.render_header(page)
         #home as index
         if(page == 'home'):
             page = 'index'
@@ -464,6 +486,8 @@ class AuthorSiteGenerator:
                 logger.error(e)
              
     def get_globals(self):
+        if isinstance(self.global_template_vars,dict) and self.global_template_vars['lang'] == self.lang:
+            return self.global_template_vars
         lang = self.lang
         g={"baseurl": self.siteconfig['baseurl']}
         #string_translations = {}
@@ -475,6 +499,11 @@ class AuthorSiteGenerator:
         g['string_translations']=jsonmerge.merge(textualangs.translations(lang),textualangs.translations(lang,self.siteconfig['string_translations']))
         g['dir'] = textualangs.direc(lang)
         g['lang'] = lang
+        # prevents css caching
+        g['ver'] = str(random.randint(999,9999)) 
+        for p,v in self.siteconfig.iteritems():
+            if isinstance(v,six.string_types):
+                g[p]=v
         try:
             a = self.siteconfig['string_translations']['author']
             g['auth_name'] = self.default(a)
@@ -494,6 +523,7 @@ class AuthorSiteGenerator:
                     "code" : l
                 })
         g['langs'] = langs
+        self.global_template_vars = g
         return g
          
     #def parse_lang(self,str):
@@ -590,7 +620,7 @@ class AuthorSiteGenerator:
             else:
                 self.lang = lang
                 self.langpath = self.indexpath+"/"+lang
-                header = self.render_header()
+                #header = self.render_header()
                 footer = self.render_footer()
                 self.render_script()
                 
@@ -598,7 +628,7 @@ class AuthorSiteGenerator:
                 #    self.render_page('home',lang,header,footer)
                 for page,defs in self.siteconfig['pages'].iteritems():
                     if 'template' in defs and not not defs['template']:
-                        self.render_page(page,header,footer)
+                        self.render_page(page,footer)
                 logger.info(textualangs.langname(lang,"en")+" rendered")
                 print "======"
         logger.info(authdir+" site done")

@@ -20,7 +20,7 @@
 
 <div class="modal fade" id="slides-mod" tabindex="-2" role="dialog" aria-hidden="true">
     <div class="modal-dialog modal-lg">
-        <button title="{{string_translations.close}}" d="close-modal" ype="button" data-dismiss="modal" class="close" data-dismiss="modal" aria-label="Close">
+        <button title="{{string_translations.close}}" type="button" data-dismiss="modal" class="close" data-dismiss="modal" aria-label="Close">
             
             <img src="{{front.domain}}/media/close.png"/>
         </button>
@@ -43,9 +43,13 @@
                         {{#slides}}
                         <div class="item{{#active}} active{{/active}}">
                             <img class="loader" src="{{front.domain}}media/loader.gif" data-src="{{baseurl}}/{{slide}}" data-alt="{{alt}}"/>
+                            {{#caption}}
                             <div class="carousel-caption">
-                                {{caption}}
+                                <h3>
+                                    {{caption}}
+                                </h3>
                             </div>
+                            {{/caption}}
                         </div>
                         {{/slides}}
                     </div>
@@ -67,7 +71,7 @@
 
 <div class="modal fade" id="auth-mod" tabindex="-1" role="dialog" aria-hidden="true">
     <div class="modal-dialog modal-lg">
-        <button title="{{string_translations.close}}" d="close-modal" ype="button" data-dismiss="modal" class="close" data-dismiss="modal" aria-label="Close">
+        <button title="{{string_translations.close}}" type="button" data-dismiss="modal" class="close" data-dismiss="modal" aria-label="Close">
             
             <img src="{{front.domain}}/media/close.png"/>
         </button>
@@ -85,6 +89,7 @@
         <input name="q" type="text" maxlneght="50" placeholder="{{string_translations.search}}" />
         <button type="submit">{{string_translations.search}}</button> 
     </form> 
+    <gcse:search></gcse:search>
 </div>
 <div id="share-container" class="fade utilbox">
     <nav id="social" class="col-sm-6">
