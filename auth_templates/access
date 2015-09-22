@@ -5,3 +5,5 @@ RewriteCond %{REQUEST_URI} ^/$
 RewriteRule (.*)$ {{lang}}/ [L] 
 RewriteCond %{REQUEST_URI} ^/[a-z0-9\-_]*.html$
 RewriteRule (.*) {{lang}}/$1 [L] 
+RewriteCond %{REQUEST_URI} texts/{{auth}}
+RewriteRule ^(.*)$ http://textuali.com/$1

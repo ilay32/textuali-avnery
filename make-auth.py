@@ -11,7 +11,7 @@ op = optparse.OptionParser()
 op.add_option("-s", action="store_true", dest="render_styles", help="render style files")
 op.add_option("--hidelang", action="store", type="string", dest="hidelang", help="hides the specified language wihtout rendering the site")
 op.add_option("--showlang", action="store", type="string", dest="showlang", help="hides the specified language without rendering the site")
-#op.add_option("-p", "--pagelinks", action="store_true", dest="pagelinks", help="generate dummy webpages with link to book htmls")
+op.add_option("-p", "--pagelinks", action="store_true", dest="pagelinks", help="generate dummy webpages with link to book htmls")
 
 #op.add_option("-a", action="store_true", dest="do_htaccess", help="add a .htaccess file according to the 'primary_language' specified in siteconfig.json")
 
@@ -258,7 +258,7 @@ class AuthorSiteGenerator:
                 self.vidframeurl = self.siteconfig['baseurl']+'/img/video/{0}{1}' 
                 self.vidframepath = self.indexpath+'/img/video/{0}{1}' 
                 self.devurl = front['domain']+self.indexpath.replace("/home/sidelang/webapps/phptextuali","").replace("../","")
-                self.authtexts = front['domain']+front['srcs_dir'].replace("../","")+"/"+authorblock['dir']
+                self.authtexts = self.siteconfig['destination_domain']+"/"+front['srcs_dir'].replace("../","")+"/"+authdir
                 self.displaybooks = [x for x in authorblock['books'] if self.get_book_type(x['bookdir'])]
                 return True
          
@@ -290,31 +290,16 @@ class AuthorSiteGenerator:
         menu_items = []
         utils = [] 
         favicon = self.conf['front']['domain']+"/media/favicon.ico"
-        #try to find the right logo for this language
-        logo = None
-        dlang = 'he' if textualangs.direc(lang) == 'right' else 'en'
-        try:
-            logo  = os.path.basename(glob.glob(self.indexpath+"/img/logo-"+lang+".*")[0])
-        except:
-            logos  = glob.glob(self.indexpath+"/img/logo-"+dlang+".*")
-            if len(logos) > 0:
-                logo = os.path.basename(logos[0])
-                logger.info("using "+logo+" for "+lang+" header")
-        if isinstance(logo,six.string_types):
-            templatedata['logo'] = logo
-        else:
-            logger.error("both /img/logo-"+lang+" and /img/logo-"+self.siteconfig['primary_language']+" not found")
-
         if isinstance(self.siteconfig['favicon'],six.string_types):
             favicon = self.siteconfig['baseurl']+"/img/"+self.siteconfig['favicon']
         templatedata['favicon'] = favicon
+        if 'fbshare' in pagedict:
+            templatedata['fbshare'] = pagedict['fbshare']
+        else:
+            templatedata['fbshare'] = templatedata['logo'] 
         # collect menu items for lang
         for menu_item in self.siteconfig['menu'][lang]:
-            menu_items.append(self.menu_items(menu_item))
-            # keep this in case the videos page link has to move to the "utilities" element again
-            '''if menu_item == "videos":
-                templatedata['videos'] = item_block
-            else: menu_items.append(item_block)'''
+            menu_items.append(self.menu_items(menu_item,page))
         
         # simliarly, colect the uti buttons (search, info, share)
         for util in self.siteconfig['utils']:
@@ -332,7 +317,7 @@ class AuthorSiteGenerator:
         return stache.render(stache.load_template('header.html'),templatedata).encode('utf-8')
     
     # recursively generate the menu items list
-    def menu_items(self,pagename):
+    def menu_items(self,pagename,curpage):
         if pagename not in self.siteconfig['pages']:
             logger.error("the menu item "+pagename+" is not defined in the pages list")
             return None
@@ -340,17 +325,18 @@ class AuthorSiteGenerator:
         dropdown = {"items":[]}
         if 'dropdown' in it and isinstance(it['dropdown'],list):
             for menu_item in it['dropdown']:
-                dropdown['items'].append(self.menu_items(menu_item))
+                dropdown['items'].append(self.menu_items(menu_item,curpage))
         else:
             dropdown = ""
         return {
             "file": 'index' if pagename == 'home' else pagename,
             "label": it['label'][self.lang],
             "title" : it['label'][self.lang] if 'mouseover' not in it else it['mouseover'][self.lang],
-            "dropdown" : dropdown
+            "dropdown" : dropdown,
         }
     
-    def render_footer(self):
+    def render_footer(self,page):
+        pagedict = self.siteconfig['pages'][page]
         templatedata=jsonmerge.merge(self.get_globals(),self.pictures_template_data({}))
         authbooks = []
         for book in self.authorblock['books']:
@@ -367,6 +353,7 @@ class AuthorSiteGenerator:
             foot += '</div></div></footer>'
         else:
             logger.info("no footer.html found in "+self.indexpath+" or "+self.langpath) 
+        templatedata['page'] = page
         #aboutf = self.langpath+"/about.txt"
         #if os.path.isfile(aboutf):
         #    about = open(aboutf).read()
@@ -374,11 +361,27 @@ class AuthorSiteGenerator:
         #else: 
         #    logger.info("missing "+aboutf)
         socials =[]
-        for social in self.siteconfig['socials'] :
-            socials.append(jsonmerge.merge(social,{"label":social['label'][self.lang]}))
-    
+        for social,details in self.siteconfig['socials'].iteritems() :
+            socials.append({
+                "label" : self.default(details['label']),
+                "icon" : details['icon'],
+                "url" : self.compile_social_url(social,page)
+            })
+             
         templatedata['socials'] = socials
         return foot+stache.render(stache.load_template('footer.html'),templatedata).encode('utf-8') 
+    
+    def compile_social_url(self,social,page) :
+        pagedict = self.siteconfig['pages'][page]
+        ret = ""
+        if social == "facebook" :
+            ret = "https://www.facebook.com/sharer/sharer.php?u="        
+            if page != "home" :
+                ret += self.siteconfig['destination_domain']+"/"+page+".html"
+        if social == "twitter" :
+            text = pagedict['twitt'] if 'twitt' in pagedict else self.compile_title(pagedict,",") 
+            ret = "https://twitter.com/intent/tweet?text="+text            
+        return ret
     
     def get_additional(self,page):
         if 'no_additional' in self.siteconfig['pages'][page]:
@@ -468,9 +471,10 @@ class AuthorSiteGenerator:
         except Exception as e:
             logger.error(e)
          
-    def render_page(self,page,footer):
+    def render_page(self,page):
         body = self.render_body(page)
         header = self.render_header(page)
+        footer = self.render_footer(page)
         #home as index
         if(page == 'home'):
             page = 'index'
@@ -523,6 +527,21 @@ class AuthorSiteGenerator:
                     "code" : l
                 })
         g['langs'] = langs
+        #try to find the right logo for this language
+        logo = None
+        dlang = 'he' if textualangs.direc(lang) == 'right' else 'en'
+        try:
+            logo  = os.path.basename(glob.glob(self.indexpath+"/img/logo-"+lang+".*")[0])
+        except:
+            logos  = glob.glob(self.indexpath+"/img/logo-"+dlang+".*")
+            if len(logos) > 0:
+                logo = os.path.basename(logos[0])
+                logger.warning("using "+logo+" as logo for "+textualangs.langname(lang))
+        
+        if isinstance(logo,six.string_types):
+            g['logo'] = logo
+        else:
+            logger.error("both /img/logo-"+lang+" and /img/logo-"+self.siteconfig['primary_language']+" not found")
         self.global_template_vars = g
         return g
          
@@ -583,28 +602,27 @@ class AuthorSiteGenerator:
     #        ret = ret + pages.append["home"]
     #    return ret
     
-    #def render_pagelinks(self):
-    #    logger.info('generating links to book pages')
-    #    front = self.conf['front']
-    #    auth_base_url = front['domain']+front['srcs_dir'].replace("../","")+"/"+self.authorblock['dir']
-    #    pageurl = '{0}/{1}/html/{2}'
-    #    linksdir = self.indexpath+"/pagelinks" 
-    #    links = '{0}/{1}-pages.html'
-    #    if not os.path.exists(linksdir):
-    #        os.makedirs(linksdir)
-    #    for book in self.authorblock['books'] :
-    #        bookdir = book['bookdir']
-    #        #logger.info('generating links for '+book['bookdir'])
-    #        booklinks = open(links.format(linksdir,bookdir),"w")
-    #        pages = []
-    #        htmls = glob.glob(self.conf['front']['srcs_dir']+"/"+self.auth+"/"+bookdir+"/html/*.htm")
-    #        if len(htmls) == 0:
-    #            return
-    #        for p in htmls:
-    #            pages.append(pageurl.format(auth_base_url,bookdir,os.path.basename(p)))
-    #        booklinks.write(stache.render(stache.load_template('pagelinks.html'),{"pages" : pages}).encode('utf-8'))
-    #        booklinks.close()
-    #    logger.info('page links generated')
+    def render_pagelinks(self):
+        logger.info('generating links to book pages')
+        front = self.conf['front']
+        pageurl = '{0}/{1}/html/{2}'
+        linksdir = self.indexpath+"/pagelinks" 
+        links = '{0}/{1}-pages.html'
+        if not os.path.exists(linksdir):
+            os.makedirs(linksdir)
+        for book in self.authorblock['books'] :
+            bookdir = book['bookdir']
+            #logger.info('generating links for '+book['bookdir'])
+            booklinks = open(links.format(linksdir,bookdir),"w")
+            pages = []
+            htmls = glob.glob(self.conf['front']['srcs_dir']+"/"+self.auth+"/"+bookdir+"/html/*.htm")
+            if len(htmls) == 0:
+                return
+            for p in htmls:
+                pages.append(pageurl.format(self.authtexts,bookdir,os.path.basename(p)))
+            booklinks.write(stache.render(stache.load_template('pagelinks.html'),{"pages" : pages}).encode('utf-8'))
+            booklinks.close()
+        logger.info('page links generated')
 
             
     def render_site(self):
@@ -612,8 +630,8 @@ class AuthorSiteGenerator:
             self.render_styles()
         access = open(self.indexpath+"/access", "w")
         access.write(stache.render(stache.load_template("access"),{"lang":self.siteconfig['primary_language']}))
-        #if options.pagelinks:
-        #    self.render_pagelinks()
+        if options.pagelinks:
+            self.render_pagelinks()
         for lang,men in self.siteconfig['menu'].iteritems():
             if lang in self.hidden:
                 logger.info("skipping "+textualangs.langname(lang)+" -- it is hidden. to render it use '--showlang "+lang+"' and render the site again")
@@ -621,14 +639,14 @@ class AuthorSiteGenerator:
                 self.lang = lang
                 self.langpath = self.indexpath+"/"+lang
                 #header = self.render_header()
-                footer = self.render_footer()
+                #footer = self.render_footer()
                 self.render_script()
                 
                 #if not 'home' in men:
                 #    self.render_page('home',lang,header,footer)
                 for page,defs in self.siteconfig['pages'].iteritems():
                     if 'template' in defs and not not defs['template']:
-                        self.render_page(page,footer)
+                        self.render_page(page)
                 logger.info(textualangs.langname(lang,"en")+" rendered")
                 print "======"
         logger.info(authdir+" site done")
@@ -753,6 +771,10 @@ if __name__=='__main__':
             else:
                 logger.info(u"rendering "+authdir)
                 asg.render_site()
+                destht = "/home/sidelang/webapps/"+asg.siteconfig['destination_folder']+"/.htaccess"
+                if not os.path.isfile(destht):
+                    logger.warning("filp addresses are under "+asg.siteconfig["destination_domain"]+".\nsave "+asg.indexpath+"/access as "+destht+" to make them work")
+
                 if os.path.exists("/home/sidelang/webapps/"+asg.siteconfig['destination_folder']):
                     print "if you like what you see in %s, type 'copy-generic %s %s':" %(asg.devurl, asg.auth,asg.siteconfig['destination_folder'])
                 else:

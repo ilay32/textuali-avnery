@@ -7,13 +7,17 @@
         </div>    
     </div>
 </div> -->
+<button type="button" class="close screenaction" id="scrollup"> 
+    <svg height="30" width="50">
+        <polygon points="25,0 50,30 0,30" />
+    </svg> 
+</button>
+
 <center id="phone-scroll-book" >
-    <button id="close-phone-scroll" type="button" class="close"> 
-        <img src="{{front.domain}}/media/close.png"/>
-    </button>
-    <button type="button" class="close" id="scrollup"> 
-        <svg height="30" width="50">
-            <polygon points="25,0 50,30 0,30" />
+    <button id="close-phone-scroll" class="close screenaction"> 
+        <svg height="20" width="20" >
+            <line x1="0" y1="0" x2="20" y2="20" />
+            <line x1="20" y1="0" x2="0" y2="20" />
         </svg> 
     </button>
 </center>
@@ -92,15 +96,12 @@
     <gcse:search></gcse:search>
 </div>
 <div id="share-container" class="fade utilbox">
-    <nav id="social" class="col-sm-6">
-        <ul class="nav nav-pills nav-justified">
-            {{#socials}}
-            <li>
-                <a title={{label}} href="{{url}}">
-                    <img src="{{baseurl}}/img/{{icon}}" title="{{label}}"/>
-                </a>
-            </li>
-            {{/socials}}
+    <nav id="social">
+        {{#socials}}
+        <span class="social-button" title={{label}} data-href="{{url}}" data-open="social">
+            <img src="{{baseurl}}/img/{{icon}}" title="{{label}}"/>
+        </span>
+        {{/socials}}
         </ul>
     </nav>
 </div>
@@ -113,7 +114,7 @@
 {{/about}}
 <div class="hide">
     {{#books}}
-    <a href="{{authtexts}}/{{.}}/pagelinks.html"></a>
+    <a href="{{destination_domain}}/pagelinks/{{.}}-pages.html"></a>
     {{/books}}
 </div>
 <!--<script type="text/javascript">

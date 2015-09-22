@@ -61,6 +61,7 @@ a {
 
 /** header **/
 #masthead {
+    margin-bottom: 0;
     background-color:{{header_bg}};
     border-bottom: @topborderwidth solid {{light_bg}};    
     box-sizing:border-box;
@@ -307,6 +308,15 @@ main {
         }
     }
 }
+.social-button {
+    display:inline-block;
+    margin:@vertspace @horizspace;
+    cursor: pointer;
+    width: 50px;
+    img {
+        width: 100%;
+    }
+}
 .utilbox {
     height: 0px;
     width: 0px;
@@ -411,20 +421,28 @@ iframe{
         width: 90%;
         margin:@vertspace/2 0;
     }
-    button {
-        opacity: 1;
-        position: fixed;
-        z-index:2;
-        &#close-phone-scroll {
-            top: {{header_height}};
-            {{side}}: @horizspace;
+    
+}
+button.screenaction {
+    opacity:0.7;
+    position: fixed;
+    z-index:2;
+    &:hover{
+        opacity:1;
+    }
+    &#close-phone-scroll {
+        top: {{header_height}} + @vertspace;
+        {{side}}: @horizspace;
+        line {
+            stroke-width: 2px;
+            stroke: {{header_bg}};
         }
-        &#scrollup {
-            bottom: @vertspace;
-            {{side}} : e('calc(50% - 25px)');
-            polygon {
-                fill: {{primary_color}};
-            }
+    }
+    &#scrollup {
+        bottom: @vertspace;
+        {{side}} : e('calc(50% - 25px)');
+        polygon {
+            fill: {{header_bg}};
         }
     }
 }
@@ -458,7 +476,6 @@ iframe{
     }
 }
 @media only screen and (max-width: 920px) and (min-width: 768px) {
-    
     #menu-button, #logo {
        display:none; 
     }
@@ -473,7 +490,17 @@ iframe{
         width: auto;
         min-width: 2px;
         max-width: 95%;
-   }
+    }
+    #masthead .header-component {
+        margin-{{oposide}}: 10px;
+    }
+    #menu-button{
+        margin-top: @vertspace;
+        button {
+            padding:0;
+            margin: 0;
+        }
+    }
 }
 
 /** bootstrap overrides **/

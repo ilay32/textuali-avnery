@@ -245,6 +245,9 @@ $(document).ready(function() {
             case 'modal':
                 iframe_in_modal(h);
             break;
+            case 'social' :
+                window.open(h,"", "width=600, height=400");  
+            break;
             default:
             case undefined:
                 window.location.assign(h);
