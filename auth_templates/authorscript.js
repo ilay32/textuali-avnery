@@ -201,7 +201,7 @@ $(document).ready(function() {
         $(this).prev('.loader').hide();
         $('#iframe-wrap').css('height','auto');
     });
-    
+    //$('image[usemap]').rwdImageMaps(); 
     $(window).load(function() {
         $('#isotope').isotope({
             isOriginLeft: !('{{dir}}' == 'rtl'),
@@ -307,14 +307,14 @@ $(document).ready(function() {
            }
             else {
                 iframe_in_modal(h);
-                share('#auth-mod', window.location.href.replace(window.location.search, '')+'/?book='+$(this).data('book'));
+                share('#auth-mod', window.location.href.replace(window.location.search, '')+'?book='+$(this).data('book'));
             }
         }
         else {
             iframe_in_modal(h);        
         }
         if('string' == typeof($(this).data('vid'))) {
-            share('#auth-mod', window.location.href.replace(window.location.search, '')+'/?vid='+$(this).data('vid'));
+            share('#auth-mod', window.location.href.replace(window.location.search, '')+'?vid='+$(this).data('vid'));
             bind_vid_adjustment()
         }
     });

@@ -36,6 +36,7 @@
             <div class="modal-body">
             {{#slideshows}}
                 <div id="{{id}}" class="carousel slide" data-ride="carousel">
+                    <h2>{{description}}</h2>
                     <!-- Indicators -->
                     <ol class="carousel-indicators">
                         {{#slides}}
@@ -114,7 +115,7 @@
 {{/about}}
 <div class="hide">
     {{#books}}
-    <a href="{{destination_domain}}/pagelinks/{{.}}-pages.html"></a>
+    <a title="{{title}}" href="{{destination_domain}}/pagelinks/{{id}}-pages.html">{{name}}</a>
     {{/books}}
 </div>
 <!--<script type="text/javascript">

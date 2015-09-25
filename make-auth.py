@@ -303,12 +303,12 @@ class AuthorSiteGenerator:
         
         # simliarly, colect the uti buttons (search, info, share)
         for util in self.siteconfig['utils']:
-            icon = self.conf['front']['domain']+"media/"+util['icon']
-            if os.path.isfile(self.indexpath+"/img/"+util['icon']):
-                icon = self.siteconfig['baseurl']+"/img/"+util['icon']
+            #icon = self.conf['front']['domain']+"media/"+util['icon']
+            #if os.path.isfile(self.indexpath+"/img/"+util['icon']):
+            #    icon = self.siteconfig['baseurl']+"/img/"+util['icon']
             utils.append({
                 "name" : util['name'],
-                "icon" : icon,
+                #"icon" : icon,
                 "title" : self.default(util['mouseover'])
             }) 
         templatedata['utils'] = utils
@@ -340,7 +340,12 @@ class AuthorSiteGenerator:
         templatedata=jsonmerge.merge(self.get_globals(),self.pictures_template_data({}))
         authbooks = []
         for book in self.authorblock['books']:
-            authbooks.append(book['bookdir'])
+            authbooks.append({
+               "id" :  book['bookdir'],
+               "name" : book['book_nicename'],
+               "title" : cgi.escape(book['book_nicename']).encode('utf-8', 'xmlcharrefreplace')
+
+            })
         templatedata['books'] = authbooks
         footf = self.indexpath+"/footer.html"
         if os.path.isfile(self.langpath+"/footer.html") :
@@ -503,6 +508,13 @@ class AuthorSiteGenerator:
         g['string_translations']=jsonmerge.merge(textualangs.translations(lang),textualangs.translations(lang,self.siteconfig['string_translations']))
         g['dir'] = textualangs.direc(lang)
         g['lang'] = lang
+        g['primlang'] = self.siteconfig['primary_language']
+        g['primlangname'] = textualangs.langname(g['primlang'])
+        g['altlang'] = self.siteconfig['alternate_language']
+        g['altlangname'] =  textualangs.langname(g['altlang'])
+        if 'langswitch' in self.siteconfig['string_translations'] and g['primlang'] in self.siteconfig['string_translations']['langswitch']:
+            g['altlangname'] =  self.siteconfig['string_translations']['langswitch'][g['primlang']]
+        g['is_primary_language'] = lang == g['primlang']
         # prevents css caching
         g['ver'] = str(random.randint(999,9999)) 
         for p,v in self.siteconfig.iteritems():

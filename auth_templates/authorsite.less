@@ -123,15 +123,31 @@ a {
 
 #logo { 
     padding: 0 @horizspace;
-    > a {
+    position: relative;
+    /*> a {
         display:block;
-        width:100%;
+        width:100%;*/
         img{
             max-height:{{header_height}} - @topborderwidth - @vertspace;    
             max-width: 100%;
             margin-top: @vertspace/2;
+            height: auto;
         }
-    }
+    //}
+    /*.map {
+        display:block;
+        position: absolute;
+        width:50%;
+        height: 100%;
+        z-index: 2;
+        top: 0;
+        &.prim.rtl, &.alt.ltr {
+            {{oposide}}: 0;
+        }
+        &.alt.rtl, &.prim.ltr {
+            {{side}}:0;
+        }
+    }*/
 }
 
 /* main */
@@ -278,6 +294,20 @@ main {
     cursor:pointer;
 }
 
+.carousel {
+    padding-top:@vertspace;
+    h2 {
+        color: {{primary_color}};
+        text-align:center;
+        z-index:2;
+        position: absolute;
+        width: 100%;
+        top: -1*@vertspace;
+        margin:0;
+    }
+}
+
+
 
 
 
@@ -300,12 +330,11 @@ main {
     .glyphicon {
         cursor:pointer;
         font-size: 30px; 
-        &.langswitch {
-            font-size:110%;
-            color:{{primary_color}};
-            padding-top: @vertspace*0.75;
-            margin-{{oposide}}:@horizspace;
-        }
+        font-size:@font-size-large;
+        color:{{primary_color}};
+        padding-top: @vertspace*0.75;
+        margin-{{oposide}}:@horizspace/2;
+        
     }
 }
 .social-button {
@@ -395,10 +424,10 @@ iframe{
 
 /* isotope */
 .isotope-item {
-    margin: @vertspace @horizspace;
+    margin: 1%;
     padding:@vertspace @horizspace;
     background-color:{{light_bg}};
-    max-width:85%;
+    width: 19%;
     .item-image {
         width:100%;
     }
@@ -439,6 +468,7 @@ button.screenaction {
         }
     }
     &#scrollup {
+        display:none;
         bottom: @vertspace;
         {{side}} : e('calc(50% - 25px)');
         polygon {
@@ -463,6 +493,9 @@ button.screenaction {
     #primary-navigation .nav > li > a {
        font-size:{{font_size_base}};
     } 
+    .isotope-item {
+        width: 30%;
+    }
 }
 @media only screen and (max-width: 1120px) {
     .nav > li > a {
@@ -501,6 +534,15 @@ button.screenaction {
             margin: 0;
         }
     }
+    .isotope-item {
+        width:48%;
+    }
+}
+
+@media only screen and (max-width: 480px) {
+    .isotope-item {
+        width: 95%;
+     }
 }
 
 /** bootstrap overrides **/
