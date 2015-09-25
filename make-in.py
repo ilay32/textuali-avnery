@@ -36,9 +36,10 @@ if __name__=='__main__':
         newconfig.close()
     logger.info(u"rendering front page")
     for author in conf['authors']:
+        author['authnice'] = textualangs.default(None, "he", author['nicename'])
         for book in author['books']:
-            type  = conf['book_types'].get(book['bookdir'][:1],"book")
-            book['type'] = textualangs.translate(type,'he')
+            btype  = conf['book_types'].get(book['bookdir'][:1],"book")
+            book['type'] = textualangs.translate(btype,'he')
     conf['string_translations'] = textualangs.translations('he') 
     file('index.html','w').write(stache.render(stache.load_template('front.html'),conf).encode('utf-8'))
     logger.info("rendering flip ltr/rtl styles")
@@ -54,7 +55,6 @@ if __name__=='__main__':
         authdir = authorblock['dir']
         authbooks = authorblock['books']		
         pdfs = authorblock['pdf_downloads']
-        authnicename = authorblock['nicename']
         for book in authbooks:
             bd = book['bookdir']
             book['pdf_downloads'] = pdfs
@@ -66,7 +66,6 @@ if __name__=='__main__':
             #book['topdir'] = conf['front']['domain']
             #book['coddir'] = book['topdir'] + conf['front']['coddir']
             book['front'] = conf['front']
-            book['authnice'] = authnicename
             jpgslist = sorted(glob.glob(srcpath+"jpg/*.jpg"))
             foundpages = len(jpgslist)
             book['type'] = conf['book_types'].get(bd[:1],"book")
@@ -104,10 +103,20 @@ if __name__=='__main__':
                 fsize = frontjpg.size
                 book['openbook_ratio'] = float(2*fsize[0])/fsize[1]
                 book['flipdirection'] = textualangs.direc(book['language'])
-                book['side'] = 'right' if book['flipdirection'] == 'rtl' else 'left'
-                book['backward'] = 'backward' if book['side'] == 'left' else 'forward'
-                book['forward'] = 'forward' if book['side']  == 'left' else 'backward'
-                book['oposide'] = 'left' if book['side'] == 'right' else 'right'
+                dlang = "he"
+                if book['flipdirection'] == 'rtl' : 
+                    book['side'] = 'right'
+                    book['oposide'] = 'left'
+                    book['backward'] = 'forward'
+                    book['forward'] = 'backward'
+                else:
+                    book['side'] = 'left'
+                    book['forward'] = 'forward'
+                    book['backward'] = 'backward'
+                    book['oposide'] = 'right'
+                    dlang = "en"
+                book['authnice'] = textualangs.default(book['language'], dlang, authorblock['nicename'])
+                book['string_translations'] =  textualangs.translations(dlang) 
                 if not os.path.exists(indexpath):
                     os.makedirs(indexpath)
 
