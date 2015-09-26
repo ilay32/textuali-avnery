@@ -1,10 +1,13 @@
 var minuses = {
-    'main' : 50,
+    'main' : 85,
     '#auth-mod': 30
 }
 var authbase = '{{authtexts}}';
 //var search_template = "https://www.googleapis.com/customsearch/v1?GOOGLESEARCHQUERY&cx={{google_search}}&fields=items%searchInformation%2FtotalResults%2Curl&key={{gapikey}}";
-var search_template = "https://www.googleapis.com/customsearch/v1?GOOGLESEARCHQUERY&cx={{google_search}}&fields=items%2Cqueries%2CsearchInformation%2FtotalResults%2Curl&key={{gapikey}}"
+var search_template = "https://www.googleapis.com/customsearch/v1?GOOGLESEARCHQUERY&cx={{google_search}}&fields=items%2Cqueries%2CsearchInformation%2FtotalResults%2Curl&key={{gapikey}}";
+
+var vid_template = "http://www.youtube.com/embed/VIDEOID?autoplay=1";
+
 function padZeroes(i) {
     var bar = ""+i;
     while(bar.length < 3) {
@@ -12,7 +15,8 @@ function padZeroes(i) {
    }
    return bar;
 }  
-    
+   
+
 function TextualiJpgsLoader(book,pages) {
     this.lastloaded = 0;
     this.hasmore = true;
@@ -76,9 +80,10 @@ function TextualiJpgsLoader(book,pages) {
 function frame_height(elem) {
     var height = $(window).height() - minuses[elem];
     $(elem).each(function() {
-        $(this).find('iframe').height(Math.max(height,500));
+        $(this).find('iframe').height(Math.max(height,300));
     });
 }
+
 
 function iframe_in_modal(url) {
     $('#auth-mod').modal('show').find('.modal-body').html('<iframe></iframe>');
@@ -86,6 +91,13 @@ function iframe_in_modal(url) {
     setTimeout(function() {
         $('#auth-mod').find('iframe').attr('src',url);
     },100);
+}
+
+function video_in_modal(v) {
+    var h = vid_template.replace('VIDEOID',v);
+    iframe_in_modal(h);
+    share('#auth-mod', window.location.href.replace(window.location.search, '')+'?vid='+v);
+    bind_vid_adjustment();
 }
 
 function slideshow_in_modal(id) {
@@ -193,7 +205,6 @@ function highlight_menu(ul) {
 }
 
 $(document).ready(function() {
-    var youtube = "http://www.youtube.com/embed/ID?autoplay=1";
     var display_params  = location.search.match(/^\?(vid|book|slideshow)=(.*)$/);
     //$('.carousel.slide').hide();
     highlight_menu($('#primary-navigation > .nav'));
@@ -216,13 +227,17 @@ $(document).ready(function() {
         if (loc.pathname == "/") {
             h = l;
         }
-        else if (/^\/[^\/]+html$/.test(loc.pathname)) {
+        else if (/^\/[a-z\/]*\.html$/.test(loc.href)) {
             h = l+loc.pathname;
         }
         else {
-            cur = loc.href.replace(loc.search,"");
-            h = cur.replace(/\/[a-z]{2}(?=((\/.*\.[a-z]{2,4})|\/)$)/,'/'+l);
+            var cur = loc.href.replace(loc.search,"");
+            if (display_params != null && display_params[1] == 'book') {
+                cur = cur.replace(loc.hash,"");
+            }
+            h = cur.replace(/\/[a-z]{2}(?=((\/.*\.[a-z]{2,4})|\/)(#.*)?$)/,'/'+l);
         }
+        console.log(h);
         window.location.assign(h);
     });
     $('.doc-wrap').click(function() {
@@ -235,6 +250,9 @@ $(document).ready(function() {
         $(this).find('.modal-dialog').width('');
         $(this).find('.share-modal').show();
     });
+    /*$('iframe').load(function() {
+        console.log(parent.document.getElementById('content'));
+    });*/
     $('[data-href]').click(function() {
         var h = $(this).data('href'),
             o = $(this).data('open');
@@ -255,11 +273,14 @@ $(document).ready(function() {
     });
     if(display_params != null) {
         if(display_params[1] == 'book') {
-            iframe_in_modal(authbase+'/'+display_params[2]);        
+            u = display_params[2];
+            if (/#page\/\d+$/.test(window.location.hash)){
+                u += window.location.hash
+            }
+            iframe_in_modal(authbase+'/'+u);        
         }
         else if(display_params[1] == 'vid') {
-            iframe_in_modal(youtube.replace('ID',display_params[2]));
-            bind_vid_adjustment()
+            video_in_modal(display_params[2]);
         }
         else if(display_params[1] == 'slideshow') {
             slideshow_in_modal('#'+display_params[2])
@@ -292,6 +313,12 @@ $(document).ready(function() {
         return false;
     });
     
+    $('.vid').click(function(c) {
+        if(!$(c.target).is('a')) {
+            video_in_modal($(this).data('vid'));
+        }
+    });
+
     $('.flip-modal-trigger').click(function(c) {
         c.preventDefault();
         h = $(this).attr('href'); 
@@ -310,18 +337,15 @@ $(document).ready(function() {
                 share('#auth-mod', window.location.href.replace(window.location.search, '')+'?book='+$(this).data('book'));
             }
         }
-        else {
-            iframe_in_modal(h);        
-        }
-        if('string' == typeof($(this).data('vid'))) {
-            share('#auth-mod', window.location.href.replace(window.location.search, '')+'?vid='+$(this).data('vid'));
-            bind_vid_adjustment()
+    });
+    
+    $('.slideshow-modal').click(function(c) {
+        if(!$(c.target).is('a')) {
+            s = $(this).data('slideshow');
+            slideshow_in_modal(s);
         }
     });
-   $('.slideshow-modal').click(function() {
-        s = $(this).data('slideshow');
-        slideshow_in_modal(s);
-    });
+    
     /*$('.vid').click(function() {
         var id = $(this).data('vidid');
         iframe_in_modal(youtube.replace('ID',id));

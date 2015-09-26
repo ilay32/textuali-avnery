@@ -20,7 +20,11 @@
 
                     <span class="slidesicon glyphicon glyphicon-zoom-in"></span>
                 </div>
-                <h4  class="vid-title">{{description}}</h4>
+                <h4  class="vid-title">
+                    <a href="?slideshow={{id}}" title="{{description}}" >
+                        {{description}}
+                    </a>
+                </h4>
             </div>
         </div> 
         {{/slideshows}}

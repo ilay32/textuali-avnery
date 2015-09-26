@@ -153,6 +153,13 @@
         <div class="error-message"></div>
     </div>
     {{/has_search}}
+    {{#has_texts}}
+    <div id="pagelinks" class="hide">
+        {{#pagelinks}}
+        <a href="{{href}}" title="{{title}}">{{text}}</a> 
+        {{/pagelinks}}
+    </div> 
+    {{/has_texts}}
     <!-- Bootstrap core JavaScript
     ================================================== -->
     <!-- Placed at the end of the document so the pages load faster -->

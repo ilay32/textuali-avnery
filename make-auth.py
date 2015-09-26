@@ -272,7 +272,10 @@ class AuthorSiteGenerator:
     
     def compile_title(self,pagedict,delim=" | ") :
         ret = self.default(self.siteconfig['string_translations']['author'])
-        ret += delim+self.default(pagedict['label'])
+        if 'label' in pagedict and self.lang in pagedict['label']:
+            l = pagedict['label'][self.lang]
+            if l:
+                ret += delim+l
         if 'mouseover' in pagedict and self.lang in pagedict['mouseover'] :
              ret += delim+pagedict['mouseover'][self.lang]
         return ret.strip() 
@@ -314,6 +317,7 @@ class AuthorSiteGenerator:
         templatedata['utils'] = utils
         templatedata['menu_items'] = menu_items
         templatedata['cssoverride']=os.path.exists(self.indexpath+"/css/local-override.css") 
+        templatedata['localscript'] = os.path.exists(self.indexpath+"/js/sitescript.js")
         return stache.render(stache.load_template('header.html'),templatedata).encode('utf-8')
     
     # recursively generate the menu items list
@@ -329,7 +333,8 @@ class AuthorSiteGenerator:
         else:
             dropdown = ""
         return {
-            "file": 'index' if pagename == 'home' else pagename,
+            "id" : pagename,
+            "href": ('index' if pagename == 'home' else pagename)+".html",
             "label": it['label'][self.lang],
             "title" : it['label'][self.lang] if 'mouseover' not in it else it['mouseover'][self.lang],
             "dropdown" : dropdown,
@@ -389,18 +394,18 @@ class AuthorSiteGenerator:
         return ret
     
     def get_additional(self,page):
+        add = ""
         if 'no_additional' in self.siteconfig['pages'][page]:
-            return ""
-        addf = self.indexpath+"/additional.html"
+            return add
+        if os.path.isfile(self.indexpath+"/additional.html"):
+            add = open(self.indexpath+"/additional.html").read()
         if os.path.isfile(self.langpath+"/additional.html"):
-            addf = self.langpath+"/additional.html"
+            add = open(self.langpath+"/additional.html").read()
         if os.path.isfile(self.langpath+"/"+page+"-additional.html"):
-            addf = self.langpath+"/"+page+"-additional.html" 
-        if os.path.isfile(addf) :
-            #logger.info(u'loading '+addf)
-            add = open(addf).read()
-        else:
-            add = ""
+            add += open(self.langpath+"/"+page+"-additional.html").read()
+        #if os.path.isfile(addf) :
+        #    #logger.info(u'loading '+addf)
+        #    add = open(addf).read()
         return add
          
     def render_body(self,page):
@@ -419,7 +424,7 @@ class AuthorSiteGenerator:
             block = jsonmerge.merge(block,self.body_blocks[template](pagedict))
         if template == "external":
             url = self.default(pagedict['url'])
-            if not url or not urlparse.urlparse(url).netloc:
+            if not url or not urlparse.urlparse(url).netloc :
                 logger.error("cannot find iframe url for  "+lang+"/"+page)
             else:
                 block['url'] = url
@@ -696,7 +701,8 @@ class AuthorSiteGenerator:
                 if book['orig_match_id'] == bookdir or book['orig_match_id'] == orig or book['bookdir'] == orig:
                     olangs['langs'].append({
                         "name" : textualangs.langname(book['language']),
-                        "link": self.booktranslink.format(self.siteconfig['baseurl'],self.siteconfig['book_translations_base'],book['bookdir'])
+                        #"link": self.booktranslink.format(self.siteconfig['baseurl'],self.siteconfig['book_translations_base'],book['bookdir'])
+                        "link": "?book="+book['bookdir']
                     })
         if len(olangs['langs']) == 0:
             olangs = ""

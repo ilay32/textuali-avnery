@@ -71,7 +71,6 @@ a {
     }
     nav,#util-buttons {
         margin-top: @vertspace/2;
-        font-size:110%;
     }
     .header-component {
         float: {{side}};
@@ -134,7 +133,7 @@ a {
             height: auto;
         }
     //}
-    /*.map {
+    .map {
         display:block;
         position: absolute;
         width:50%;
@@ -147,12 +146,12 @@ a {
         &.alt.rtl, &.prim.ltr {
             {{side}}:0;
         }
-    }*/
+    }
 }
 
 /* main */
 main {
-    min-height:100%;
+    min-height:100%; 
     margin-top: {{header_height}};
     /*&.external {
         background: none;
@@ -172,6 +171,10 @@ main {
     }
     body.external & {
         padding: 0;
+        position: relative;
+        top: {{header_height}};
+        margin-top:0;
+
     }
 }
 
@@ -329,8 +332,7 @@ main {
 #util-buttons {
     .glyphicon {
         cursor:pointer;
-        font-size: 30px; 
-        font-size:@font-size-large;
+        font-size: 24px; 
         color:{{primary_color}};
         padding-top: @vertspace*0.75;
         margin-{{oposide}}:@horizspace/2;
@@ -350,7 +352,6 @@ main {
     height: 0px;
     width: 0px;
     overflow: hidden;
-    padding: @vertspace @horizspace;
     text-align:{{oposide}};
     opacity: 0;
     transition: opacity 0.15s linear 0s;
@@ -363,6 +364,7 @@ main {
         height:auto;
         width:100%;
         opacity:1;
+        padding: @vertspace @horizspace;
    }
    form {
        color: {{textcolor}};
@@ -507,9 +509,12 @@ button.screenaction {
         padding-{{side}}:5px;
         margin:10px 0;
     }
+    #util-buttons .glyphicon {
+        font-size: 20px;
+   }
 }
 @media only screen and (max-width: 920px) and (min-width: 768px) {
-    #menu-button, #logo {
+    #menu-button {
        display:none; 
     }
 }

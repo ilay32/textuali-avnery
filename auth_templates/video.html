@@ -1,10 +1,12 @@
 <div class="col-lg-3 col-md-4 col-sm-6 col-xs-12 vidwrap">
-    <div class="vid flip-modal-trigger" href="http://www.youtube.com/embed/{{id}}?autoplay=1" data-vid={{id}}>
+    <div class="vid"  data-vid={{id}}>
         <div class="startframe">
             <img src="{{firstframe}}"/>
             {{>playbutton.svg}}
         </div>
-        <h4  class="vid-title">{{title}}</h4>
+        <h4  class="vid-title">
+            <a href="?vid={{id}}" title="{{title}}">{{title}}</a>
+        </h4>
         <div>[{{date}}] {{source}}</div> 
     </div>
 </div>

@@ -16,6 +16,15 @@ op.add_option("-u", "--update-config", action="store_true", dest="update_config"
 def unescape(s):
     return htmlparser.unescape(s).encode('utf-8')
 
+def page_num_by_file(s):
+    ret = ""
+    r = re.compile("p+(\d{3,4})+\.htm+l?$")
+    m = r.search(s)
+    if m and m.group(1):
+        ret = m.group(1).strip("0")
+    return ret
+        
+
 if __name__=='__main__':
     conf = json.load(file('config.json'))
     (options, args) = op.parse_args()
@@ -60,11 +69,13 @@ if __name__=='__main__':
             book['pdf_downloads'] = pdfs
             book['indices_dir'] = conf['front']['indices_dir']
             indexpath = book['indices_dir']+"/"+authdir+"/"+bd+"/"
-            srcpath  = conf['front']['srcs_dir']+"/"+authdir+"/"+bd+"/"
-            srcurl = conf['front']['domain']+os.path.basename(conf['front']['srcs_dir'])+"/"+authdir+"/"+bd+"/"
-            book['srcs'] = srcurl
+            srcdomain =  conf['front']['domain']
+            srcpath = conf['front']['srcs_dir']+"/"+authdir+"/"+bd+"/"
+            srcscleanpath = os.path.basename(conf['front']['srcs_dir'])
+            book['srcs'] = os.path.join(srcdomain,srcscleanpath)
             #book['topdir'] = conf['front']['domain']
             #book['coddir'] = book['topdir'] + conf['front']['coddir']
+            book['srcs'] = os.path.join(srcdomain,srcpath)
             book['front'] = conf['front']
             jpgslist = sorted(glob.glob(srcpath+"jpg/*.jpg"))
             foundpages = len(jpgslist)
@@ -117,6 +128,24 @@ if __name__=='__main__':
                     dlang = "en"
                 book['authnice'] = textualangs.default(book['language'], dlang, authorblock['nicename'])
                 book['string_translations'] =  textualangs.translations(dlang) 
+                pages = []
+                pageurl = '{0}?book={1}/#page/{2}'
+                if book['has_texts'] and 'generic_site_domain' in authorblock:
+                    pagebase = authorblock['generic_site_domain']
+                    if 'pagelink_base' in authorblock:
+                        pagebase = os.path.join(pagebase,authorblock['pagelink_base'])
+                    pageslang = textualangs.translate("page",book['language'],plural=True)
+                    htmls = glob.glob(srcpath+"/html/*.htm*")
+                    if len(htmls) >  0:
+                        for p in htmls:
+                            pagenum = page_num_by_file(os.path.basename(p))
+                            if pagenum:
+                                pages.append({
+                                    "href" : pageurl.format(pagebase,bd,pagenum),
+                                    "title" : book['book_nicename'] + " | "+pageslang+" "+str(pagenum),
+                                    "text": book['book_nicename'] + ", "+pageslang+" "+str(pagenum)
+                                })
+                        book['pagelinks'] = pages                
                 if not os.path.exists(indexpath):
                     os.makedirs(indexpath)
 
@@ -124,17 +153,7 @@ if __name__=='__main__':
                 ind.write(stache.render(stache.load_template('index-template.html'),book).encode('utf-8'))
                 sc = open(indexpath+"bookscript.js", 'w')
                 sc.write(stache.render(stache.load_template('bookscript.js'),book).encode('utf-8'))
-                pages = []
-                pageurl = '{0}html/{1}'
-                if book['has_texts'] :
-                    htmls = glob.glob(srcpath+"/html/*.htm*")
-                    if len(htmls) >  0:
-                        for p in htmls:
-                            pages.append(pageurl.format(srcurl,os.path.basename(p)))
-                        pagelinks = open(indexpath+"pagelinks.html","w")
-                        pagelinks.write(stache.render(stache.load_template('pagelinks.html'),{"pages" : pages}).encode('utf-8'))
-                        pagelinks.close()
-
+                
                 logger.info(book['book_shortname']+ " complete")
             else:
                 logger.info(book['book_shortname'] + " couldn't find pages")
