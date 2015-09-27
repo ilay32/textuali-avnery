@@ -1,4 +1,14 @@
 var first_flipto = location.href.match(/(\/#page\/)(\d*)$/);
+var srcs = "{{srcs}}";
+{{#generic_srcs}}
+if(location.host != "textuali.com") {
+    srcs = "{{generic_srcs}}";
+    if (parent == self.top) {
+        location.assign("{{generic_base}}?book={{bookdir}}");
+    }
+}
+{{/generic_srcs}}
+
 
 function page_files(page) {
     if(page > {{pages}}  || page < 1) {
@@ -7,8 +17,8 @@ function page_files(page) {
     var filename = {{page_list}}[page-1], 
         hard = /[a-z]/.test(filename.slice(-1)) && (page >= {{page_list}}.length - 1 || page <= 2);
     return {
-        jpg : '{{srcs}}jpg/'+ filename + '.jpg', 
-        html : '{{srcs}}html/' + filename + '.htm', 
+        jpg : srcs+'jpg/'+ filename + '.jpg', 
+        html : srcs+'html/' + filename + '.htm', 
         hard : hard
     };
 }

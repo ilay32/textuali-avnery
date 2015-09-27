@@ -132,9 +132,12 @@ if __name__=='__main__':
                 pageurl = '{0}?book={1}/#page/{2}'
                 if book['has_texts'] and 'generic_site_domain' in authorblock:
                     pagebase = authorblock['generic_site_domain']
+                    
+                    book['generic_srcs'] = os.path.join(pagebase,srcscleanpath)
                     if 'pagelink_base' in authorblock:
                         pagebase = os.path.join(pagebase,authorblock['pagelink_base'])
                     pageslang = textualangs.translate("page",book['language'],plural=True)
+                    book['generic_base'] = pagebase
                     htmls = glob.glob(srcpath+"/html/*.htm*")
                     if len(htmls) >  0:
                         for p in htmls:
