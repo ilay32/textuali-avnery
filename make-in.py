@@ -70,14 +70,14 @@ if __name__=='__main__':
             book['indices_dir'] = conf['front']['indices_dir']
             indexpath = book['indices_dir']+"/"+authdir+"/"+bd+"/"
             srcdomain =  conf['front']['domain']
-            srcpath = conf['front']['srcs_dir']+"/"+authdir+"/"+bd+"/"
-            srcscleanpath = os.path.basename(conf['front']['srcs_dir'])
+            srcpath = conf['front']['srcs_dir']+"/"+authdir+"/"+bd
+            srcscleanpath = os.path.basename(conf['front']['srcs_dir'])+"/"+authdir+"/"+bd
             book['srcs'] = os.path.join(srcdomain,srcscleanpath)
             #book['topdir'] = conf['front']['domain']
             #book['coddir'] = book['topdir'] + conf['front']['coddir']
-            book['srcs'] = os.path.join(srcdomain,srcpath)
+            #book['srcs'] = os.path.join(srcdomain,srcpath)
             book['front'] = conf['front']
-            jpgslist = sorted(glob.glob(srcpath+"jpg/*.jpg"))
+            jpgslist = sorted(glob.glob(srcpath+"/jpg/*.jpg"))
             foundpages = len(jpgslist)
             book['type'] = conf['book_types'].get(bd[:1],"book")
             if(foundpages > 0):
