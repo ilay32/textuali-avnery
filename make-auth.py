@@ -48,6 +48,7 @@ class AuthorSiteGenerator:
         self.found = self.search_auth()
         #self.langpat = re.compile("(.*)\-(\w{2})$")
         self.langpat = re.compile("^[a-z]{2}$")
+        self.hidden = []
         self.body_blocks = {
             "books": self.books_template_data,
             "videos" : self.videos_template_data,
@@ -55,7 +56,8 @@ class AuthorSiteGenerator:
             "pictures" : self.pictures_template_data,
             "documents" : self.documents_template_data
         } 
-        self.hidden =  eval(open('.makeauthignore').read())
+        if os.path.isfile(".makeauthignore") :
+            self.hidden =  eval(open('.makeauthignore').read())
     
     def default(self,obj):
         return textualangs.default(self.lang, self.siteconfig['primary_language'],obj)
@@ -259,7 +261,7 @@ class AuthorSiteGenerator:
                 self.vidframepath = self.indexpath+'/img/video/{0}{1}' 
                 self.devurl = front['domain']+self.indexpath.replace("/home/sidelang/webapps/phptextuali","").replace("../","")
                 self.authtexts = self.siteconfig['destination_domain']+"/"+front['srcs_dir'].replace("../","")+"/"+authdir
-                self.displaybooks = [x for x in authorblock['books'] if self.get_book_type(x['bookdir'])]
+                self.displaybooks = [x for x in authorblock['books'] if (self.get_book_type(x['bookdir']) and str(self.get_book_type(x['bookdir'])) not in self.siteconfig['suppress_book_types'])] 
                 return True
          
     def good_to_go(self):
@@ -675,7 +677,8 @@ class AuthorSiteGenerator:
         #hf.close()
            
     def book_files(self,book):
-        urlbase = self.conf['front']['domain']+os.path.basename(self.conf['front']['srcs_dir'])+"/"+self.auth+"/"+book+"/jpg/"
+        #urlbase = self.conf['front']['domain']+os.path.basename(self.conf['front']['srcs_dir'])+"/"+self.auth+"/"+book+"/jpg/"
+        urlbase = self.authtexts+"/"+book+"/jpg/"
         jpgs = sorted(glob.glob(self.conf['front']['srcs_dir']+"/"+self.auth+"/"+book+"/jpg/*.jpg"))
         if len(jpgs) == 0:
             logger.error("no jpgs for "+book)

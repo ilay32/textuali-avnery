@@ -8,6 +8,8 @@ var search_template = "https://www.googleapis.com/customsearch/v1?GOOGLESEARCHQU
 
 var vid_template = "http://www.youtube.com/embed/VIDEOID?autoplay=1";
 
+//var trickparse = document.createElement('a');
+var pageresult = /\/texts\/[\w_\-]+\/\w\d{3}\/html\/(\w\d+p\d+\w?)\.html?$/
 function padZeroes(i) {
     var bar = ""+i;
     while(bar.length < 3) {
@@ -123,6 +125,7 @@ function slideshow_in_modal(id) {
     }
 }
 
+
 function bind_vid_adjustment() {
     $('#auth-mod').on('shown.bs.modal',function() {
         var d = $(this).find('.modal-dialog.modal-lg');
@@ -131,10 +134,9 @@ function bind_vid_adjustment() {
 }
 
 function share(modalid,url) {
-    $(modalid).find('.share-modal').click(function() {
-        $(this).next('input[type="text"]').hide().empty().fadeIn(300).val(url).mouseleave(function() {
-            $(this).delay(3000).fadeOut(400);
-        });
+    var s = $(modalid).find('input.share');
+    $(modalid).find('.share-modal').bind('click', function() {
+        s.val(url).closest('.share-input-wrap').toggleClass('in');
     });
 }
 
@@ -144,15 +146,17 @@ function filename2pagenum(name) {
 }
 
 function process_fts_search_results(results) {
-    var htm = '<h5>{{string_translations.search_results}} "'+results.q+'"</h5>';
+    //var htm = '<h5>{{string_translations.search_results}} "'+results.q+'"</h5>';
+    var htm = '<div id="search-results"><h3>{{string_translations.search_results}} "'+results.q+'"</h3>';
     if(results.status == 'success') {
         if(results.matches.length > 0) {
-            htm += '<ul class="toc-list">';
+            htm += '<ul class="search-results">';
             var m = results.matches;
             for(var res in m) {
-                htm += '<li><span class="search-results-pagenum">\' ' + filename2pagenum(m[res].id)+'</span>';
-                htm += '<a class="toc-link search-result" href="#page"';
-                htm += '?q='+results.q+'">'+m[res].match+'</a></li>';
+                var urls = fileurls(m[res].id);
+                htm += '<li class="search-result">';
+                htm += '<a href="'+urls.fliplink+'">'+m[res].book_name+' '+urls.page+'</a>';
+                htm += '<p>'+m[res].match+'</p></li>';
             }
             htm += '</ul>';
         }
@@ -168,9 +172,33 @@ function process_fts_search_results(results) {
    }
    return htm;
 } 
-function identify_book_page(url) {
-    return /textuali\.com\/texts\/\w*\/html\/\w\d{3,4}\w\d{3,4}\.html$/.test(url);
+
+function fileurls(file) {
+    var m = file.match(/^([a-z]\d+)p(\d+[a-z]?)$/);
+    if(!m) {
+        return false;
+    }
+    var fliplink = '?book='+m[1], p="";
+    if(/^\d+$/.test(m[2]) ) {
+        p = parseInt(m[2]);
+        fliplink += "/#page/"+(p + 1);
+    }
+    return {
+        "fliplink" : fliplink,
+        "page" : p 
+    };
 }
+
+
+function identify_book_page(url) {
+    var ret = false;
+    var m = url.match(pageresult);
+    if (m!=null && m.length == 2) {
+        ret = fileurls(m[1]);
+    }
+    return ret;
+}
+
 function process_google_search_results(results) {
     var r = results.queries.request[0];
     var htm = '<div id="search-results"><h3>{{string_translations.search_results}} "'+r.searchTerms+'"</h3>';
@@ -179,10 +207,9 @@ function process_google_search_results(results) {
         $(results.items).each(function(index,res) {
             htm += '<li class="search-result">';
             var u = identify_book_page(res.link);
-            var l = typeof(u) == 'string' ? u : res.link;
-            htm += '<a href="'+l+'">'+res.title+'</a></li>';
-            htm += '<p>'+res.htmlSnippet+'</p>';
-            //htm += '?q='+results.q+'">'+m[res].match+'</a></li>';
+            var l = typeof(u) == 'object' ? u.fliplink : res.link;
+            htm += '<a href="'+l+'">'+res.title+'</a>';
+            htm += '<p>'+res.htmlSnippet+'</p></li>';
         });
         htm += '</ul></div>';
     }
@@ -237,18 +264,25 @@ $(document).ready(function() {
             }
             h = cur.replace(/\/[a-z]{2}(?=((\/.*\.[a-z]{2,4})|\/)(#.*)?$)/,'/'+l);
         }
-        console.log(h);
         window.location.assign(h);
     });
     $('.doc-wrap').click(function() {
         var c = $(this).find('.document-image').clone();
         $('#auth-mod').find('.share-modal').hide().end().find('.modal-body').html(c).end().modal('show');
     });
-
+    $('.modal-content').click(function(c) {
+        if (!$(c.target).is('.share-modal')) {
+            $(this).find('input.share').removeClass('in');
+        }
+    });
     $('#auth-mod').on('hide.bs.modal',function() {
         $(this).find('.modal-body').empty();
         $(this).find('.modal-dialog').width('');
-        $(this).find('.share-modal').show();
+        $(this).find('.share-modal').show().unbind('click').next('.share-input-wrap').removeClass('in');
+    });
+
+    $('.share-input-wrap button').click(function() {
+        $(this).parent().removeClass('in');
     });
     /*$('iframe').load(function() {
         console.log(parent.document.getElementById('content'));
@@ -322,20 +356,18 @@ $(document).ready(function() {
     $('.flip-modal-trigger').click(function(c) {
         c.preventDefault();
         h = $(this).attr('href'); 
-        if('string' == typeof($(this).data('book')) ) {
-            if($(window).width() <= 768 ) {
-                if(typeof(tjloader) == 'object') {
-                    tjloader.destroy(); 
-                }
-                tjloader = new TextualiJpgsLoader($(this).data('book'), $(this).data('pages'));
-                $('main#content,footer').fadeOut(200);
-                $('#phone-scroll-book').fadeIn(200).find('> img').detach();
-                tjloader.loadmore();
-           }
-            else {
-                iframe_in_modal(h);
-                share('#auth-mod', window.location.href.replace(window.location.search, '')+'?book='+$(this).data('book'));
+        if($(window).width() <= 768 ) {
+            if(typeof(tjloader) == 'object') {
+                tjloader.destroy(); 
             }
+            tjloader = new TextualiJpgsLoader($(this).data('book'), $(this).data('pages'));
+            $('main#content,footer').fadeOut(200);
+            $('#phone-scroll-book').fadeIn(200).find('> img').detach();
+            tjloader.loadmore();
+       }
+        else {
+            iframe_in_modal(h);
+            share('#auth-mod', window.location.href.replace(window.location.search, '')+'?book='+$(this).data('book'));
         }
     });
     
@@ -346,15 +378,11 @@ $(document).ready(function() {
         }
     });
     
-    /*$('.vid').click(function() {
-        var id = $(this).data('vidid');
-        iframe_in_modal(youtube.replace('ID',id));
-    });*/
-    
-    /*$('#searchform').submit(function() {
+        
+    $('#fsearch').submit(function() {
         var query = $(this).serialize();
         $.ajax({
-            url: '{{front.domain}}search/websearch.py/?pretty=1&f={{auth}}&'+query,
+            url: location.origin+'/search/websearch.py/?pretty=1&f={{auth}}&'+query,
             DataType: 'json'
         }).done(function(results) {
             $('#auth-mod').modal('show').find('.modal-body').html(process_fts_search_results(results));
@@ -362,11 +390,10 @@ $(document).ready(function() {
             alert(err);
         });
        return false; 
-    }); */
+    }); 
     
-    $('#searchform').submit(function() {
+    $('#gsearch').submit(function() {
         var query = $(this).serialize();
-        //query = query.replace(/\s+/,'+');
         $.ajax({
             url : search_template.replace('GOOGLESEARCHQUERY',query),            
             DataType: 'json'

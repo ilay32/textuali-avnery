@@ -30,8 +30,9 @@
         </button>
         <button type="button" class="close fade share-modal"  title="{{string_translations.share}}" type="button"  aria-label="share">
             <img  src="{{front.domain}}/media/share.png"/>
-        </button>
-        <input type="text"/>
+       </button>
+       {{>share-modal.html}} 
+                        
         <div class="modal-content">
             <div class="modal-body">
             {{#slideshows}}
@@ -83,18 +84,24 @@
         <button type="button" class="close fade share-modal"  title="{{string_translations.share}}" type="button"  aria-label="share">
             <img  src="{{front.domain}}/media/share.png"/>
         </button>
-        <input type="text"/>
+        {{>share-modal.html}}
         <div class="modal-content">
             <div class="modal-body"></div>
         </div>
     </div>
 </div>
 <div id="search-container" class="utilbox  " area-hidden="false">
-    <form id="searchform" class="form-inline">
+    <form id="gsearch" class="form-inline">
+        <label for="q">{{string_translations.search_site}}:</label>
         <input name="q" type="text" maxlneght="50" placeholder="{{string_translations.search}}" />
         <button type="submit">{{string_translations.search}}</button> 
     </form> 
-    <gcse:search></gcse:search>
+    <form id="fsearch" class="form-inline">
+        <label for="q">{{string_translations.search_books}} {{string_translations.author}}:</label>
+        <input name="q" type="text" maxlneght="50" placeholder="{{string_translations.search}}" />
+        <button type="submit">{{string_translations.search}}</button> 
+    </form> 
+
 </div>
 <div id="share-container" class="fade utilbox">
     <nav id="social">

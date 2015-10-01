@@ -136,7 +136,7 @@ if __name__=='__main__':
                     book['generic_srcs'] = os.path.join(pagebase,srcscleanpath)
                     if 'pagelink_base' in authorblock:
                         pagebase = os.path.join(pagebase,authorblock['pagelink_base'])
-                    pageslang = textualangs.translate("page",book['language'],plural=True)
+                    pageslang = textualangs.translate("pages",book['language'])
                     book['generic_base'] = pagebase
                     htmls = glob.glob(srcpath+"/html/*.htm*")
                     if len(htmls) >  0:
