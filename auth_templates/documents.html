@@ -15,6 +15,9 @@
         {{#docs}}
         <div class="doc-wrap col-lg-3 col-md-4 col-sm-6 col-xs-12">
             <img class="document-image" alt="title" src="{{baseurl}}/{{image}}" />
+            {{#others}}
+            <img class="document-image subsequent" alt="title" src="{{baseurl}}/{{.}}"/>
+            {{/others}}
             <h2 class="col-xs-12">{{title}}</h2>
         </div>
         {{/docs}}

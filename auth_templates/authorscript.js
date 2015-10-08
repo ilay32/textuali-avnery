@@ -273,7 +273,7 @@ $(document).ready(function() {
         window.location.assign(h);
     });
     $('.doc-wrap').click(function() {
-        var c = $(this).find('.document-image').clone();
+        var c = $(this).find('.document-image').clone().show();
         $('#auth-mod').find('.share-modal').hide().end().find('.modal-body').html(c).end().modal('show');
     });
     $('.modal-content').click(function(c) {
@@ -285,6 +285,7 @@ $(document).ready(function() {
         $(this).find('.modal-body').empty();
         $(this).find('.modal-dialog').width('');
         $(this).find('.share-modal').show().unbind('click').next('.share-input-wrap').removeClass('in');
+       
     });
 
     $('.share-input-wrap button').click(function() {

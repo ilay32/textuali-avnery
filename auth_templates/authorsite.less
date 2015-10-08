@@ -462,6 +462,16 @@ iframe{
 .document-image {
     max-width: 100%;
     cursor: pointer;
+    &.subsequent {
+        display: none;
+    }
+    .modal-body & {
+        margin: @vertspace/2 0;
+        box-shadow: 0 0 4px{{textcolor}};
+        &:first-child {
+            margin-top: @vertspace * 2;
+        }
+    }
 }
 /* flip substitute for small screens */
 #phone-scroll-book {
@@ -525,6 +535,8 @@ button.screenaction {
 
 .modal-dialog {
     width: 90%;
+    max-height: 100%;
+    overflow: scroll;
 }
 
 .carousel-inner {

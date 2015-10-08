@@ -70,6 +70,10 @@ class AuthorSiteGenerator:
             return ret
         docs = jc.load(file(docsfile))
         for doc in docs:
+            if isinstance(doc['image'],list) :
+                first = doc['image'][0]
+                doc['others'] = doc['image'][1:]
+                doc['image'] = first
             doc['title'] = self.default(doc['title'])
         if len(docs) > 0 :
             ret = {"has_docs" : True, "docs" : docs}
