@@ -510,7 +510,43 @@ button.screenaction {
         margin: 5px;
     }
 }
+/** bootstrap overrides **/
+.nav .open > a, .nav .open > a:hover, .nav .open > a:focus {
+    background: inherit;
+    color: inherit;
+}
+.container {
+    width: 100%;
+}
 
+[class*="col"] {
+    float:{{side}};
+}
+
+.modal-dialog {
+    width: 90%;
+}
+
+.carousel-inner {
+    height: 100%;
+    .item {
+        height:100%;
+        .slide {
+            margin: auto;
+            height: 100%;
+        }
+    }
+} 
+
+/* google search results  */
+#search-results {
+    margin-top: @vertspace;
+    padding:5px;
+
+    h5 {
+        color : {{primary_color}};
+    }
+}
 @media only screen and (max-width: 1400px) {
     #primary-navigation .nav > li > a {
        font-size:{{font_size_base}};
@@ -568,42 +604,41 @@ button.screenaction {
     .isotope-item {
         width: 95%;
      }
-}
-
-/** bootstrap overrides **/
-.nav .open > a, .nav .open > a:hover, .nav .open > a:focus {
-    background: inherit;
-    color: inherit;
-}
-.container {
-    width: 100%;
-}
-
-[class*="col"] {
-    float:{{side}};
-}
-
-.modal-dialog {
-    width: 90%;
-}
-
-.carousel-inner {
-    height: 100%;
-    .item {
-        height:100%;
-        .slide {
-            margin: auto;
-            height: 100%;
+     .carousel {
+         height: 500px !important;
+         h2, .carousel-caption  {
+             position: static;
+             margin: @vertspace 0;
+             color: {{primary_color}};
+             padding:0;
+         }
+     }
+     .carousel-control {
+        color: {{primary_color}};
+        top: auto;
+        bottom: 10%;
+        &.right,&.left {
+            background:none;
+       }
+     }
+    .carousel-inner {
+        height: 70%;
+        .item .slide {
+            height: auto;
         }
     }
-} 
-
-/* google search results  */
-#search-results {
-    margin-top: @vertspace;
-    padding:5px;
-
-    h5 {
-        color : {{primary_color}};
+    .carousel-indicators {
+        left: 0;
+        padding: 0;
+        margin: 0;
+        width: 100%;
+        bottom: 10%;
+        > li {
+            border-color: {{primary_color}};
+        }
     }
 }
+
+
+
+

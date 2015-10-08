@@ -3,6 +3,7 @@ var minuses = {
     '#auth-mod': 30
 }
 var authbase = '{{authtexts}}';
+var slideshows = '{{destination_domain}}/{{lang}}/slideshows';
 //var search_template = "https://www.googleapis.com/customsearch/v1?GOOGLESEARCHQUERY&cx={{google_search}}&fields=items%searchInformation%2FtotalResults%2Curl&key={{gapikey}}";
 var search_template = "https://www.googleapis.com/customsearch/v1?GOOGLESEARCHQUERY&cx={{google_search}}&fields=items%2Cqueries%2CsearchInformation%2FtotalResults%2Curl&key={{gapikey}}";
 
@@ -103,26 +104,31 @@ function video_in_modal(v) {
 }
 
 function slideshow_in_modal(id) {
-    slideshow = $('#slides-mod').find(id);
-    $('.carousel').hide();
-    if (slideshow.length == 1) {
-        slideshow.find('.loader').each(function() {
-            var loader = $(this);
-            var slide = new Image();
-            slide.src = loader.data('src');
-            slide.alt = loader.data('alt'); 
-            slide.setAttribute("class", "slide");
-            slide.onload = function() {
-                loader.hide().after(this);
-            } 
-        });
-        //$(this).after(attr('src', $(this).data('src'));
-        $('#slides-mod').modal('show');
-        slideshow.height($(window).height()*0.9).fadeIn(200);
-        share('#slides-mod',window.location.href.replace(window.location.search, '')+'?slideshow='+id.replace(/^#/,''));
+    var t = location.origin+location.pathname.replace(/(\/[a-z_\-0-9]+\.html)$/ , "/slideshows/"+id+".htm");
+    $.ajax({
+        url: t,
+        dataType: 'HTML'
+    }).done( function(slideshow) { 
+        slideshow = $(slideshow);
+        if (slideshow.length == 1) {
+            slideshow.find('.loader').each(function() {
+                var loader = $(this);
+                var slide = new Image();
+                slide.src = loader.data('src');
+                slide.alt = loader.data('alt'); 
+                slide.setAttribute("class", "slide");
+                slide.onload = function() {
+                    loader.hide().after(this);
+                } 
+            });
+            //$(this).after(attr('src', $(this).data('src'));
+            $('#auth-mod').modal('show').find('.modal-body').html(slideshow);
+            slideshow.height($(window).height()*0.9).fadeIn(200);
+            share('#auth-mod',window.location.href.replace(window.location.search, '')+'?slideshow='+id);
 
         
     }
+    });
 }
 
 
@@ -317,7 +323,7 @@ $(document).ready(function() {
             video_in_modal(display_params[2]);
         }
         else if(display_params[1] == 'slideshow') {
-            slideshow_in_modal('#'+display_params[2])
+            slideshow_in_modal(display_params[2])
         }
     }
     $(window).load(function() {

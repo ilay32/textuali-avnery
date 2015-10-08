@@ -77,21 +77,26 @@ class AuthorSiteGenerator:
             
     def pictures_template_data(self,pagedict):
         picfile = self.indexpath+"/pictures.json"
-        slideshowid = 'slideshow-{0}'
         if not os.path.isfile(picfile):
             logger.error("can't use pictures template without "+picfile)
             return {}
         slideshows = jc.load(file(picfile))
-        for index,slideshow in enumerate(slideshows):
+        for slideshow in slideshows:
             slideshow['description'] = slideshow['description'][self.lang]
-            slideshow['id'] = slideshowid.format(index)
             for index, slide in enumerate(slideshow['slides']):
                 if index == 0:
                     slide['active'] = "active"
                     slideshow['thumb'] = slide['slide']
                 slide['caption'] = slide['title'][self.lang]
-                slide['alt'] =  cgi.escape(slide['caption']).encode('ascii', 'xmlcharrefreplace')
+                slide['alt'] =  cgi.escape(self.default(slide['title'])).encode('ascii', 'xmlcharrefreplace')
                 slide['ord'] = index
+        if not os.path.exists(self.langpath+"/slideshows"):
+            os.makedirs(self.langpath+"/slideshows")
+        logger.info("rendering slideshows in "+self.lang+"/slideshows")
+        for slideshow in slideshows:
+            if len(slideshow['slides']):
+                slideshowfrag = open(self.langpath+"/slideshows/"+slideshow['id']+".htm","w")
+                slideshowfrag.write(stache.render(stache.load_template("slideshow.html"),jsonmerge.merge(slideshow,self.get_globals())).encode('utf-8'))
         return {"slideshows": slideshows}
     
     def isotope_template_data(self,pagedict): 
@@ -344,7 +349,8 @@ class AuthorSiteGenerator:
     
     def render_footer(self,page):
         pagedict = self.siteconfig['pages'][page]
-        templatedata=jsonmerge.merge(self.get_globals(),self.pictures_template_data({}))
+        #templatedata=jsonmerge.merge(self.get_globals(),self.pictures_template_data({}))
+        templatedata = self.get_globals()
         authbooks = []
         for book in self.authorblock['books']:
             authbooks.append({
