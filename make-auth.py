@@ -73,6 +73,7 @@ class AuthorSiteGenerator:
             if isinstance(doc['image'],list) :
                 first = doc['image'][0]
                 doc['others'] = doc['image'][1:]
+                doc['count'] = len(doc['image'])
                 doc['image'] = first
             doc['title'] = self.default(doc['title'])
         if len(docs) > 0 :

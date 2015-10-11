@@ -408,13 +408,16 @@ main {
     }
     .share-input-wrap {
         position: absolute;
-        z-index:3;
+        z-index:-1;
         left:10%;
         top:10%;
         width: 80%;
         background-color: lighten({{primary_color}},10%);
         padding: @vertspace @horizspace;
         border-radius:3px;
+        &.in {
+            z-index: 3;
+        }
         .share {
             width:90%;
             text-align:left;

@@ -18,7 +18,7 @@
             {{#others}}
             <img class="document-image subsequent" alt="title" src="{{baseurl}}/{{.}}"/>
             {{/others}}
-            <h2 class="col-xs-12">{{title}}</h2>
+            <h2 class="col-xs-12">{{title}}{{#count}} ({{count}}){{/count}}</h2>
         </div>
         {{/docs}}
     </div><!-- row -->
