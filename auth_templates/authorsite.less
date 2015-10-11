@@ -539,7 +539,9 @@ button.screenaction {
 .modal-dialog {
     width: 90%;
     max-height: 100%;
-    overflow: scroll;
+    &.multidoc {
+        overflow-y: scroll;
+    }
 }
 
 .carousel-inner {

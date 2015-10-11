@@ -275,6 +275,7 @@ $(document).ready(function() {
     $('.doc-wrap').click(function() {
         var c = $(this).find('.document-image').clone().show();
         $('#auth-mod').find('.share-modal').hide().end().find('.modal-body').html(c).end().modal('show');
+        $('#auth-mod .modal-dialog').addClass('multidoc');
     });
     $('.modal-content').click(function(c) {
         if (!$(c.target).is('.share-modal')) {
@@ -283,7 +284,7 @@ $(document).ready(function() {
     });
     $('#auth-mod').on('hide.bs.modal',function() {
         $(this).find('.modal-body').empty();
-        $(this).find('.modal-dialog').width('');
+        $(this).find('.modal-dialog').width('').removeClass('multidoc');
         $(this).find('.share-modal').show().unbind('click').next('.share-input-wrap').removeClass('in');
        
     });
