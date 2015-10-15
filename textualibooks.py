@@ -14,6 +14,7 @@ class TextualiBook:
     def __init__(self,bookid,authid,env):
         self.authtexts = None
         self.files = None
+        self.booktype = None
         self.authorblock = env['authors'][authid]
         self.bookdata = self.authorblock['books'][bookid]
         self.bookid = bookid
@@ -25,8 +26,8 @@ class TextualiBook:
         self.srcscleanpath = os.path.basename(env['front']['srcs_dir'])+"/"+authid+"/"+bookid
         self.books = TextualiBooks(env)
         self.on_site_display = True
-        if env['site']:
-            self.on_site_display = self.books.get_book_type(bookid) and str(self.books.get_book_type(bookid)) not in env['site']['suppress_book_types']
+        if 'site' in env:
+            self.on_site_display = self.get_type() and str(self.get_type()) not in env['site']['suppress_book_types']
             
     def index_dict(self):
         files = self.book_files()
@@ -207,6 +208,19 @@ class TextualiBook:
              "phispage_count" : right - left + 1
         }
 
+    def get_type(self):
+        if self.booktype:
+            return self.booktype
+        t = self.bookid[:1]
+        if t in self.env['book_types']:
+            ret = self.env['book_types'][t]
+        elif re.match("[a-z]",t):
+            ret = "book"
+        else:
+            ret = None
+        self.booktype = ret
+        return ret
+
     
     def booklink_dict(self):
         return {
@@ -220,8 +234,8 @@ class TextualiBook:
 class TextualiBooks:
     def __init__(self,data=None):
         if not data:
-            self.conf = json.load(file('config.json'))
-            #self.conf = json.load(file('/home/sidelang/webapps/phptextuali/textuali-dev/config.json'))
+            #self.conf = json.load(file('config.json'))
+            self.conf = json.load(file('/home/sidelang/webapps/phptextuali/textuali-dev/config.json'))
         else:
             self.conf = data 
          
@@ -236,17 +250,9 @@ class TextualiBooks:
         return ""
 
     def get_book_type(self,bookid):
-        #btype  = self.conf['book_types'].get(bookid[:1],"book")
-        #return textualangs.translate(btype,'he')
-        t = bookid[:1]
-        if t in self.conf['book_types']:
-            ret = self.conf['book_types'][t]
-        elif re.match("[a-z]",t):
-            ret = "book"
-        else:
-            ret = None
-        return ret
-    
+        btype  = self.conf['book_types'].get(bookid[:1],"book")
+        return textualangs.translate(btype,'he')
+            
 
     def get_auth_books(self,authid,authsite=None):
         if not authid in self.conf['authors']:

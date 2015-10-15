@@ -22,7 +22,6 @@ stache = pystache.Renderer(
     search_dirs='auth_templates',file_encoding='utf-8',string_encoding='utf-8',file_extension=False
 )
 
-books = textualibooks.TextualiBooks()
 #https://www.googleapis.com/customsearch/v1?q=%D7%A9%D7%9C%D7%95%D7%9D&cx=006641765881684709425:t3vpkc0zyvo&relatedSite=thinkil.co.il&fields=items%2Cqueries%2CsearchInformation%2FtotalResults%2Curl&key=AIzaSyCXwxmdVWn6J453z2kZhiR82DQre4gNkJs
 
 #htmlparser = HTMLParser()
@@ -156,7 +155,7 @@ class AuthorSiteGenerator:
         ret = []
         tempdict = {}
         for book in  langbooks:
-            booktype = books.get_book_type(book.bookid) 
+            booktype = book.get_type()
             if booktype not in tempdict:
                 tempdict[booktype] = {
                     "type" : booktype,
@@ -272,7 +271,7 @@ class AuthorSiteGenerator:
                 self.vidframepath = self.indexpath+'/img/video/{0}{1}' 
                 self.devurl = front['domain']+self.indexpath.replace("/home/sidelang/webapps/phptextuali","").replace("../","")
                 self.authtexts = self.siteconfig['destination_domain']+"/"+front['srcs_dir'].replace("../","")+"/"+authdir
-                self.authbooks = books.get_auth_books(authid,self.siteconfig)
+                self.authbooks = textualibooks.TextualiBooks(self.conf).get_auth_books(authid,self.siteconfig)
                 self.displaybooks =  [x for x in self.authbooks if x.on_site_display] 
 
                 return True
