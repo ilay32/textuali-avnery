@@ -235,7 +235,7 @@ class TextualiBooks:
     def __init__(self,data=None):
         if not data:
             #self.conf = json.load(file('config.json'))
-            self.conf = json.load(file('/home/sidelang/webapps/phptextuali/textuali-dev/config.json'))
+            self.conf = json.load(file('/home/sidelang/webapps/phptextuali/textuali/config.json'))
         else:
             self.conf = data 
          
@@ -269,11 +269,12 @@ class TextualiBooks:
     def front_template_data(self) :
         authors = []
         for authid,authdata in self.conf['authors'].iteritems():
-            authors.append({
-                "authnice":textualangs.default(None, "he", authdata['nicename']),
-                "dir" : authid,
-                "books" : self.auth_books_for_front(authid)
-           })
+            if len(authdata['books']):
+                authors.append({
+                    "authnice":textualangs.default(None, "he", authdata['nicename']),
+                    "dir" : authid,
+                    "books" : self.auth_books_for_front(authid)
+               })
         trns = textualangs.translations('he')
         return {
             "front" : self.conf['front'],

@@ -54,7 +54,8 @@ class AuthorSiteGenerator:
             "videos" : self.videos_template_data,
             "isotope": self.isotope_template_data,
             "pictures" : self.pictures_template_data,
-            "documents" : self.documents_template_data
+            "documents" : self.documents_template_data,
+            "protocols" : self.protocols_template_data
         } 
         if os.path.isfile(".makeauthignore") :
             self.hidden =  eval(open('.makeauthignore').read())
@@ -62,6 +63,36 @@ class AuthorSiteGenerator:
     def default(self,obj):
         return textualangs.default(self.lang, self.siteconfig['primary_language'],obj)
     
+    def protocols_template_data(self,pagedict):
+        knessets = []
+        for f,name in pagedict['file_lists'].iteritems():
+            protlist = self.indexpath+"/"+f+".csv"
+            if not os.path.isfile(protlist):
+                logger.error("can't find "+protlist+". check siteconfig")
+            else:
+                knesset = {
+                    "name" : self.default(name['label']),
+                    "years" : {}
+                }
+                protlist = open(protlist,'r')
+                reader  = csv.reader(protlist, delimiter=',', quotechar='"')
+                for row in reader:
+                    year = row[1][-4:]
+                    if year not in knesset['years']:
+                        knesset['years'][year] = {
+                            "year" : year,                             
+                            "protocols" : [{
+                                "vol" : row[0],
+                                "date" : row[1]
+                            }] 
+                        }
+                    else:
+                        knesset['years'][year]['protocols'].append( {"vol" : row[0], "date" : row[1]})
+            knesset['years'] = [v for k,v in knesset['years'].items()]
+            knessets.append(knesset)
+        return {"knessets" : knessets}
+    
+         
     def documents_template_data(self, pagedict) :
         ret = {}
         docsfile = self.indexpath+"/"+pagedict['pagename']+".json"
@@ -285,7 +316,7 @@ class AuthorSiteGenerator:
             return False        
     
     def compile_title(self,pagedict,delim=" | ") :
-        ret = self.default(self.siteconfig['string_translations']['author'])
+        ret = self.default(self.authorblock['nicename'])
         if 'label' in pagedict and self.lang in pagedict['label']:
             l = pagedict['label'][self.lang]
             if l:
@@ -300,7 +331,7 @@ class AuthorSiteGenerator:
         templatedata=self.get_globals()
         templatedata['bodyclass'] = pagedict['template']+" "+page
         templatedata['html_title'] = self.compile_title(pagedict)
-        if 'page_title' in pagedict and lang in pagedict['page_title']:
+        if 'page_title' in pagedict and lang in pagedict['page_title'] and 'innertitle' not in pagedict:
             templatedata['pagetitle'] = pagedict['page_title'][lang]
         else:
             templatedata['pagetitle'] = None
@@ -312,7 +343,7 @@ class AuthorSiteGenerator:
         templatedata['favicon'] = favicon
         if 'fbshare' in pagedict:
             templatedata['fbshare'] = pagedict['fbshare']
-        else:
+        elif 'logo' in templatedata:
             templatedata['fbshare'] = templatedata['logo'] 
         # collect menu items for lang
         for menu_item in self.siteconfig['menu'][lang]:
@@ -427,6 +458,8 @@ class AuthorSiteGenerator:
         pagedict = self.siteconfig['pages'][page]
         lang = self.lang
         block = self.get_globals()
+        if 'innertitle' in pagedict and pagedict['innertitle']:
+            block['pagetitle'] = self.default(pagedict['page_title'])
         #block['page'] = page
         #block['template'] = pagedict['template']
         template = pagedict['template']
@@ -444,6 +477,7 @@ class AuthorSiteGenerator:
             else:
                 block['url'] = url
                 block['pagename'] = page
+        
         if template == "static":
             if(os.path.exists(statf)):
                 logger.info(u'loading '+lang+'/'+page+' static html')
@@ -452,10 +486,12 @@ class AuthorSiteGenerator:
             else:
                 logger.error(page+" ("+lang+") "+"has template 'static' but no " + page + "-static.html found in ...site/"+lang)
                 return
+        
         elif os.path.exists(contf):
-            logger.info(u'loading '+ page+ '.txt into template')
+            logger.info(u'loading '+ page+ ' maintext  into template')
             cont = open(contf).read()
             block['content'] = cont
+        
         if not os.path.exists(tempf):
             logger.error("can't find template '"+template+"'")
             return
