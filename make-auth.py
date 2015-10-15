@@ -1,5 +1,5 @@
 
-import csv,json,jsoncomment,urllib2,re,logging,sys,os,glob,jsonmerge,lesscpy,six, optparse,textualangs,pystache,string,random,cgi,urlparse
+import csv,json,jsoncomment,urllib2,re,logging,sys,os,glob,jsonmerge,lesscpy,six, optparse,textualangs,pystache,string,random,cgi,urlparse,textualibooks
 #from distutils.dir_util import copy_tree
 #from urlparse import urlparse
 #from HTMLParser import HTMLParser
@@ -22,6 +22,7 @@ stache = pystache.Renderer(
     search_dirs='auth_templates',file_encoding='utf-8',string_encoding='utf-8',file_extension=False
 )
 
+books = textualibooks.TextualiBooks()
 #https://www.googleapis.com/customsearch/v1?q=%D7%A9%D7%9C%D7%95%D7%9D&cx=006641765881684709425:t3vpkc0zyvo&relatedSite=thinkil.co.il&fields=items%2Cqueries%2CsearchInformation%2FtotalResults%2Curl&key=AIzaSyCXwxmdVWn6J453z2kZhiR82DQre4gNkJs
 
 #htmlparser = HTMLParser()
@@ -34,7 +35,7 @@ stache = pystache.Renderer(
 class AuthorSiteGenerator:
     puncpat = re.compile('[%s]' % re.escape(string.punctuation))
     frame0 = 'http://img.youtube.com/vi/{0}/0.jpg' 
-    booktranslink = '{0}/{1}?book={2}'    
+    #booktranslink = '{0}/{1}?book={2}'    
     def __init__(self,auth):
         self.global_template_vars = None
         self.lang = None
@@ -135,65 +136,65 @@ class AuthorSiteGenerator:
         ret = []
         tempdict = {}
         for book in self.displaybooks:
-            lang = book['language']
+            lang = book.bookdata['language']
             if lang != skiplang:
                 if lang not in tempdict:
                     tempdict[lang] = {
                         "lang" : lang,
                         "title" : textualangs.langname(lang),
-                        "books" : [self.book_item(book)]
+                        "books" : [book.generic_block_dict()]
                     }
                 else:
-                    tempdict[lang]['books'].append(self.book_item(book))
+                    tempdict[lang]['books'].append(book.generic_block_dict())
         for obj in tempdict.itervalues():
             ret.append(obj)
         ret.sort(cmp=lambda x,y : -1 if x['lang'] == self.lang else 1)
         return ret    
     
     def books_by_cat(self):
-        langbooks = [x for x in self.displaybooks if x['language'] == self.lang]
+        langbooks = [x for x in self.displaybooks if x.bookdata['language'] == self.lang]
         ret = []
         tempdict = {}
         for book in  langbooks:
-            booktype = self.get_book_type(book['bookdir']) 
+            booktype = books.get_book_type(book.bookid) 
             if booktype not in tempdict:
                 tempdict[booktype] = {
                     "type" : booktype,
                     "title" : textualangs.translate(booktype,self.lang,plural=True),
-                    "books": [self.book_item(book)]
+                    "books": [book.generic_block_dict()]
                 }
             else:
-                tempdict[booktype]['books'].append(self.book_item(book))
+                tempdict[booktype]['books'].append(book.generic_block_dict())
         for obj in tempdict.itervalues():
             ret.append(obj)
 
         ret.sort(cmp=lambda x,y : -1 if x['type'] == 'book' else 1)
         return ret
 
-    def book_item(self,bookdict):
-        block = self.authorblock
-        front = self.conf['front']
-        #google = "https://www.google.com/search?q={0}"
-        book = bookdict
-        files = self.book_files(book['bookdir'])
-        if files != None:
-            book['cover'] = files['front']
-            book['backcover'] = files['back']
-            book['pages'] = files['count']
-            book['aspect'] = 'vertical' if files['proportions'] > 1.0 else 'horizontal' 
-        book['url'] = self.authtexts+"/"+book['bookdir']
-        book['language_name'] = textualangs.langname(book['language'])
-        if 'orig_match_id' in book:
-            book['orig_name'] = self.get_book_name(book['orig_match_id'])
-            book['orig_url'] = self.authtexts+"/"+book['orig_match_id']
-        translation_of = None
-        if 'orig_match_id' in bookdict:
-            translation_of = bookdict['orig_match_id']
-        book['other_langs'] = self.get_other_langs(book['bookdir'],translation_of)
-        #if 'link' not in book or book['link']=="":
-        #    q = '+'.join(self.puncpat.sub('',book['book_nicename']+" "+self.authorblock['nicename']).split(' '))
-        #    book['google'] = google.format(q.encode('utf-8')) 
-        return book
+    #def book_item(self,bookdict):
+    #    block = self.authorblock
+    #    front = self.conf['front']
+    #    #google = "https://www.google.com/search?q={0}"
+    #    book = bookdict
+    #    files = books = textualibooks.TextualiBooks()self.book_files(book['bookdir'])
+    #    if files != None:
+    #        book['cover'] = files['front']
+    #        book['backcover'] = files['back']
+    #        book['pages'] = files['count']
+    #        book['aspect'] = 'vertical' if files['proportions'] > 1.0 else 'horizontal' 
+    #    book['url'] = self.authtexts+"/"+book['bookdir']
+    #    book['language_name'] = textualangs.langname(book['language'])
+    #    if 'orig_match_id' in book:
+    #        book['orig_name'] = self.get_book_name(book['orig_match_id'])
+    #        book['orig_url'] = self.authtexts+"/"+book['orig_match_id']
+    #    translation_of = None
+    #    if 'orig_match_id' in bookdict:
+    #        translation_of = bookdict['orig_match_id']
+    #    book['other_langs'] = self.get_other_langs(book['bookdir'],translation_of)
+    #    #if 'link' not in book or book['link']=="":
+    #    #    q = '+'.join(self.puncpat.sub('',book['book_nicename']+" "+self.authorblock['nicename']).split(' '))
+    #    #    book['google'] = google.format(q.encode('utf-8')) 
+    #    return book
     
     def videos_template_data(self,pagedict):
         ret = None
@@ -260,9 +261,9 @@ class AuthorSiteGenerator:
           
 
     def search_auth(self):
-        for authorblock in self.conf['authors']:
-            d = authorblock['dir']
-            if(d == authdir):
+        for authid,authorblock in self.conf['authors'].iteritems():
+            #d = authorblock['dir']
+            if(authid == authdir):
                 front = self.conf['front']
                 self.authorblock = authorblock
                 self.indexpath = front['indices_dir']+"/"+authdir+"/site"
@@ -271,7 +272,9 @@ class AuthorSiteGenerator:
                 self.vidframepath = self.indexpath+'/img/video/{0}{1}' 
                 self.devurl = front['domain']+self.indexpath.replace("/home/sidelang/webapps/phptextuali","").replace("../","")
                 self.authtexts = self.siteconfig['destination_domain']+"/"+front['srcs_dir'].replace("../","")+"/"+authdir
-                self.displaybooks = [x for x in authorblock['books'] if (self.get_book_type(x['bookdir']) and str(self.get_book_type(x['bookdir'])) not in self.siteconfig['suppress_book_types'])] 
+                self.authbooks = books.get_auth_books(authid,self.siteconfig)
+                self.displaybooks =  [x for x in self.authbooks if x.on_site_display] 
+
                 return True
          
     def good_to_go(self):
@@ -354,16 +357,16 @@ class AuthorSiteGenerator:
     
     def render_footer(self,page):
         pagedict = self.siteconfig['pages'][page]
-        #templatedata=jsonmerge.merge(self.get_globals(),self.pictures_template_data({}))
         templatedata = self.get_globals()
         authbooks = []
-        for book in self.authorblock['books']:
-            authbooks.append({
-               "id" :  book['bookdir'],
-               "name" : book['book_nicename'],
-               "title" : cgi.escape(book['book_nicename']).encode('utf-8', 'xmlcharrefreplace')
+        for book in self.authbooks:
+            authbooks.append(book.booklink_dict())
+        #    authbooks.append({
+        #       "id" :  book['bookdir'],
+        #       "name" : book['book_nicename'],
+        #       "title" : cgi.escape(book['book_nicename']).encode('utf-8', 'xmlcharrefreplace')
 
-            })
+        #    })
         templatedata['books'] = authbooks
         footf = self.indexpath+"/footer.html"
         if os.path.isfile(self.langpath+"/footer.html") :
@@ -470,7 +473,6 @@ class AuthorSiteGenerator:
         defaults = {
             "theme_color" : "#288EC3",  
             "skin":"timeline.dark", 
-            "tlconfig" : self.auth, 
             "src" : self.conf['front']['domain']+"/timeline" 
         }
         varsf = self.langpath+"/timeline_src_params.json"
@@ -503,7 +505,7 @@ class AuthorSiteGenerator:
             page = 'index'
         if not os.path.exists(self.langpath):
             os.makedirs(self.langpath)
-        if isinstance(body,six.string_types):
+        if isinstance(body,six.string_types) :
             try:
                 htmlfile = open(self.langpath+"/"+page+".html",'w')
                 htmlfile.write(header+body+footer)
