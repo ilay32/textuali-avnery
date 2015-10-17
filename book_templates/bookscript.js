@@ -2,6 +2,7 @@ var first_flipto = location.href.match(/(\/#page\/)(\d*)$/);
 var srcs = "{{srcs}}";
 {{#generic_srcs}}
 if(location.host != "textuali.com") {
+    srcs = "{{generic_srcs}}"; 
     if (self == self.top) {
         location.assign("{{generic_base}}?book={{bookdir}}");
     }

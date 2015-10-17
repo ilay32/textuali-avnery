@@ -12,7 +12,6 @@ def unescape(s):
 
 class TextualiBook:
     def __init__(self,bookid,authid,env):
-        self.authtexts = None
         self.files = None
         self.booktype = None
         self.authorblock = env['authors'][authid]
@@ -21,9 +20,8 @@ class TextualiBook:
         self.authid = authid
         self.env = env
         self.indexpath = env['front']['indices_dir']+"/"+authid+"/"+bookid+"/"
-        self.srcdomain = env['front']['domain']
         self.srcpath = env['front']['srcs_dir']+"/"+authid+"/"+bookid
-        self.srcscleanpath = os.path.basename(env['front']['srcs_dir'])+"/"+authid+"/"+bookid
+        self.authcleanpath = os.path.basename(env['front']['srcs_dir'])+"/"+authid
         self.books = TextualiBooks(env)
         self.on_site_display = True
         if 'site' in env:
@@ -37,7 +35,7 @@ class TextualiBook:
         ret['authdir'] = self.authid
         ret['pdf_downlads'] = self.authorblock['pdf_downloads']
         ret['indices_dir'] = self.env['front']['indices_dir']
-        ret['srcs'] = os.path.join(self.srcdomain,self.srcscleanpath) 
+        ret['srcs'] = os.path.join(self.env['front']['domain'],self.authcleanpath+"/"+self.bookid)
         ret['front'] = self.env['front']
         ret['type'] = self.books.get_book_type(self.bookid)
         if os.path.isfile(ret['indices_dir']+"/"+self.authid+"/authorstyle.css"):
@@ -68,20 +66,23 @@ class TextualiBook:
        ret = self.bookdata
        block = self.authorblock
        files = self.book_files()
+       domain = self.env['site']['destination_domain'] if 'destination_domain' in self.env['site'] else self.env['front']['domain']
+       authbase = os.path.join(domain,self.authcleanpath)
+       bookbase = authbase+"/"+self.bookid
        if not files:
            logger.error("can't find book files for "+self.bookdata['book_nicename'])
            return ret
-       ret['cover'] = files['front']
-       ret['backcover'] = files['back']
+       ret['cover'] = bookbase+"/jpg/"+files['front']
+       ret['backcover'] = bookbase+"/jpg/"+files['back']
        ret['pages'] = files['count']
        ret['aspect'] = 'vertical' if files['closedratio'] > 1.0 else 'horizontal'
-       ret['url'] = files['url']+"/"+self.bookid
+       ret['url'] = bookbase
        ret['language_name'] = textualangs.langname(self.bookdata['language'])
        ret['bookdir'] = self.bookid
        if 'orig_match_id' in self.bookdata:
            orig = self.bookdata['orig_match_id'] 
            ret['orig_name'] = self.authorblock['books'][orig]
-           ret['orig_url'] = files['url']+"/"+orig
+           ret['orig_url'] = authbase+"/"+orig
            ret['other_langs'] = self.get_other_langs(orig)
        return ret
        
@@ -109,7 +110,7 @@ class TextualiBook:
         pages = []
         if self.bookdata['has_texts'] and 'generic_site_domain' in self.authorblock:
             pagebase = self.authorblock['generic_site_domain']
-            ret = {"generic_srcs" : os.path.join(pagebase,self.srcscleanpath)}
+            ret = {"generic_srcs" : os.path.join(pagebase, self.authcleanpath+"/"+self.bookid)} 
             if 'pagelink_base' in self.authorblock:
                 pagebase = os.path.join(pagebase,self.authorblock['pagelink_base'])
             pageslang = textualangs.translate("pages",self.bookdata['language'])
@@ -124,7 +125,7 @@ class TextualiBook:
                             "title" : self.bookdata['book_nicename'] + " | "+pageslang+" "+str(pagenum),
                             "text": self.bookdata['book_nicename'] + ", "+pageslang+" "+str(pagenum)
                         })
-                ret = {"pagelinks" : pages}     
+                ret['pagelinks'] = pages    
         return ret 
     
     def page_num_by_file(self,s):
@@ -164,10 +165,6 @@ class TextualiBook:
     def book_files(self):
         if self.files:
             return self.files
-        authtexts = self.env['front']['srcs_dir'].replace("../","")+"/"+self.authid
-        domain = self.authorblock['generic_site_domain'] if 'generic_site_domain' in self.authorblock else self.srcdomain
-        authtexts = os.path.join(domain,authtexts)
-        urlbase = authtexts+"/"+self.bookid+"/jpg/"
         jpgs = sorted(glob.glob(self.srcpath+"/jpg/*.jpg"))
         htmls = glob.glob(self.srcpath+"/html/*.htm*")
         if not len(jpgs):
@@ -178,14 +175,14 @@ class TextualiBook:
             "count" : len(jpgs),
             "jpgs" : jpgs,
             "htmls" : htmls,
-            "front" : urlbase+os.path.basename(jpgs[0]),
-            "back" : urlbase+os.path.basename(jpgs[len(jpgs) - 1]),
+            "front" : os.path.basename(jpgs[0]),
+            "back" : os.path.basename(jpgs[len(jpgs) - 1]),
             "count" : len(jpgs),
             "openratio" : float(2*fsize[0])/fsize[1],
             "closedratio" :  float(fsize[1])/fsize[0],
-            "url" : authtexts
         }
         self.files = ret
+
         return ret
     
     def calc_book_offsets(self,count,pagelist):
