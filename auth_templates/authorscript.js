@@ -7,6 +7,7 @@ var slideshows = '{{destination_domain}}/{{lang}}/slideshows';
 //var search_template = "https://www.googleapis.com/customsearch/v1?GOOGLESEARCHQUERY&cx={{google_search}}&fields=items%searchInformation%2FtotalResults%2Curl&key={{gapikey}}";
 var search_template = "https://www.googleapis.com/customsearch/v1?GOOGLESEARCHQUERY&cx={{google_search}}&fields=items%2Cqueries%2CsearchInformation%2FtotalResults%2Curl&key={{gapikey}}";
 
+var pdf_embed_src = "https://docs.google.com/viewer?embedded=true&url=DOCURL";
 var vid_template = "http://www.youtube.com/embed/VIDEOID?autoplay=1";
 
 //var trickparse = document.createElement('a');
@@ -238,6 +239,12 @@ function highlight_menu(ul) {
 }
 
 $(document).ready(function() {
+    $('li[data-file]').click(function() {
+        var d = $(this).data('file'),
+            k = $(this).closest('.panel').data('knesset'),
+            u = authbase+'/site/img/protocols/'+k+'/'+d+'.pdf';
+        iframe_in_modal(u);
+    });
     var display_params  = location.search.match(/^\?(vid|book|slideshow)=(.*)$/);
     //$('.carousel.slide').hide();
     highlight_menu($('#primary-navigation > .nav'));

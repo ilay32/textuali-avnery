@@ -39,17 +39,20 @@
     </div>
 </div>
 <div id="search-container" class="utilbox  " area-hidden="false">
+    {{#googlesearch}}
     <form id="gsearch" class="form-inline">
         <label for="q">{{string_translations.search_site}}:</label>
         <input name="q" type="text" maxlneght="50" placeholder="{{string_translations.search}}" />
         <button type="submit">{{string_translations.search}}</button> 
     </form> 
+    {{/googlesearch}}
+    {{#ftsearch}}
     <form id="fsearch" class="form-inline">
         <label for="q">{{string_translations.search_books}} {{string_translations.author}}:</label>
         <input name="q" type="text" maxlneght="50" placeholder="{{string_translations.search}}" />
         <button type="submit">{{string_translations.search}}</button> 
     </form> 
-
+    {{/ftsearch}}
 </div>
 <div id="share-container" class="fade utilbox">
     <nav id="social">

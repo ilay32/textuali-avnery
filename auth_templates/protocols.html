@@ -15,21 +15,32 @@
         {{/content}}
 
         <div class="row">
-            <div class="col-sm-12">
-            {{#knessets}}
-            <div>{{name}}</div>
-            <div>
-                {{#years}}
-                <h3>{{year}}</h3>
-                <ul>
-                    {{#protocols}}
-                    <li>{{string_translations.volume}} {{vol}} {{date}}</li>
-                    {{/protocols}}
-                </ul>
-                {{/years}}
-             </div>
-            {{/knessets}}
-            </div>
+            <div class="panel-group" id="accordion" role="tablist" aria-multiselectable="true">
+                {{#knessets}}
+                <div class="panel panel-default" data-knesset="{{knesset}}">
+                    <div class="panel-heading" role="tab" id="{{knesset}}-heading">
+                        <h4 class="panel-title">
+                            <a role="button" data-toggle="collapse" data-parent="#accordion" href="#{{knesset}}" aria-expanded="true" aria-controls="{{knesset}}">
+                                {{name}}
+                            </a>
+                        </h4>
+                    </div>
+                    <div id="{{knesset}}" class="panel-collapse collapse in" role="tabpanel" aria-labelledby="{{knesset}}-heading">
+                        <div class="panel-body">
+                            {{#years}}
+                            <div class="protocols-year-list">
+                                <h3>{{year}}</h3>
+                                <ul>
+                                {{#protocols}}
+                                    <li data-file="{{file}}">{{string_translations.volume}} {{vol}} {{date}}</li>
+                                {{/protocols}}
+                                </ul>
+                            </div>
+                            {{/years}}
+                        </div>
+                    </div><!-- panel-collapse-->
+                </div><!-- panel -->
+                {{/knessets}}
+            </div><!-- panel-group -->
         </div>
-    </div>
     </main>

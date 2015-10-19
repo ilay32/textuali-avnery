@@ -33,6 +33,7 @@ class TextualiBook:
             return None
         ret = self.bookdata
         ret['authdir'] = self.authid
+        ret['bookdir'] = self.bookid
         ret['pdf_downlads'] = self.authorblock['pdf_downloads']
         ret['indices_dir'] = self.env['front']['indices_dir']
         ret['srcs'] = os.path.join(self.env['front']['domain'],self.authcleanpath+"/"+self.bookid)

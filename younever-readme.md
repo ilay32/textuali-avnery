@@ -18,6 +18,8 @@ generic site
 * the site is rendered with python and mustache as by a sitecofing.json.
 * most data is stored in json files in the site directory but some depend on the language module and on the authors flip data: home/sidelang/webapps/phptextuali/textuali(-dev)/config.json
 * siteconfig usage :
+    ** favicon -- enter file name and save it in SITEROOT/img. Defaults to textuali.com/media/favicon.ico
+    ** logo -- enter file name and save it in SITEROOT/img. Defaults to /img/logo-<langcode> where <langcode> is the page language, or 'he' for rtl and 'en' for ltr.
     ** menu -- see comments in the json itself 
     ** social -- see comments in the json itself 
     ** pages -- see general comments in the json, but also: 
@@ -36,6 +38,7 @@ generic site
 except if the page block in siteconfig includes "no_additional" with any value
 
 * if found, SITEROOT/footer.html will be appended inside a  <footer> tag after </main>
+
 
 * run: python2.7 make-auth.py <author_directory>
 

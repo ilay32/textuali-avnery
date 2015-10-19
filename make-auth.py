@@ -72,7 +72,8 @@ class AuthorSiteGenerator:
             else:
                 knesset = {
                     "name" : self.default(name['label']),
-                    "years" : {}
+                    "years" : {},
+                    "knesset" :f 
                 }
                 protlist = open(protlist,'r')
                 reader  = csv.reader(protlist, delimiter=',', quotechar='"')
@@ -82,14 +83,17 @@ class AuthorSiteGenerator:
                         knesset['years'][year] = {
                             "year" : year,                             
                             "protocols" : [{
+                                "file" : row[1].replace('/','_'),
                                 "vol" : row[0],
                                 "date" : row[1]
                             }] 
                         }
                     else:
-                        knesset['years'][year]['protocols'].append( {"vol" : row[0], "date" : row[1]})
+                        knesset['years'][year]['protocols'].append( {"vol" : row[0], "date" : row[1], "file": row[1].replace('/','_')})
             knesset['years'] = [v for k,v in knesset['years'].items()]
+            knesset['years'].sort(key=lambda x : x['year'])
             knessets.append(knesset)
+            knessets.sort(key=lambda x : x['knesset'])
         return {"knessets" : knessets}
     
          
@@ -331,6 +335,8 @@ class AuthorSiteGenerator:
         templatedata=self.get_globals()
         templatedata['bodyclass'] = pagedict['template']+" "+page
         templatedata['html_title'] = self.compile_title(pagedict)
+        if 'description' in pagedict :
+            templatedata['description'] = self.default(pagedict['description'])
         if 'page_title' in pagedict and lang in pagedict['page_title'] and 'innertitle' not in pagedict:
             templatedata['pagetitle'] = pagedict['page_title'][lang]
         else:
@@ -350,14 +356,14 @@ class AuthorSiteGenerator:
             menu_items.append(self.menu_items(menu_item,page))
         
         # simliarly, colect the uti buttons (search, info, share)
-        for util in self.siteconfig['utils']:
+        for utilname,utildefs in self.siteconfig['utils'].iteritems():
             #icon = self.conf['front']['domain']+"media/"+util['icon']
             #if os.path.isfile(self.indexpath+"/img/"+util['icon']):
             #    icon = self.siteconfig['baseurl']+"/img/"+util['icon']
             utils.append({
-                "name" : util['name'],
+                "name" : utilname,
                 #"icon" : icon,
-                "title" : self.default(util['mouseover'])
+                "title" : self.default(utildefs['mouseover'])
             }) 
         templatedata['utils'] = utils
         templatedata['menu_items'] = menu_items
@@ -425,6 +431,11 @@ class AuthorSiteGenerator:
             })
              
         templatedata['socials'] = socials
+        searchopts = self.siteconfig['utils']['search']['opts']
+        if 'google' in searchopts:
+            templatedata['googlesearch'] = 1
+        if 'fts' in searchopts:
+            templatedata['ftsearch'] = 1
         return foot+stache.render(stache.load_template('footer.html'),templatedata).encode('utf-8') 
     
     def compile_social_url(self,social,page) :
@@ -477,6 +488,9 @@ class AuthorSiteGenerator:
             else:
                 block['url'] = url
                 block['pagename'] = page
+
+        if template == "404" : 
+            block['message'] = pagedict['message']
         
         if template == "static":
             if(os.path.exists(statf)):
@@ -608,7 +622,10 @@ class AuthorSiteGenerator:
         if isinstance(logo,six.string_types):
             g['logo'] = logo
         else:
-            logger.error("both /img/logo-"+lang+" and /img/logo-"+self.siteconfig['primary_language']+" not found")
+            if 'logo' in self.siteconfig:
+                g['logo'] = self.siteconfig['logo']
+            else:
+                logger.error("can't find logo for "+self.lang+ "or a general one")
         self.global_template_vars = g
         return g
          
