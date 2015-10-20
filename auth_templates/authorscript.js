@@ -215,6 +215,7 @@ function process_google_search_results(results) {
             htm += '<li class="search-result">';
             var u = identify_book_page(res.link);
             var l = typeof(u) == 'object' ? u.fliplink : res.link;
+            //l += '&q='+r.searchTerms.replace(/\s+/,"+");
             htm += '<a href="'+l+'">'+res.title+'</a>';
             htm += '<p>'+res.htmlSnippet+'</p></li>';
         });
@@ -322,9 +323,10 @@ $(document).ready(function() {
     });
     if(display_params != null) {
         if(display_params[1] == 'book') {
-            u = display_params[2];
-            if (/#page\/\d+$/.test(window.location.hash)){
-                u += window.location.hash
+            var u = display_params[2];
+            var d = decodeURIComponent(window.location.hash);
+            if (/#page\/\d+(&q=.+)?$/.test(d)){
+                u += d.replace('&','?');
             }
             iframe_in_modal(authbase+'/'+u);        
         }

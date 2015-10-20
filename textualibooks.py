@@ -262,7 +262,8 @@ class TextualiBooks:
             env.update({"site":authsite})
         for bookid in a['books'].iterkeys():
             ret.append(TextualiBook(bookid,authid,env))
-        return ret
+        ret.sort(cmp = lambda x,y : -1 if 'year' in x.bookdata and 'year' in y.bookdata and  x.bookdata['year'] < y.bookdata['year'] else 1)
+        return ret 
    
     def front_template_data(self) :
         authors = []

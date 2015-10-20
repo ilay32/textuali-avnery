@@ -322,7 +322,7 @@ function loadApp() {
     });
     
     if(first_flipto != null && first_flipto[2] !== "") {
-        Hash.go('page/'+first_flipto[2]);
+        Hash.go('page/'+flip2phis(first_flipto[2]));
     }
 
     
