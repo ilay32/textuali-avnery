@@ -1,9 +1,14 @@
+html {
+    position: fixed;
+    width: 100%;
+    height:100%;
+}
 body{
 	margin:0;
     background-color:transparent;
-    overflow:hidden;
     height:100%;
     direction: {{dir}};
+    overflow:hidden;
 }
 
 .textuali-container {

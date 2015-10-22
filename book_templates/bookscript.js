@@ -219,7 +219,6 @@ function loadApp() {
         screen_ratio = $(window).width()/$(window).height(),
         book_width,
         openbook_ratio = parseFloat({{openbook_ratio}});
-         
     if(typeof(openbook_ratio) != "number" || openbook_ratio == 0) {
         im = $('<img src="jpg/{{frontjpg}}"/>').get(0);
         openbook_ratio = (2*im.naturalWidth)/im.naturalHeight;
@@ -287,6 +286,7 @@ function loadApp() {
                 if($('#next-prev-toc').hasClass('open')) {
                     $('.toc-list').dropdown('toggle');
                 }
+
             }
         }                 
     });
@@ -490,3 +490,4 @@ $(function() {
         complete: loadApp
     });
 });     
+
