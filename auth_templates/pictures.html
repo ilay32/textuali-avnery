@@ -11,7 +11,7 @@
         <div class="col-lg-3 col-md-4 col-sm-6 col-xs-12">
             <div class="slideshow-modal" data-slideshow="{{id}}">
                 <div class="startframe">
-                    <img src="{{baseurl}}/{{thumb}}"/>
+                    <img src="{{baseurl}}/{{thumb}}" alt="{{titleattr}}"/>
                     <!--<svg class="slidesicon" width="160" height="110">
                         <rect class="rect1" width="140" height="100" />
                         <rect class="rect2" x="20" y="20" width="140" height="100" />
@@ -21,8 +21,8 @@
                     <span class="slidesicon glyphicon glyphicon-zoom-in"></span>
                 </div>
                 <h4  class="vid-title">
-                    <a href="?slideshow={{id}}" title="{{description}}" >
-                        {{description}}
+                    <a href="?slideshow={{id}}" title="{{titleattr}}" >
+                        {{slideshowtitle}}
                     </a>
                 </h4>
             </div>

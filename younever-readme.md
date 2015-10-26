@@ -12,6 +12,11 @@ to overrride default styles use (create if needed) the following files:
 * to update the dev config json from the live one, use the update option:
     ** python make-in.py -u or python make-in.py --update-config
 
+htm files  wrap script
+======================
+run: python make-heads.py <author> [<book>]
+the script will guide you if there are any errors
+
 generic site
 ================
 * an author's site diectory is (dev)-texts/<auhthor>/site -- this is SITEROOT

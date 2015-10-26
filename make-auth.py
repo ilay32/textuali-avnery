@@ -122,13 +122,14 @@ class AuthorSiteGenerator:
             return {}
         slideshows = jc.load(file(picfile))
         for slideshow in slideshows:
-            slideshow['description'] = slideshow['description'][self.lang]
+            slideshow['slideshowtitle'] = slideshow['description'][self.lang]
+            slideshow['titleattr']  = cgi.escape(slideshow['slideshowtitle']).encode('utf-8', 'xmlcharrefreplace').strip()
             for index, slide in enumerate(slideshow['slides']):
                 if index == 0:
                     slide['active'] = "active"
                     slideshow['thumb'] = slide['slide']
                 slide['caption'] = slide['title'][self.lang]
-                slide['alt'] =  cgi.escape(self.default(slide['title'])).encode('ascii', 'xmlcharrefreplace')
+                slide['alt'] =  cgi.escape(self.default(slide['title'])).encode('utf-8', 'xmlcharrefreplace').strip()
                 slide['ord'] = index
         if not os.path.exists(self.langpath+"/slideshows"):
             os.makedirs(self.langpath+"/slideshows")
@@ -137,6 +138,7 @@ class AuthorSiteGenerator:
             if len(slideshow['slides']):
                 slideshowfrag = open(self.langpath+"/slideshows/"+slideshow['id']+".htm","w")
                 slideshowfrag.write(stache.render(stache.load_template("slideshow.html"),jsonmerge.merge(slideshow,self.get_globals())).encode('utf-8'))
+
         return {"slideshows": slideshows}
     
     def isotope_template_data(self,pagedict): 
