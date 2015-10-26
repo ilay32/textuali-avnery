@@ -26,7 +26,26 @@ class TextualiBook:
         self.on_site_display = True
         if 'site' in env:
             self.on_site_display = self.get_type() and str(self.get_type()) not in env['site']['suppress_book_types']
-            
+        self.default_lang = "he" if textualangs.direc(self.bookdata['language']) == 'rtl' else "en"
+        self.auth_htm_title_part = self.default('authpart_htm_title').format(self.default(self.authorblock['nicename']))
+        
+        
+    def htm_template_data(self,htmfile):
+        num = self.page_num_by_file(htmfile)
+        pagedesc = self.bookdata['book_nicename']
+        pageliveid = self.authid+"-"+self.bookid 
+        if num:
+            pagedesc += " - "+self.default('page_word')+" "+str(num)
+            pageliveid += "-"+str(num)
+        authpart = self.auth_htm_title_part 
+        return {
+           "title" : pagedesc+" | "+authpart,
+           "pageliveid" : pageliveid
+        }
+       
+    def default(self,obj):
+        return textualangs.default(self.bookdata['language'],self.default_lang,obj)
+
     def index_dict(self):
         files = self.book_files()
         if not files:
@@ -49,8 +68,7 @@ class TextualiBook:
         ret['page_list'] =  map((lambda uri : unescape(os.path.splitext(os.path.basename(uri))[0])),files['jpgs']) 
         ret.update(self.calc_book_offsets(files['count'],ret['page_list']))
         ret.update(self.book_sides())
-        dlang = "he" if ret['side'] == 'right' else "en"
-        ret['authnice'] = textualangs.default(self.bookdata['language'],dlang,self.authorblock['nicename'])
+        ret['authnice'] = self.default(self.authorblock['nicename'])
         ret['string_translations'] = textualangs.translations(dlang)
         ret['frontjpg'] = os.path.basename(files['jpgs'][0])
         ret['openbook_ratio'] = files['openratio']
