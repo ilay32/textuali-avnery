@@ -246,7 +246,7 @@ $(document).ready(function() {
             u = authbase+'/site/img/protocols/'+k+'/'+d+'.pdf';
         iframe_in_modal(u);
     });
-    var display_params  = location.search.match(/^\?(vid|book|slideshow)=(.*)$/);
+    var display_params  = location.search.match(/^\?(vid|book|slideshow|doc)=(.*)$/);
     //$('.carousel.slide').hide();
     highlight_menu($('#primary-navigation > .nav'));
     $('.external iframe').load(function() {
@@ -281,10 +281,13 @@ $(document).ready(function() {
         window.location.assign(h);
     });
     $('.doc-wrap').click(function() {
+        var t = $(this).find('h2').clone().removeClass('col-xs-12').addClass('modal-doc-title');
         var c = $(this).find('.document-image').clone().show();
-        $('#auth-mod').find('.share-modal').hide().end().find('.modal-body').html(c).end().modal('show');
-        $('#auth-mod .modal-dialog').addClass('multidoc');
+        $('#auth-mod').find('.modal-body').empty().append(t,c).end().modal('show');
+        $('#auth-mod .modal-dialog').addClass('multidoc').scrollTop(0);
+        share('#auth-mod', window.location.href.replace(window.location.search, '')+'?doc='+this.id);
     });
+
     $('.modal-content').click(function(c) {
         if (!$(c.target).is('.share-modal')) {
             $(this).find('input.share').removeClass('in');
@@ -322,19 +325,26 @@ $(document).ready(function() {
         }
     });
     if(display_params != null) {
-        if(display_params[1] == 'book') {
-            var u = display_params[2];
-            var d = decodeURIComponent(window.location.hash);
-            if (/#page\/\d+(&q=.+)?$/.test(d)){
-                u += d.replace('&','?');
-            }
-            iframe_in_modal(authbase+'/'+u);        
-        }
-        else if(display_params[1] == 'vid') {
-            video_in_modal(display_params[2]);
-        }
-        else if(display_params[1] == 'slideshow') {
-            slideshow_in_modal(display_params[2])
+        switch(display_params[1]) {
+            case 'book' :
+                var u = display_params[2];
+                var d = decodeURIComponent(window.location.hash);
+                if (/#page\/\d+(&q=.+)?$/.test(d)){
+                    u += d.replace('&','?');
+                }
+                iframe_in_modal(authbase+'/'+u);        
+            break;
+            case 'vid' : 
+                video_in_modal(display_params[2]);
+            break;
+            case 'slideshow' :
+                slideshow_in_modal(display_params[2])
+            break;
+            case 'doc':
+                $('.doc-wrap#'+display_params[2]).trigger('click');
+            break;
+            default:
+                $.noop();
         }
     }
     $(window).load(function() {

@@ -387,10 +387,11 @@ main {
 }
 .modal-lg {
     margin:@vertspace/2 auto;
-    direction:rtl;
+    //direction:rtl;
     width: 90%;
     .close {
         position:absolute;
+        {{side}}:0;
         z-index:5;
         top:@vertspace/2;
         img,& {
@@ -462,6 +463,22 @@ iframe{
 }
 
 /* documents */
+.doc-wrap {
+    margin-bottom: @vertspace;
+    h2 {
+        height: 200px;
+        overflow: hidden;
+   }
+}
+.modal-doc-title {
+    direction: {{dir}};
+    color: {{primary_color}};
+    text-align:center;
+}
+.doc-images {
+    height: 265px;
+    overflow: hidden;
+}
 .document-image {
     max-width: 100%;
     cursor: pointer;
@@ -550,6 +567,10 @@ button.screenaction {
     max-height: 100%;
     &.multidoc {
         overflow-y: scroll;
+        direction: ltr;
+        .modal-body {
+            text-align: center;
+        }
     }
 }
 

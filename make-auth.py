@@ -104,13 +104,14 @@ class AuthorSiteGenerator:
             logger.error("can't use documents template without "+docsfile)
             return ret
         docs = jc.load(file(docsfile))
-        for doc in docs:
+        for i,doc in enumerate(docs):
             if isinstance(doc['image'],list) :
                 first = doc['image'][0]
                 doc['others'] = doc['image'][1:]
                 doc['count'] = len(doc['image'])
                 doc['image'] = first
             doc['title'] = self.default(doc['title'])
+            doc['docid'] = "doc"+str(i)
         if len(docs) > 0 :
             ret = {"has_docs" : True, "docs" : docs}
         return ret

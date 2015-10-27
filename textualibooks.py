@@ -69,7 +69,7 @@ class TextualiBook:
         ret.update(self.calc_book_offsets(files['count'],ret['page_list']))
         ret.update(self.book_sides())
         ret['authnice'] = self.default(self.authorblock['nicename'])
-        ret['string_translations'] = textualangs.translations(dlang)
+        ret['string_translations'] = textualangs.translations(self.default_lang)
         ret['frontjpg'] = os.path.basename(files['jpgs'][0])
         ret['openbook_ratio'] = files['openratio']
         ret['ver'] = str(random.randint(999,9999)) 

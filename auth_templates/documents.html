@@ -13,12 +13,14 @@
     {{#has_docs}}
     <div class="row">
         {{#docs}}
-        <div class="doc-wrap col-lg-3 col-md-4 col-sm-6 col-xs-12">
-            <img class="document-image" alt="title" src="{{baseurl}}/{{image}}" />
-            {{#others}}
-            <img class="document-image subsequent" alt="title" src="{{baseurl}}/{{.}}"/>
-            {{/others}}
-            <h2 class="col-xs-12">{{title}}{{#count}} ({{count}}){{/count}}</h2>
+        <div id="{{docid}}" class="doc-wrap col-lg-3 col-md-4 col-sm-6 col-xs-12">
+            <div class="doc-images">
+                <img class="document-image" alt="{{docid}}" src="{{baseurl}}/{{image}}" />
+                {{#others}}
+                <img class="document-image subsequent" alt="{{docid}}" src="{{baseurl}}/{{.}}"/>
+                {{/others}}
+            </div>
+            <h2 class="col-xs-12">[{{year}}] {{title}}{{#count}} ({{count}} {{string_translations.pages}}){{/count}}</h2>
         </div>
         {{/docs}}
     </div><!-- row -->
