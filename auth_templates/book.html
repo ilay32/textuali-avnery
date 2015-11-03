@@ -1,23 +1,25 @@
 <div class="col-lg-3 col-md-4 col-sm-6 col-xs-12 book-item">
     <div class="clearfix item-inner"> 
-        <h3>
-            <a data-book="{{bookdir}}" class="flip-modal-trigger" href="{{url}}{{#toc}}/#page/{{toc}}{{/toc}}" title="{{string_translations.flip_title}} {{book_nicename}}" data-pages="{{pages}}">{{book_nicename}}</a>
-        </h3>
-        <div class="book-detail">
-            {{#year}}{{year}}<span class="pipe">|</span>{{/year}} {{pages}} {{string_translations.pages}}
-        </div>
-        <div class="book-detail">
-            {{publisher}}
-        </div>
-        <div class="book-detail">
-            {{string_translations.language}}: {{language_name}}
-            {{#other_langs}} 
-                <span class="pipe">|</span>
-                {{string_translations.also_in}}: 
-                {{#langs}}
-                    <a href="{{link}}" title="{{string_translations.flip_title}} ({{name}})">{{name}}</a> 
-                {{/langs}}
-            {{/other_langs}}
+        <div class="book-details">
+            <h3>
+                <a data-book="{{bookdir}}" class="flip-modal-trigger" href="{{url}}{{#toc}}/#page/{{toc}}{{/toc}}" title="{{string_translations.flip_title}} {{book_nicename}}" data-pages="{{pages}}">{{book_nicename}}</a>
+            </h3>
+            <div class="book-detail">
+                {{#year}}{{year}}<span class="pipe">|</span>{{/year}} {{pages}} {{string_translations.pages}}
+            </div>
+            <div class="book-detail">
+                {{publisher}}
+            </div>
+            <div class="book-detail">
+                {{string_translations.language}}: {{language_name}}
+                {{#other_langs}} 
+                    <span class="pipe">|</span>
+                    {{string_translations.also_in}}: 
+                    {{#langs}}
+                        <a href="{{link}}" title="{{string_translations.flip_title}} ({{name}})">{{name}}</a> 
+                    {{/langs}}
+                {{/other_langs}}
+            </div>
         </div>
         <div class="book-item-covers">
             <a  title="{{book_nicename}} {{string_translations.front_cover}}" data-pages="{{pages}}"data-book="{{bookdir}}" class="flip-modal-trigger book-cover" href="{{url}}">

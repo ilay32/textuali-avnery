@@ -391,10 +391,21 @@ $(document).ready(function() {
             $('main#content,footer').fadeOut(200);
             $('#phone-scroll-book').fadeIn(200).find('> img').detach();
             tjloader.loadmore();
-       }
+        }
         else {
             iframe_in_modal(h);
-            share('#auth-mod', window.location.href.replace(window.location.search, '')+'?book='+$(this).data('book'));
+            var b = $(this).data('book'),
+                s = window.location.href.replace(window.location.search, '');
+            if (b == undefined) {
+                var m  = h.match(/{{auth}}\/([a-z0-9]+)/);
+                if (m.length == 2) {
+                    b = m[1];
+               }
+            }
+            if (/^[a-z0-9]{3,5}$/.test(b)) {
+                s += '?book='+b;
+                share('#auth-mod', s);
+            }
         }
     });
     

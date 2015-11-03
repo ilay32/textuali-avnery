@@ -12,10 +12,12 @@
 	<meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="description" content="{{description}}">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">	
+    
     <!-- facebook -->
-    <meta property="og:title" content="{{html_tilte}}" />
+    <meta property="og:title" content="{{html_title}}" />
     <meta property="og:type" content="website" />
     <meta property="og:image" content="{{destination_domain}}/img/{{fbshare}}" />
+
     <title>{{html_title}}</title>
 	<link rel="icon" type="image/png" href="{{favicon}}">
     <link href="{{front.domain}}/media/Alef-Webfont/stylesheet.css" rel="stylesheet" type="text/css">
@@ -107,15 +109,19 @@
                     </a> 
                     {{/videos}}-->
                     {{#langs}}
-                    <span title="{{name}}" class="glyphicon langswitch {{#is_primary_language}}glyphicon-globe withicon{{/is_primary_language}}" data-langcode="{{code}}">
+                    <span title="{{name}}" class="glyphicon langswitch" data-langcode="{{code}}">
+                        {{#is_primary_language}}
+                        <img src="{{front.domain}}/media/globe.png"/>
+                        {{/is_primary_language}}
                         {{^is_primary_language}}[{{primlangname}}]{{/is_primary_language}}
-                    
                     </span>
                     {{/langs}}
 
                     {{#utils}}
-                    <span id="{{name}}-trigger" title="{{title}}" class="glyphicon glyphicon-{{name}} util-button">
-                        <!--<img alt="{{title}}" src="{{icon}}"/>-->
+                    <span id="{{name}}-trigger" title="{{title}}" class="glyphicon {{^icon}}glyphicon-{{name}}{{/icon}} util-button">
+                        {{#icon}} 
+                        <img alt="{{title}}" src="{{icon}}"/>
+                        {{/icon}}
                     </span>
                     {{/utils}}
                 </div>

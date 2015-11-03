@@ -350,22 +350,36 @@ class AuthorSiteGenerator:
         if isinstance(self.siteconfig['favicon'],six.string_types):
             favicon = self.siteconfig['baseurl']+"/img/"+self.siteconfig['favicon']
         templatedata['favicon'] = favicon
+        # find the facebbook share image (for <meta og:image>) 
+        try: 
+            fbshare = os.path.basename(glob.glob(self.indexpath+"/img/fbshare-default*")[0])
+        except:
+            if 'logo' in templatedata:
+                fbshare  = templatedata['logo'] 
         if 'fbshare' in pagedict:
-            templatedata['fbshare'] = pagedict['fbshare']
-        elif 'logo' in templatedata:
-            templatedata['fbshare'] = templatedata['logo'] 
+            fbshare  = pagedict['fbshare']
+        logger.info(fbshare)
+        templatedata['fbshare'] = fbshare
+                
         # collect menu items for lang
         for menu_item in self.siteconfig['menu'][lang]:
             menu_items.append(self.menu_items(menu_item,page))
         
         # simliarly, colect the uti buttons (search, info, share)
         for utilname,utildefs in self.siteconfig['utils'].iteritems():
-            #icon = self.conf['front']['domain']+"media/"+util['icon']
+            if 'icon' in utildefs :
+                ic = utildefs['icon']
+                if not urlparse.urlparse(ic).netloc :
+                    icon = self.conf['front']['domain']+"/media/"+ic 
+                else:
+                    icon = ic 
+            else:
+                icon = ""
             #if os.path.isfile(self.indexpath+"/img/"+util['icon']):
             #    icon = self.siteconfig['baseurl']+"/img/"+util['icon']
             utils.append({
                 "name" : utilname,
-                #"icon" : icon,
+                "icon" : icon,
                 "title" : self.default(utildefs['mouseover'])
             }) 
         templatedata['utils'] = utils

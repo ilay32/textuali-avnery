@@ -261,15 +261,17 @@ main {
         margin:@vertspace/4 0;
         font-size:@font-size-large;
     }
+    .book-details {
+        height: 40%;
+        overflow:hidden;
+    }
     .book-item-covers {
         margin: @vertspace/2 0;
-        max-height: 55%;
+        height: 55%;
         overflow: hidden;
     }
     .book-cover{
-        margin-top:@vertspace;
-        margin-{{oposide}}:@horizspace;
-        overflow:hidden;
+        margin-{{oposide}}:@horizspace/2;
         img.vertical {
             height: 200px;
         }
@@ -285,11 +287,7 @@ main {
     }
 }
 
-.book-details {
-    width:70%;
-    float:{{side}};
-    padding:0 @horizspace;
-}
+
 
 /* pictures template */
 .slideshow-modal {
@@ -338,6 +336,12 @@ main {
         margin-{{oposide}}:@horizspace/2;
         
     }
+    img {
+        height: 24px;
+        width: auto;
+        margin-top: -0.75*@vertspace;
+    }
+
 }
 .social-button {
     display:inline-block;
@@ -458,7 +462,7 @@ iframe{
         width:100%;
     }
     .item-text{
-        max-width:300px;
+        text-align:center;
     }
 }
 
@@ -531,7 +535,7 @@ button.screenaction {
     &#scrollup {
         display:none;
         bottom: @vertspace;
-        {{side}} : e('calc(50% - 25px)');
+        {{side}} : @horizspace;
         polygon {
             fill: {{header_bg}};
         }

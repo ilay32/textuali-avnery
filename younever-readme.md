@@ -25,6 +25,8 @@ generic site
 * siteconfig usage :
     ** favicon -- enter file name and save it in SITEROOT/img. Defaults to textuali.com/media/favicon.ico
     ** logo -- enter file name and save it in SITEROOT/img. Defaults to /img/logo-<langcode> where <langcode> is the page language, or 'he' for rtl and 'en' for ltr.
+    ** default image for facebook <og:image> tag -- save fbshare-default.whatever in site/img. If absent, the logo-<language> is used. If a page has
+    an "fbshare" (full url) entry specified, it overrides both of the above.
     ** menu -- see comments in the json itself 
     ** social -- see comments in the json itself 
     ** pages -- see general comments in the json, but also: 
