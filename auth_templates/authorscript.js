@@ -243,7 +243,7 @@ $(document).ready(function() {
     $('li[data-file]').click(function() {
         var d = $(this).data('file'),
             k = $(this).closest('.panel').data('knesset'),
-            u = authbase+'/site/img/protocols/'+k+'/'+d+'.pdf';
+            u = authbase+'/protocols/'+k+'/'+d+'.pdf';
         iframe_in_modal(u);
     });
     var display_params  = location.search.match(/^\?(vid|book|slideshow|doc)=(.*)$/);

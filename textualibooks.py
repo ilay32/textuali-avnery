@@ -28,6 +28,7 @@ class TextualiBook:
             self.on_site_display = self.get_type() and str(self.get_type()) not in env['site']['suppress_book_types']
         self.default_lang = "he" if textualangs.direc(self.bookdata['language']) == 'rtl' else "en"
         self.auth_htm_title_part = self.default('authpart_htm_title').format(self.default(self.authorblock['nicename']))
+        self.thumbsize = 128,128
         
         
     def htm_template_data(self,htmfile):
@@ -91,8 +92,8 @@ class TextualiBook:
        if not files:
            logger.error("can't find book files for "+self.bookdata['book_nicename'])
            return ret
-       ret['cover'] = bookbase+"/jpg/"+files['front']
-       ret['backcover'] = bookbase+"/jpg/"+files['back']
+       ret['cover'] = bookbase+"/front-thumbnail.jpg"
+       ret['backcover'] = bookbase+"/back-thumbnail.jpg"
        ret['pages'] = files['count']
        ret['aspect'] = 'vertical' if files['closedratio'] > 1.0 else 'horizontal'
        ret['url'] = bookbase
@@ -188,6 +189,10 @@ class TextualiBook:
         htmls = glob.glob(self.srcpath+"/html/*.htm*")
         if not len(jpgs):
             return None
+        if not os.path.isfile(self.srcpath+"/front-thumb.jpg"):
+            self.make_thumb('front',jpgs)
+        if not os.path.isfile(self.srcpath+"/back-thumb.jpg"):
+            self.make_thumb('back',jpgs)
         f = Image.open(jpgs[0])
         fsize = f.size
         ret =  {
@@ -203,6 +208,19 @@ class TextualiBook:
         self.files = ret
 
         return ret
+   
+    def make_thumb(self,frontorback,jpgs):
+        source = jpgs[0] if frontorback == 'front' else jpgs[len(jpgs) - 1] 
+        try:
+            im = Image.open(source)
+            im.thumbnail(self.thumbsize, Image.ANTIALIAS)
+            #d = self.env['front']['indices_dir']+"/"+self.authid+"/"+self.bookid+"/jpg/"
+            #if not os.path.exists(d):
+            #    os.makedirs(d)
+            im.save(self.srcpath+"/"+frontorback+"-thumbnail.jpg", "JPEG")
+        except IOError as e:
+            logger.error("cannot create thumbnail for "+self.authid+" "+self.bookid+" "+frontorback+" cover. reason:\n"+str(e)) 
+        
     
     def calc_book_offsets(self,count,pagelist):
         left = 0

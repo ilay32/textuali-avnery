@@ -3,6 +3,7 @@ book indexes
 * run: python make-in.py 
 errors should explain themselves, usually they're due to faulty config.json
 * uses the language module
+* generates thumbnails available in this url: <textuali.com or authordomain>/texts/<author>/<book>/<front or back>-thumbnail.jpg
 * flip  styling: 
 to overrride default styles use (create if needed) the following files:
     ** for all <author> flips:
@@ -22,6 +23,7 @@ generic site
 * an author's site diectory is (dev)-texts/<auhthor>/site -- this is SITEROOT
 * the site is rendered with python and mustache as by a sitecofing.json.
 * most data is stored in json files in the site directory but some depend on the language module and on the authors flip data: home/sidelang/webapps/phptextuali/textuali(-dev)/config.json
+* a 420px thumbnail is generated automatically for the first slide of every slideshow. It is used in the slideshow page.
 * siteconfig usage :
     ** favicon -- enter file name and save it in SITEROOT/img. Defaults to textuali.com/media/favicon.ico
     ** logo -- enter file name and save it in SITEROOT/img. Defaults to /img/logo-<langcode> where <langcode> is the page language, or 'he' for rtl and 'en' for ltr.

@@ -128,7 +128,7 @@ class AuthorSiteGenerator:
             for index, slide in enumerate(slideshow['slides']):
                 if index == 0:
                     slide['active'] = "active"
-                    slideshow['thumb'] = slide['slide']
+                    slideshow['thumb'] = self.thumb_slide(slide['slide'])
                 slide['caption'] = slide['title'][self.lang]
                 slide['alt'] =  cgi.escape(self.default(slide['title'])).encode('utf-8', 'xmlcharrefreplace').strip()
                 slide['ord'] = index
@@ -142,6 +142,19 @@ class AuthorSiteGenerator:
 
         return {"slideshows": slideshows}
     
+    def thumb_slide(self,image):
+        source = self.indexpath+"/"+image 
+        thumb = re.sub("\.[a-z]{2,4}$","-thumbnail.jpg",source)
+        if not os.path.isfile(thumb):
+            try:
+                size = 420,420
+                im = Image.open(source)
+                im.thumbnail(size,Image.ANTIALIAS)
+                im.save(thumb, "JPEG")
+            except IOError as e:
+                logger.error("cannot create thumbnail for "+source+". reason:\n"+str(e)) 
+        return thumb.replace(self.indexpath,"") 
+
     def isotope_template_data(self,pagedict): 
         bfilename = pagedict['pagename']+"-isotope-blocks.json"
         blocksf = self.langpath+"/"+bfilename;
@@ -358,7 +371,6 @@ class AuthorSiteGenerator:
                 fbshare  = templatedata['logo'] 
         if 'fbshare' in pagedict:
             fbshare  = pagedict['fbshare']
-        logger.info(fbshare)
         templatedata['fbshare'] = fbshare
                 
         # collect menu items for lang
