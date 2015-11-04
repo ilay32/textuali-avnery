@@ -351,8 +351,15 @@ class AuthorSiteGenerator:
         templatedata=self.get_globals()
         templatedata['bodyclass'] = pagedict['template']+" "+page
         templatedata['html_title'] = self.compile_title(pagedict)
+        desc = {}
         if 'description' in pagedict :
-            templatedata['description'] = self.default(pagedict['description'])
+            desc = pagedict['description']
+        elif 'mouseover' in pagedict:
+            desc = pagedict['mouseover']
+        elif 'label' in pagedict:
+            desc = pagedict['label']
+        templatedata['description'] = self.default(desc)
+        
         if 'page_title' in pagedict and lang in pagedict['page_title'] and 'innertitle' not in pagedict:
             templatedata['pagetitle'] = pagedict['page_title'][lang]
         else:
