@@ -35,15 +35,21 @@
 
 <body>
     <div class="row" id="buttons-row">
-        <div class="btn-group btn-group-xs">
+        <div class="btn-group btn-group-xs" id="top-buttons">
             <span title="{{book_nicename}}" class="btn btn-default">{{authnice}}</span>
             <span title="{{book_nicename}}" class="btn btn-default">{{book_nicename}}</span> 
+            <button type="button" class="btn btn-default flb-seek"  data-seek="1">
+                <span class="glyphicon glyphicon-{{backward}}"></span>
+            </button>
             {{#toc}}
             <button type="button" id="totoc" title="go to table of contents page" class="btn btn-default dropdown-toggle jpg-toc" data-toggle="dropdown">
                 {{string_translations.toc}}
                 <span class="glyphicon glyphicon-list"></span>
             </button>
             {{/toc}}
+            <button type="button" class="btn btn-default flb-seek"  data-seek="{{pages}}">
+                <span class="glyphicon glyphicon-{{forward}}"></span>
+            </button>
             <form id="gotopage-form"> 
                 <input type="text" maxlength="5" placeholder="#{{string_translations.page}}"/> 
                 <button type="submit" class="btn btn-default">{{string_translations.go}}</button>
@@ -84,9 +90,9 @@
             {{/pdf_downloads}}
         </div><!-- side-bttons -->
         <div class="largenav prev">
-            <span title="to front cover" data-seek="1" class="glyphicon glyphicon-{{backward}} flb-seek"></span>
-            <!--<img class="flb-prev" src="{{front.domain}}media/{{side}}-arrow.png" />-->
-            <span class="flb-prev glyphicon glyphicon-step-{{backward}}"></span>
+            <!--<span title="to front cover" data-seek="1" class="glyphicon glyphicon-{{backward}} flb-seek"></span>-->
+            <img class="flb-prev" src="{{front.domain}}media/{{side}}-arrow.png" />
+            <!--<span class="flb-prev glyphicon glyphicon-step-{{backward}}"></span>-->
         </div>
 
         <div class="row">
@@ -98,9 +104,9 @@
         </div><!-- row -->
 
         <div class="largenav next">
-            <!--<img class="flb-next" src="{{front.domain}}media/{{oposide}}-arrow.png" />-->
-            <span class="flb-next glyphicon glyphicon-step-{{forward}}"></span>
-            <span title="to back cover" data-seek="{{pages}}" class="glyphicon glyphicon-{{forward}} flb-seek"></span>
+            <img class="flb-next" src="{{front.domain}}media/{{oposide}}-arrow.png" />
+            <!--<span class="flb-next glyphicon glyphicon-step-{{forward}}"></span>
+            <span title="to back cover" data-seek="{{pages}}" class="glyphicon glyphicon-{{forward}} flb-seek"></span>-->
         </div>
     </div><!-- container -->
     

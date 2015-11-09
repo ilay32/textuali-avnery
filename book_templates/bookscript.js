@@ -125,7 +125,9 @@ function filename2pagenum(filename) {
 
 function get_toc(pagenum) {
     $.ajax({url: page_files(pagenum).html}).done(function(pageHtml) {
-        var toc_list = $('<ul class="toc-list dropdown-menu"/>');
+        var toc_list = $('<ul class="toc-list dropdown-menu toc"/>');
+        toc_list.append('<li><a class="toc-link" href="#page/'+pagenum+'">{{string_translations.toc}}</a></li>');
+        //toc_list.css("max-height", Math.floor($(window).height()*0.6)+"px");
         $(pageHtml).find('.toc-list li').each(function() {
             toc_list.append(this);
         });
@@ -283,8 +285,8 @@ function loadApp() {
             'turning' : function(event, page, view) {
                 $('.popover').modalPopover('hide');
                 //$('#search-results').removeClass('in');
-                if($('#next-prev-toc').hasClass('open')) {
-                    $('.toc-list').dropdown('toggle');
+                if($('#top-buttons').hasClass('open')) {
+                    $('.toc-list.toc').dropdown('toggle');
                 }
 
             }
@@ -347,6 +349,9 @@ $(window).resize(function() {
 
 $(document).ready(function() {
     $('.flipbook').data('displayMode', 'scan');
+    if(parseInt({{toc}}) > 0) {
+        get_toc({{toc}});
+    }
     $('body').mousedown(function(c) {
         if($(this).hasClass('modal-open')) {
             var exclude1 = $('#gotopage-trigger').add($('#gotopage-popover').find('*').andSelf());
@@ -361,9 +366,7 @@ $(document).ready(function() {
            }
         }
     }); 
-    if(parseInt({{toc}}) > 0) {
-        get_toc({{toc}});
-    }
+    
     $('.page_end').click(function(c) {
         c.preventDefault();
     }); 
@@ -451,9 +454,9 @@ $(document).ready(function() {
         if(this.id == 'showhtmls' && d.displayMode == 'scan')  {
             d.displayMode = 'html';
             $('#showhtmls').addClass('on');
-            if($('#totoc').hasClass('open')) {
+            if($('#top-buttons').hasClass('open')) {
                 $('.toc-list').dropdown('toggle');
-                $('#totoc').removeClass('open');
+                $('#top-buttons').removeClass('open');
             } 
        }
        else if(this.id == 'showscans' && d.displayMode == 'html') {
@@ -474,8 +477,8 @@ $(document).ready(function() {
         }
     });
     
-    $('#totoc').on('shown.bs.dropdown',function() {
-        $(this).next('.toc-list').css('max-height',$('body').height()*0.85+'px');
+    $('#top-buttons').on('shown.bs.dropdown',function() {
+        $(this).find('.toc-list').css('max-height',$('body').height()*0.85+'px');
     });
     {{/toc}}
 

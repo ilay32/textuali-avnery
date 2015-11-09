@@ -1,6 +1,6 @@
 import json,logging,os,textualangs,glob,Image,re,random,cgi
-from PIL import Image
 from webconfig import folders
+from PIL import Image
 from HTMLParser import HTMLParser
 htmlparser = HTMLParser()
 
@@ -28,7 +28,7 @@ class TextualiBook:
             self.on_site_display = self.get_type() and str(self.get_type()) not in env['site']['suppress_book_types']
         self.default_lang = "he" if textualangs.direc(self.bookdata['language']) == 'rtl' else "en"
         self.auth_htm_title_part = self.default('authpart_htm_title').format(self.default(self.authorblock['nicename']))
-        self.thumbsize = 128,128
+        self.thumbsize = 200,200
         
         
     def htm_template_data(self,htmfile):
@@ -54,7 +54,7 @@ class TextualiBook:
         ret = self.bookdata
         ret['authdir'] = self.authid
         ret['bookdir'] = self.bookid
-        ret['pdf_downlads'] = self.authorblock['pdf_downloads']
+        ret['pdf_downloads'] = self.authorblock['pdf_downloads']
         ret['indices_dir'] = self.env['front']['indices_dir']
         ret['srcs'] = os.path.join(self.env['front']['domain'],self.authcleanpath+"/"+self.bookid)
         ret['front'] = self.env['front']
@@ -189,9 +189,9 @@ class TextualiBook:
         htmls = glob.glob(self.srcpath+"/html/*.htm*")
         if not len(jpgs):
             return None
-        if not os.path.isfile(self.srcpath+"/front-thumb.jpg"):
+        if not os.path.isfile(self.srcpath+"/front-thumbnail.jpg"):
             self.make_thumb('front',jpgs)
-        if not os.path.isfile(self.srcpath+"/back-thumb.jpg"):
+        if not os.path.isfile(self.srcpath+"/back-thumbnail.jpg"):
             self.make_thumb('back',jpgs)
         f = Image.open(jpgs[0])
         fsize = f.size
@@ -238,8 +238,8 @@ class TextualiBook:
             stop = stop_end and stop_start 
         return {
             "start_offset" : left,
-             "end_offset" : count - right,
-             "phispage_count" : right - left + 1
+            "end_offset" : count - right,
+            "phispage_count" : right - left + 1
         }
 
     def get_type(self):
@@ -263,6 +263,17 @@ class TextualiBook:
             "title" : cgi.escape(self.bookdata['book_nicename']).encode('utf-8', 'xmlcharrefreplace')
         }
 
+    def page_redirect(self,pagenum,defaulturl):
+        if 'generic_site_domain' in self.authorblock:
+            files = self.book_files()
+            l  =  map((lambda uri : unescape(os.path.splitext(os.path.basename(uri))[0])),files['jpgs']) 
+            domain  = self.authorblock['generic_site_domain']
+            start = self.calc_book_offsets(files['count'],l)['start_offset']
+            realnum = int(pagenum)+start
+            ret = domain+"?book="+self.bookid+"/#page/"+str(realnum)
+        else:
+            ret = defaulturl
+        return ret
 
 
 class TextualiBooks:
@@ -276,7 +287,9 @@ class TextualiBooks:
         self.realpagename = re.compile("p\d{3,4}$")
         self.pageurl = '{0}?book={1}/#page/{2}'
         self.pagenum = re.compile("p+(\d{3,4})+\.htm+l?$")
-
+        
+    
+    
     def get_book_name(self,bookid,author):
         a = self.conf['authors'][author]['books']
         if bookid in a:
