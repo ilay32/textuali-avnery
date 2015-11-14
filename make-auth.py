@@ -104,16 +104,23 @@ class AuthorSiteGenerator:
             logger.error("can't use documents template without "+docsfile)
             return ret
         docs = jc.load(file(docsfile))
-        for i,doc in enumerate(docs):
+        documents = []
+        for docid,doc in docs.items():
+            d = {}
             if isinstance(doc['image'],list) :
                 first = doc['image'][0]
-                doc['others'] = doc['image'][1:]
-                doc['count'] = len(doc['image'])
-                doc['image'] = first
-            doc['title'] = self.default(doc['title'])
-            doc['docid'] = "doc"+str(i)
-        if len(docs) > 0 :
-            ret = {"has_docs" : True, "docs" : docs}
+                d['others'] = doc['image'][1:]
+                d['count'] = len(doc['image'])
+                d['image'] = first
+            else :
+                d['image'] = doc['image']
+            d['title'] = self.default(doc['title'])
+            d['docid'] = docid
+            d['year'] = doc['year']
+            documents.append(d)
+        documents.sort(key=lambda x : x['year'])
+        if len(documents) > 0 :
+            ret = {"has_docs" : True, "docs" : documents}
         return ret
             
     def pictures_template_data(self,pagedict):
@@ -465,7 +472,6 @@ class AuthorSiteGenerator:
                 "icon" : details['icon'],
                 "url" : self.compile_social_url(social,page)
             })
-             
         templatedata['socials'] = socials
         searchopts = self.siteconfig['utils']['search']['opts']
         if 'google' in searchopts:
@@ -484,6 +490,10 @@ class AuthorSiteGenerator:
         if social == "twitter" :
             text = pagedict['twitt'] if 'twitt' in pagedict else self.compile_title(pagedict,",") 
             ret = "https://twitter.com/intent/tweet?text="+text            
+        if social == "email":
+            pagename = self.default(pagedict['label']) if 'label' in pagedict else ""
+            mailto = self.siteconfig['socials'][social]['mailto'] 
+            ret = "mailto:"+mailto+"?Subject="+self.siteconfig['destination_domain']+" "+pagename
         return ret
     
     def get_additional(self,page):

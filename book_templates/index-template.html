@@ -38,16 +38,16 @@
         <div class="btn-group btn-group-xs" id="top-buttons">
             <span title="{{book_nicename}}" class="btn btn-default">{{authnice}}</span>
             <span title="{{book_nicename}}" class="btn btn-default">{{book_nicename}}</span> 
-            <button type="button" class="btn btn-default flb-seek"  data-seek="1">
+            <button type="button" class="btn btn-default flb-seek"  data-seek="1" title="{{string_translations.go_to_start}}">
                 <span class="glyphicon glyphicon-{{backward}}"></span>
             </button>
             {{#toc}}
-            <button type="button" id="totoc" title="go to table of contents page" class="btn btn-default dropdown-toggle jpg-toc" data-toggle="dropdown">
-                {{string_translations.toc}}
+            <button type="button" id="totoc" title="{{string_translaitons.toc_long}}" class="btn btn-default dropdown-toggle jpg-toc" data-toggle="dropdown">
+                {{string_translations.toc_short}}
                 <span class="glyphicon glyphicon-list"></span>
             </button>
             {{/toc}}
-            <button type="button" class="btn btn-default flb-seek"  data-seek="{{pages}}">
+            <button type="button" class="btn btn-default flb-seek"  data-seek="{{pages}}" title="{{string_translations.go_to_end}}">
                 <span class="glyphicon glyphicon-{{forward}}"></span>
             </button>
             <form id="gotopage-form"> 
@@ -89,7 +89,7 @@
             </button>
             {{/pdf_downloads}}
         </div><!-- side-bttons -->
-        <div class="largenav prev">
+        <div class="largenav prev" title="{{string_translations.prev_page}}">
             <!--<span title="to front cover" data-seek="1" class="glyphicon glyphicon-{{backward}} flb-seek"></span>-->
             <img class="flb-prev" src="{{front.domain}}media/{{side}}-arrow.png" />
             <!--<span class="flb-prev glyphicon glyphicon-step-{{backward}}"></span>-->
@@ -103,7 +103,7 @@
             </div><!--flipbook-viewport -->
         </div><!-- row -->
 
-        <div class="largenav next">
+        <div class="largenav next" title="{{string_translations.next_page}}">
             <img class="flb-next" src="{{front.domain}}media/{{oposide}}-arrow.png" />
             <!--<span class="flb-next glyphicon glyphicon-step-{{forward}}"></span>
             <span title="to back cover" data-seek="{{pages}}" class="glyphicon glyphicon-{{forward}} flb-seek"></span>-->

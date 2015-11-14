@@ -126,7 +126,7 @@ function filename2pagenum(filename) {
 function get_toc(pagenum) {
     $.ajax({url: page_files(pagenum).html}).done(function(pageHtml) {
         var toc_list = $('<ul class="toc-list dropdown-menu toc"/>');
-        toc_list.append('<li><a class="toc-link" href="#page/'+pagenum+'">{{string_translations.toc}}</a></li>');
+        toc_list.append('<li><a class="toc-link" href="#page/'+pagenum+'">{{string_translations.toc_long}}</a></li>');
         //toc_list.css("max-height", Math.floor($(window).height()*0.6)+"px");
         $(pageHtml).find('.toc-list li').each(function() {
             toc_list.append(this);

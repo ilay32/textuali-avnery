@@ -1,6 +1,3 @@
-    {{#pagetitle}}
-        {{> pagetitle.html}}
-    {{/pagetitle}}
     {{#content}}
     <div class="row">
         <div class="col-sm-12">
@@ -20,7 +17,7 @@
                 <img class="document-image subsequent" alt="{{docid}}" src="{{baseurl}}/{{.}}"/>
                 {{/others}}
             </div>
-            <h2 class="col-xs-12">[{{year}}] {{title}}{{#count}} ({{count}} {{string_translations.pages}}){{/count}}</h2>
+            <p>[{{year}}] {{title}}{{#count}} ({{count}} {{string_translations.pages}}){{/count}}</p>
         </div>
         {{/docs}}
     </div><!-- row -->

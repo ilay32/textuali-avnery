@@ -1,11 +1,8 @@
     <div id="static-container"> 
         {{#pagetitle}}
-        <div class="row">
-            <div class="col-sm-12">
-                <h1 id="page-title">{{pagetitle}}</h1>
-            </div>
-        </div>
+            {{>pagetitle.html}}
         {{/pagetitle}}
+        
         {{#content}}
         <div class="row">
             <div class="col-sm-12">
@@ -14,33 +11,30 @@
         </div>
         {{/content}}
 
-        <div class="row">
-            <div class="panel-group" id="accordion" role="tablist" aria-multiselectable="true">
-                {{#knessets}}
-                <div class="panel panel-default" data-knesset="{{knesset}}">
-                    <div class="panel-heading" role="tab" id="{{knesset}}-heading">
-                        <h4 class="panel-title">
-                            <a role="button" data-toggle="collapse" data-parent="#accordion" href="#{{knesset}}" aria-expanded="true" aria-controls="{{knesset}}">
-                                {{name}}
-                            </a>
-                        </h4>
+        {{#knessets}}
+        <div class="row well">
+            <div class="col-xs-12">
+                <h3>
+                    {{name}}
+                </h3>
+            </div>
+            <div id="{{knesset}}">
+                {{#years}}
+                <div class="protocols-year-list col-sm-3">
+                    <button class="btn btn-default" role="button" data-toggle="collapse" data-target="#{{knesset}}-{{year}}" aria-expanded="false"
+                    aria-controls="{{knesset}}-{{year}}" >
+                        {{year}}
+                    </button>
+                    <div class="collapse" id="{{knesset}}-{{year}}">
+                        <ul>
+                        {{#protocols}}
+                            <li data-file="{{file}}">{{string_translations.volume}} {{vol}} {{date}}</li>
+                        {{/protocols}}
+                        </ul>
                     </div>
-                    <div id="{{knesset}}" class="panel-collapse collapse in" role="tabpanel" aria-labelledby="{{knesset}}-heading">
-                        <div class="panel-body">
-                            {{#years}}
-                            <div class="protocols-year-list">
-                                <h3>{{year}}</h3>
-                                <ul>
-                                {{#protocols}}
-                                    <li data-file="{{file}}">{{string_translations.volume}} {{vol}} {{date}}</li>
-                                {{/protocols}}
-                                </ul>
-                            </div>
-                            {{/years}}
-                        </div>
-                    </div><!-- panel-collapse-->
-                </div><!-- panel -->
-                {{/knessets}}
-            </div><!-- panel-group -->
-        </div>
+                </div>
+                {{/years}}
+            </div><!-- #{{knesset}} -->
+        </div><!-- row -->
+        {{/knessets}}
     </main>
