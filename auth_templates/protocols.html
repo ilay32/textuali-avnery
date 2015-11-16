@@ -12,29 +12,27 @@
         {{/content}}
 
         {{#knessets}}
-        <div class="row well">
+        <div class="row well" data-knesset="{{knesset}}">
             <div class="col-xs-12">
                 <h3>
                     {{name}}
                 </h3>
             </div>
-            <div id="{{knesset}}">
-                {{#years}}
-                <div class="protocols-year-list col-sm-3">
-                    <button class="btn btn-default" role="button" data-toggle="collapse" data-target="#{{knesset}}-{{year}}" aria-expanded="false"
-                    aria-controls="{{knesset}}-{{year}}" >
-                        {{year}}
-                    </button>
-                    <div class="collapse" id="{{knesset}}-{{year}}">
-                        <ul>
-                        {{#protocols}}
-                            <li data-file="{{file}}">{{string_translations.volume}} {{vol}} {{date}}</li>
-                        {{/protocols}}
-                        </ul>
-                    </div>
+            {{#years}}
+            <div class="protocols-year-list col-sm-3">
+                <button class="btn btn-default" role="button" data-toggle="collapse" data-target="#{{knesset}}-{{year}}" aria-expanded="false"
+                aria-controls="{{knesset}}-{{year}}" >
+                    {{year}}
+                </button>
+                <div class="collapse" id="{{knesset}}-{{year}}">
+                    <ul>
+                    {{#protocols}}
+                        <li data-file="{{file}}">{{string_translations.volume}} {{vol}} {{date}}</li>
+                    {{/protocols}}
+                    </ul>
                 </div>
-                {{/years}}
-            </div><!-- #{{knesset}} -->
+            </div>
+            {{/years}}
         </div><!-- row -->
         {{/knessets}}
     </main>

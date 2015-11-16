@@ -6,10 +6,12 @@
 @font-size-large: {{font_size_base}}*1.1; 
 
 {{#header_is_light}}
-@header_text_color: darken({{light_bg}},30%);
+    @header_text_color: darken({{light_bg}},30%);
+    @header-border-color: lighten({{primary_color}},20%);
 {{/header_is_light}}
 {{^header_is_light}}
-@header_text_color: lighten({{light_bg}},30%);
+    @header_text_color: lighten({{light_bg}},30%);
+    @header-border-color: {{light_bg}};
 {{/header_is_light}}
 
 html {
@@ -70,7 +72,7 @@ a {
 #masthead {
     margin-bottom: 0;
     background-color:{{header_bg}};
-    border-bottom: @topborderwidth solid {{light_bg}};    
+    border-bottom: @topborderwidth solid @header-border-color;    
     box-sizing:border-box;
     height:{{header_height}};
     .container.wide {
@@ -263,7 +265,7 @@ main {
     h3 {
         margin-top: 0;
     }
-    .vid-title {
+    .vid-title,.vid-title+div {
         height: 20px;
         overflow: hidden;
     }

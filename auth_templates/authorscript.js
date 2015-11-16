@@ -240,9 +240,18 @@ function highlight_menu(ul) {
 }
 
 $(document).ready(function() {
+    $('main .row.well').first().find('.collapse').eq(0).collapse('show');
+    $('main .row.well').find('button').click(function() {
+        exclude = $(this).next();
+        $('.collapse').not(exclude).each(function() {
+            if( $(this).hasClass('in') ) {
+                $(this).collapse('hide');
+            };
+        });
+    });
     $('li[data-file]').click(function() {
         var d = $(this).data('file'),
-            k = $(this).closest('.panel').data('knesset'),
+            k = $(this).closest('.well').data('knesset'),
             u = authbase+'/protocols/'+k+'/'+d+'.pdf';
         iframe_in_modal(u);
     });
