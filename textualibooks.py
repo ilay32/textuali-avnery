@@ -23,9 +23,9 @@ class TextualiBook:
         self.srcpath = env['front']['srcs_dir']+"/"+authid+"/"+bookid
         self.authcleanpath = os.path.basename(env['front']['srcs_dir'])+"/"+authid
         self.books = TextualiBooks(env)
-        self.on_site_display = True
-        if 'site' in env:
-            self.on_site_display = self.get_type() and str(self.get_type()) not in env['site']['suppress_book_types']
+        #self.on_site_display = True
+        #if 'site' in env:
+        #    self.on_site_display = self.get_type() and str(self.get_type()) not in env['site']['suppress_book_types']
         self.default_lang = "he" if textualangs.direc(self.bookdata['language']) == 'rtl' else "en"
         self.auth_htm_title_part = self.default('authpart_htm_title').format(self.default(self.authorblock['nicename']))
         self.thumbsize = 200,200
@@ -58,7 +58,8 @@ class TextualiBook:
         ret['indices_dir'] = self.env['front']['indices_dir']
         ret['srcs'] = os.path.join(self.env['front']['domain'],self.authcleanpath+"/"+self.bookid)
         ret['front'] = self.env['front']
-        ret['type'] = self.books.get_book_type(self.bookid)
+        #ret['type'] = self.books.get_book_type(self.bookid)
+        ret['type'] = textualangs.translate(self.get_type(),self.bookdata['language'])
         if os.path.isfile(ret['indices_dir']+"/"+self.authid+"/authorstyle.css"):
             ret['has_author_css'] = 1
         if os.path.isfile(self.indexpath+"bookstyle.css"):
@@ -93,7 +94,8 @@ class TextualiBook:
            logger.error("can't find book files for "+self.bookdata['book_nicename'])
            return ret
        ret['cover'] = bookbase+"/front-thumbnail.jpg"
-       ret['backcover'] = bookbase+"/back-thumbnail.jpg"
+       if self.get_type() != "magazine":
+           ret['backcover'] = bookbase+"/back-thumbnail.jpg"
        ret['pages'] = files['count']
        ret['aspect'] = 'vertical' if files['closedratio'] > 1.0 else 'horizontal'
        ret['url'] = bookbase
@@ -108,11 +110,11 @@ class TextualiBook:
        
     
     def get_other_langs(self,orig):
-        if 'book_translations_base' not in self.env['site']:
-            logger.error("please set 'book_translations_base', e.g en/publications.html, in siteconfig.json for books template to be complete")
-            return ""
-        if not self.on_site_display:
-            return ""
+        #if 'book_translations_base' not in self.env['site']:
+        #    logger.error("please set 'book_translations_base', e.g en/publications.html, in siteconfig.json for books template to be complete")
+        #    return ""
+        #if not self.on_site_display:
+        #    return ""
         olangs = {"langs" : []}
         for bookid,bookdata in self.authorblock['books'].iteritems():
             if bookid != self.bookid and 'orig_match_id' in bookdata :
@@ -245,13 +247,16 @@ class TextualiBook:
     def get_type(self):
         if self.booktype:
             return self.booktype
-        t = self.bookid[:1]
-        if t in self.env['book_types']:
-            ret = self.env['book_types'][t]
-        elif re.match("[a-z]",t):
-            ret = "book"
-        else:
-            ret = None
+        elif 'book_type' in self.bookdata:
+            ret =  self.bookdata['book_type']
+        else: 
+            t = self.bookid[:1]
+            if t in self.env['book_types']:
+                ret = self.env['book_types'][t]
+            elif re.match("[a-z]",t):
+                ret = "book"
+            else:
+                ret = None
         self.booktype = ret
         return ret
 
@@ -296,9 +301,10 @@ class TextualiBooks:
             return a[bookid]['book_nicename']
         return ""
 
-    def get_book_type(self,bookid):
-        btype  = self.conf['book_types'].get(bookid[:1],"book")
-        return textualangs.translate(btype,'he')
+    #def get_book_type(self,bookid):
+    #    btype = self.conf[ 
+    #    #btype  = self.conf['book_types'].get(bookid[:1],"book")
+    #    return textualangs.translate(btype,'he')
             
 
     def get_auth_books(self,authid,authsite=None):
@@ -311,6 +317,7 @@ class TextualiBooks:
             env.update({"site":authsite})
         for bookid in a['books'].iterkeys():
             ret.append(TextualiBook(bookid,authid,env))
+        ret.sort(cmp = lambda x,y : -1 if x.bookid < y.bookid else 1)
         ret.sort(cmp = lambda x,y : -1 if 'year' in x.bookdata and 'year' in y.bookdata and  x.bookdata['year'] < y.bookdata['year'] else 1)
         return ret 
    
@@ -335,11 +342,14 @@ class TextualiBooks:
         ret = []
         books = self.get_auth_books(authid)
         for book in books:
-            ret.append({
+            block = {
                 "bookdir" : book.bookid,
                 "book_nicename" : book.bookdata['book_nicename'],
-                "type" : self.get_book_type(book.bookid)
-            })        
+                "type" : textualangs.translate(book.get_type(),"he")
+            }
+            if "language_translated_from" in book.bookdata and not not book.bookdata['language_translated_from'] :
+                block['translation'] = textualangs.translate("translation from","he",multi=True)+textualangs.langname(book.bookdata['language_translated_from'],'he')
+            ret.append(block)
         return ret        
 
 

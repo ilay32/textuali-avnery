@@ -39,6 +39,9 @@ generic site
             
             **** videos -- requires a SITEROOT/videos.json see instructions there
             **** external (good for timelines too) -- requires a url dictionary where iframe urls are given per-language (defaults to the url.primary_language value)
+            **** books -- optional lists of exclusions:
+                ***** by type : "exclude_types" : ["type1", "type2"...]
+                ***** by id (folder): "exclude_ids": ["bookfolder1", "boookfolder2"...]
        
 * dittional html will be appended at the bottom of the <main> element common to all templates. the files for this are, in cascading override order:
     *** SITEROOT/additional.html

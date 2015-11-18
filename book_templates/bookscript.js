@@ -15,7 +15,8 @@ function page_files(page) {
         return false    
     }
     var filename = {{page_list}}[page-1], 
-        hard = /[a-z]/.test(filename.slice(-1)) && (page >= {{page_list}}.length - 1 || page <= 2);
+        hard = /[a-z]/.test(filename.slice(-1)) && (page >=
+        {{page_list}}.length - 1 || page <= 2) && '{{hard_cover}}' == 'True'
     return {
         jpg : srcs+'/jpg/'+ filename + '.jpg', 
         html : srcs+'/html/' + filename + '.htm', 

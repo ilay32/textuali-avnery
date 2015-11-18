@@ -184,15 +184,15 @@ class AuthorSiteGenerator:
     def books_template_data(self,pagedict):
         prim = self.siteconfig['primary_language']
         if self.lang ==  prim:
-            cats = self.books_by_cat()
+            cats = self.books_by_cat(pagedict)
         else:
-            cats = self.books_by_lang(prim)
+            cats = self.books_by_lang(prim,pagedict)
         return {"cats":cats}
     
-    def books_by_lang(self,skiplang):
+    def books_by_lang(self,skiplang,pagedict):
         ret = []
         tempdict = {}
-        for book in self.displaybooks:
+        for book in self.filter_page_books(pagedict,True):
             lang = book.bookdata['language']
             if lang != skiplang:
                 if lang not in tempdict:
@@ -208,8 +208,8 @@ class AuthorSiteGenerator:
         ret.sort(cmp=lambda x,y : -1 if x['lang'] == self.lang else 1)
         return ret    
     
-    def books_by_cat(self):
-        langbooks = [x for x in self.displaybooks if x.bookdata['language'] == self.lang]
+    def books_by_cat(self,pagedict):
+        langbooks = self.filter_page_books(pagedict,False)        
         ret = []
         tempdict = {}
         for book in  langbooks:
@@ -227,6 +227,17 @@ class AuthorSiteGenerator:
 
         ret.sort(cmp=lambda x,y : -1 if x['type'] == 'book' else 1)
         return ret
+    
+    def filter_page_books(self,pagedict,allangs):
+        if not allangs:
+            books = [x for x in self.authbooks if x.bookdata['language'] == self.lang]
+        else:
+            books = self.authbooks
+        if 'exclude_types' in pagedict:
+            books = [x for x in books if x.get_type() not in pagedict['exclude_types']]
+        if 'exclude_ids' in pagedict:
+            books = [x for x in books if x.bookid not in pagedict['exclude_ids']]
+        return books
 
     #def book_item(self,bookdict):
     #    block = self.authorblock
@@ -330,7 +341,6 @@ class AuthorSiteGenerator:
                 self.devurl = front['domain']+self.indexpath.replace("/home/sidelang/webapps/phptextuali","").replace("../","")
                 self.authtexts = self.siteconfig['destination_domain']+"/"+front['srcs_dir'].replace("../","")+"/"+authdir
                 self.authbooks = textualibooks.TextualiBooks(self.conf).get_auth_books(authid,self.siteconfig)
-                self.displaybooks =  [x for x in self.authbooks if x.on_site_display] 
 
                 return True
          
@@ -805,40 +815,40 @@ class AuthorSiteGenerator:
         }
     
      
-    def get_other_langs(self,bookdir,orig):
-        if 'book_translations_base' not in self.siteconfig:
-            logger.error("please set 'book_translations_base', e.g en/publications.html, in siteconfig.json for books template to be complete")
-            return ""
-        olangs = {"langs" : []}
-        for book in self.displaybooks:
-            if book['bookdir'] != bookdir and 'orig_match_id' in book:
-                if book['orig_match_id'] == bookdir or book['orig_match_id'] == orig or book['bookdir'] == orig:
-                    olangs['langs'].append({
-                        "name" : textualangs.langname(book['language']),
-                        #"link": self.booktranslink.format(self.siteconfig['baseurl'],self.siteconfig['book_translations_base'],book['bookdir'])
-                        "link": "?book="+book['bookdir']
-                    })
-        if len(olangs['langs']) == 0:
-            olangs = ""
-        return olangs
+    #def get_other_langs(self,bookdir,orig):
+    #    if 'book_translations_base' not in self.siteconfig:
+    #        logger.error("please set 'book_translations_base', e.g en/publications.html, in siteconfig.json for books template to be complete")
+    #        return ""
+    #    olangs = {"langs" : []}
+    #    for book in self.displaybooks:
+    #        if book['bookdir'] != bookdir and 'orig_match_id' in book:
+    #            if book['orig_match_id'] == bookdir or book['orig_match_id'] == orig or book['bookdir'] == orig:
+    #                olangs['langs'].append({
+    #                    "name" : textualangs.langname(book['language']),
+    #                    #"link": self.booktranslink.format(self.siteconfig['baseurl'],self.siteconfig['book_translations_base'],book['bookdir'])
+    #                    "link": "?book="+book['bookdir']
+    #                })
+    #    if len(olangs['langs']) == 0:
+    #        olangs = ""
+    #    return olangs
 
-    def get_book_name(self,bookdir):
-       name = ''
-       for book in self.displaybooks:
-           if book['bookdir'] == bookdir:
-               name = book['book_nicename']
-               break;
-       return name
+    #def get_book_name(self,bookdir):
+    #   name = ''
+    #   for book in self.displaybooks:
+    #       if book['bookdir'] == bookdir:
+    #           name = book['book_nicename']
+    #           break;
+    #   return name
     
-    def get_book_type(self,bookdir):
-        t = bookdir[:1]
-        if t in self.conf['book_types']:
-            ret = self.conf['book_types'][t]
-        elif re.match("[a-z]",t):
-            ret = "book"
-        else:
-            ret = None
-        return ret
+    #def get_book_type(self,bookdir):
+    #    t = bookdir[:1]
+    #    if t in self.conf['book_types']:
+    #        ret = self.conf['book_types'][t]
+    #    elif re.match("[a-z]",t):
+    #        ret = "book"
+    #    else:
+    #        ret = None
+    #    return ret
 
     def hide_lang(self,lang):
         if lang in self.hidden:

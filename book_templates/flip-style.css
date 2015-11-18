@@ -201,6 +201,7 @@ div.pagelive {
 
 .toc-list {
     text-align:{{side}};
+    padding:10px;
 }
 .toc-list.toc {
     overflow-y: auto;

@@ -25,9 +25,11 @@
             <a  title="{{book_nicename}} {{string_translations.front_cover}}" data-pages="{{pages}}" data-book="{{bookdir}}" class="flip-modal-trigger book-cover" href="{{url}}">
                 <img class="{{aspect}}" src="{{cover}}" alt="{{book_nicename}}"/>
             </a>
+            {{#backcover}}
             <a  title="{{book_nicename}} {{string_translations.back_cover}}" class="flip-modal-trigger book-cover" id="back-cover" data-pages="{{pages}}" href="{{url}}/#page/{{pages}}" data-book="{{bookdir}}">
                 <img class="{{aspect}}" src="{{backcover}}"/>
             </a>
+            {{/backcover}}
         </div>
     </div><!-- item-inner -->
 </div><!-- book-item -->
