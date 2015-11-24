@@ -39,24 +39,13 @@
     {{/localscript}}
     {{#analyticsid}}
     <script>
-    (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
-        (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
-        m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
-    })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+        (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+            (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+            m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+        })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
 
-    ga('create', '{{analyticsid}}', 'auto');
-    ga('send', 'pageview');
-    /*(function() {
-        var cx = '{{google_search}}';
-        var gcse = document.createElement('script');
-        gcse.type = 'text/javascript';
-        gcse.async = true;
-        gcse.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') +
-            '//cse.google.com/cse.js?cx=' + cx;
-        var s = document.getElementsByTagName('script')[0];
-        s.parentNode.insertBefore(gcse, s);
-    })();*/
-    function test() {alert("test");}
+        ga('create', '{{analyticsid}}', 'auto');
+        ga('send', 'pageview');
     </script>
     {{/analyticsid}}
 </head>
@@ -66,11 +55,9 @@
         <div class="container">
             <div class="row">
                 <div class="header-component" id="logo">
-                    <!--<a href="{{baseurl}}/{{lang}}" >-->
-                        <img src="{{baseurl}}/img/{{logo}}" alt="{{auth_name}}"/>
-                            <a class="map prim {{dir}}" href="{{baseurl}}/{{primlang}}" title="{{primlangname}}"></a>
-                            <a class="map alt {{dir}}" href="{{baseurl}}/{{altlang}}" title="{{altlangname}}"></a>
-                    <!--</a>-->
+                    <img src="{{baseurl}}/img/{{logo}}" alt="{{auth_name}}"/>
+                    <a class="map prim {{dir}}" href="{{baseurl}}/{{primlang}}" title="{{primlangname}}"></a>
+                    <a class="map alt {{dir}}" href="{{baseurl}}/{{altlang}}" title="{{altlangname}}"></a>
                 </div>
                 <div id="menu-button" class="header-component col-sm-1 hidden-md hidden-lg"> 
                     <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target=".navbar-collapse">
@@ -111,12 +98,14 @@
                         <img src="{{front.domain}}/media/play.png" alt="{{videos.label}}"/>
                     </a> 
                     {{/videos}}-->
+                    {{#info}}
+                    <a href="{{link}}" title="{{title}}">
+                        <span title="{{title}}" class="glyphicon glyphicon-info-sign"></span>
+                    </a>
+                    {{/info}}
                     {{#langs}}
                     <span title="{{name}}" class="glyphicon langswitch" data-langcode="{{code}}">
-                        {{#is_primary_language}}
-                        <img src="{{front.domain}}/media/globe.png"/>
-                        {{/is_primary_language}}
-                        {{^is_primary_language}}[{{primlangname}}]{{/is_primary_language}}
+                        {{&icon}}
                     </span>
                     {{/langs}}
 

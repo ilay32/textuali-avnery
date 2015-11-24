@@ -104,6 +104,22 @@ function video_in_modal(v) {
     bind_vid_adjustment();
 }
 
+function book_in_modal(bookurl,bookid) {
+    iframe_in_modal(bookurl);
+    var s = window.location.href.replace(window.location.search, '');
+    if (bookid == undefined) {
+        var m  = bookurl.match(/{{auth}}\/([a-z0-9]+)/);
+        if (m.length == 2) {
+            bookid = m[1];
+       }
+    }
+    bookid = bookid.replace(/\/$/, '');
+    if (/^[a-z0-9]{3,5}$/.test(bookid)) {
+        s += '?book='+bookid;
+        share('#auth-mod', s);
+    }
+}
+
 function slideshow_in_modal(id) {
     var t = location.origin+location.pathname.replace(/(\/[a-z_\-0-9]+\.html)$/ , "/slideshows/"+id+".htm");
     $.ajax({
@@ -240,6 +256,23 @@ function highlight_menu(ul) {
 }
 
 $(document).ready(function() {
+    window.addEventListener("message", function(event) {
+        if(/textuali\.com\/avnery-timeline\/.*timeline.*html$/.test(event.source) || true) {
+            switch(event.data.type) {
+                case 'flip':
+                    book_in_modal(event.data.url); 
+                break;
+                case 'video' :
+                    video_in_modal(event.data.video);
+                break;
+                case 'slideshow':
+                    slideshow_in_modal(event.data.slideshow);
+                break;
+                default:
+                    $.noop();
+            }
+        }
+    });
     $('main .row.well').first().find('.collapse').eq(0).collapse('show');
     $('main .row.well').find('button').click(function() {
         exclude = $(this).next();
@@ -256,13 +289,14 @@ $(document).ready(function() {
         iframe_in_modal(u);
     });
     var display_params  = location.search.match(/^\?(vid|book|slideshow|doc)=(.*)$/);
-    //$('.carousel.slide').hide();
+    
     highlight_menu($('#primary-navigation > .nav'));
+    
     $('.external iframe').load(function() {
         $(this).prev('.loader').hide();
         $('#iframe-wrap').css('height','auto');
     });
-    //$('image[usemap]').rwdImageMaps(); 
+    
     $(window).load(function() {
         $('#isotope').isotope({
             isOriginLeft: !('{{dir}}' == 'rtl'),
@@ -341,7 +375,7 @@ $(document).ready(function() {
                 if (/#page\/\d+(&q=.+)?$/.test(d)){
                     u += d.replace('&','?');
                 }
-                iframe_in_modal(authbase+'/'+u);        
+                book_in_modal(authbase+'/'+u,display_params[2]);        
             break;
             case 'vid' : 
                 video_in_modal(display_params[2]);
@@ -391,7 +425,7 @@ $(document).ready(function() {
 
     $('.flip-modal-trigger').click(function(c) {
         c.preventDefault();
-        h = $(this).attr('href'); 
+        var h = $(this).attr('href'); 
         if($(window).width() <= 768 ) {
             if(typeof(tjloader) == 'object') {
                 tjloader.destroy(); 
@@ -402,19 +436,7 @@ $(document).ready(function() {
             tjloader.loadmore();
         }
         else {
-            iframe_in_modal(h);
-            var b = $(this).data('book'),
-                s = window.location.href.replace(window.location.search, '');
-            if (b == undefined) {
-                var m  = h.match(/{{auth}}\/([a-z0-9]+)/);
-                if (m.length == 2) {
-                    b = m[1];
-               }
-            }
-            if (/^[a-z0-9]{3,5}$/.test(b)) {
-                s += '?book='+b;
-                share('#auth-mod', s);
-            }
+            book_in_modal(h,$(this).data('book'))
         }
     });
     

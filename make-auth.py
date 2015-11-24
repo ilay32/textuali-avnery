@@ -659,11 +659,23 @@ class AuthorSiteGenerator:
                 name = textualangs.langname(l)
                 if 'langswitch' in g['string_translations']:
                     name = g['string_translations']['langswitch']
+                icon = '<img src="'+self.conf['front']['domain']+'/media/globe.png"/>'
+                if not g['is_primary_language']:
+                    icon = "["+g['primlangname']+"]"
+                if 'language_button_content' in self.siteconfig and lang in self.siteconfig['language_button_content']:
+                    icon = self.siteconfig['language_button_content'][lang]
                 langs.append({
                     "name" : name,
-                    "code" : l
+                    "code" : l,
+                    "icon" : icon
                 })
         g['langs'] = langs
+        if "info" in self.siteconfig:
+            info = self.siteconfig['info']
+            g['info'] = {
+                "link" : self.default(info['link']),
+                "title" : self.default(info['mouseover'])
+            }
         #try to find the right logo for this language
         logo = None
         dlang = 'he' if textualangs.direc(lang) == 'right' else 'en'
