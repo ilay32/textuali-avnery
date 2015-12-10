@@ -197,7 +197,7 @@ function process_fts_search_results(results) {
 } 
 
 function fileurls(file) {
-    var m = file.match(/^([a-z]\d+)p(\d+[a-z]?)$/);
+    var m = file.match(/^([a-z0-9]\d+)p(\d+[a-z]?)$/);
     if(!m) {
         return false;
     }
@@ -451,7 +451,7 @@ $(document).ready(function() {
     $('#fsearch').submit(function() {
         var query = $(this).serialize();
         $.ajax({
-            url: location.origin+'/search/websearch.py/?pretty=1&f={{auth}}&'+query,
+            url: location.origin+'/search/websearch.py/?pretty=1&auth={{auth}}&book=allbooks&'+query,
             DataType: 'json'
         }).done(function(results) {
             $('#auth-mod').modal('show').find('.modal-body').html(process_fts_search_results(results));

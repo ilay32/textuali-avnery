@@ -64,8 +64,9 @@ class TextualiBook:
             ret['has_author_css'] = 1
         if os.path.isfile(self.indexpath+"bookstyle.css"):
             book['has_book_css'] = 1
-        if folders.has_key(self.authid+'-'+self.bookid):
-            ret['has_search'] = 1    
+        #if folders.has_key(self.authid+'-'+self.bookid):
+        #    ret['has_search'] = 1    
+        ret['has_search'] = self.bookdata.get('has_search')
         ret['pages'] = files['count'] 
         ret['page_list'] =  map((lambda uri : unescape(os.path.splitext(os.path.basename(uri))[0])),files['jpgs']) 
         ret.update(self.calc_book_offsets(files['count'],ret['page_list']))
@@ -269,13 +270,16 @@ class TextualiBook:
         }
 
     def page_redirect(self,pagenum,defaulturl):
-        if 'generic_site_domain' in self.authorblock:
-            files = self.book_files()
-            l  =  map((lambda uri : unescape(os.path.splitext(os.path.basename(uri))[0])),files['jpgs']) 
-            domain  = self.authorblock['generic_site_domain']
-            start = self.calc_book_offsets(files['count'],l)['start_offset']
-            realnum = int(pagenum)+start
-            ret = domain+"?book="+self.bookid+"/#page/"+str(realnum)
+        if 'generic_site_domain' in self.authorblock :
+            if unicode(pagenum).isnumeric():
+                files = self.book_files()
+                l  =  map((lambda uri : unescape(os.path.splitext(os.path.basename(uri))[0])),files['jpgs']) 
+                domain  = self.authorblock['generic_site_domain']
+                start = self.calc_book_offsets(files['count'],l)['start_offset']
+                realnum = int(pagenum)+start
+                ret = domain+"?book="+self.bookid+"/#page/"+str(realnum)
+            else:
+                ret = self.authorblock['generic_site_domain']+'?book='+self.bookid
         else:
             ret = defaulturl
         return ret
@@ -299,7 +303,7 @@ class TextualiBooks:
         a = self.conf['authors'][author]['books']
         if bookid in a:
             return a[bookid]['book_nicename']
-        return ""
+        return bookid
 
     #def get_book_type(self,bookid):
     #    btype = self.conf[ 

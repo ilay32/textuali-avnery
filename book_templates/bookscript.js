@@ -411,7 +411,7 @@ $(document).ready(function() {
         $('#search-results').removeClass('in');
         var query = $(this).serialize();
         $.ajax({
-            url: 'http://textuali.com/search/websearch.py/?pretty=1&f={{authdir}}-{{bookdir}}&'+query,
+            url: 'http://textuali.com/search/websearch.py/?pretty=1&auth={{authdir}}&book={{bookdir}}&'+query,
             DataType: 'json'
         }).done(function(results) {
             $('#search-results').html(process_search_results(results)).addClass('in');
