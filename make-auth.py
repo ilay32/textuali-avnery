@@ -149,6 +149,28 @@ class AuthorSiteGenerator:
 
         return {"slideshows": slideshows}
     
+    def bare_slideshow(self,path):
+        slides = os.listdir(os.path.join(self.indexpath,"img",path))
+        slideshow = {
+            "id" : path, 
+            "slides" : [], 
+        }
+        for  index,slide in enumerate(slides):  
+            slide = {
+                "active" : "active" if index == 0 else None,
+                "caption" : None,
+                "alt" : os.path.splitext(slide)[0],
+                "ord" : index,
+                "slide" : os.path.join("img",path,slide)
+            }
+            slideshow['slides'].append(slide)
+            slideshow.update(self.get_globals())
+
+        slideshowfrag = open(self.langpath+"/slideshows/"+path+".htm","w")
+        slideshowfrag.write(stache.render(stache.load_template("slideshow.html"),slideshow).encode('utf-8'))
+            
+
+
     def thumb_slide(self,image):
         source = self.indexpath+"/"+image 
         thumb = re.sub("\.[a-z]{2,4}$","-thumbnail.jpg",source)
@@ -785,8 +807,10 @@ class AuthorSiteGenerator:
             self.render_styles()
         access = open(self.indexpath+"/access", "w")
         access.write(stache.render(stache.load_template("access"),{"lang":self.siteconfig['primary_language']}))
+        
         if options.pagelinks:
             self.render_pagelinks()
+         
         for lang,men in self.siteconfig['menu'].iteritems():
             if lang in self.hidden:
                 logger.info("skipping "+textualangs.langname(lang)+" -- it is hidden. to render it use '--showlang "+lang+"' and render the site again")
@@ -797,6 +821,13 @@ class AuthorSiteGenerator:
                 #footer = self.render_footer()
                 self.render_script()
                 
+                if isinstance(self.siteconfig.get('bare_slideshows'),list):
+                    logger.info("rendering bare slideshows in "+self.lang+"/slideshows")
+                    if not os.path.exists(self.langpath+"/slideshows"):
+                        os.makedirs(self.langpath+"/slideshows")
+                    for slideshow in self.siteconfig['bare_slideshows']:
+                        self.bare_slideshow(slideshow)
+
                 #if not 'home' in men:
                 #    self.render_page('home',lang,header,footer)
                 for page,defs in self.siteconfig['pages'].iteritems():

@@ -504,7 +504,12 @@ $(document).ready(function() {
         }
     });
     
-        
+    $('.bare-slideshow').click(function(c) {
+        c.preventDefault();
+        s = $(this).data('slideshow');
+        slideshow_in_modal(s);
+    });
+     
     $('#fsearch').submit(function() {
         /*var query = $(this).serialize();
         $.ajax({
