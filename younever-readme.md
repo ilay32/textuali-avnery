@@ -60,3 +60,10 @@ language module
 * for string translations common to many textuali pages ("by", "book", "page" etc.)
 * directory:  home/sidelang/webapps/phptextuali/langs
 * fill in what you like textuali-langs.json. it is self explanatory.
+
+directories report
+==================
+To see current status regarding author backups, tif files, book folders sizes,
+cd to phptextuali/texts and run:
+./report > report.csv
+you can then access that file with ftp or http://textuali.com/texts/report.csv

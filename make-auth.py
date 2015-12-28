@@ -468,6 +468,9 @@ class AuthorSiteGenerator:
             foot += '</div></div></footer>'
         else:
             logger.info("no footer.html found in "+self.indexpath+" or "+self.langpath) 
+        if pagedict['template'] == "protocols":
+            templatedata['protocolsearch'] = self.protocols_template_data(pagedict)
+
         templatedata['page'] = page
         #aboutf = self.langpath+"/about.txt"
         #if os.path.isfile(aboutf):
@@ -486,7 +489,7 @@ class AuthorSiteGenerator:
         searchopts = self.siteconfig['utils']['search']['opts']
         if 'google' in searchopts:
             templatedata['googlesearch'] = 1
-        if 'fts' in searchopts:
+        if 'fts' in searchopts and self.authorblock.get('has_full_search'):
             templatedata['ftsearch'] = 1
         return foot+stache.render(stache.load_template('footer.html'),templatedata).encode('utf-8') 
     

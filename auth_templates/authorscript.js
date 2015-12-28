@@ -78,7 +78,6 @@ function TextualiJpgsLoader(book,pages) {
             }
         });  
     }; 
-
 } 
 
 function frame_height(elem) {
@@ -243,6 +242,63 @@ function process_google_search_results(results) {
     return htm;
 }
 
+function process_protocols_search_results(results,knesset) {
+    var htm = '<div id="search-results"><h3>{{string_translations.search_results}} "'+results.q+'"</h3>';
+    if(results.status == 'success') {
+        if(results.matches.length > 0) {
+            htm += '<ul class="search-results">';
+            var m = results.matches;
+            for(var res in m) {
+                var r = m[res];
+                htm += '<li class="search-result" >';
+                htm += '<a class="protocol-result" data-file="'+r.id+'" data-page="'+r.page+'" href="#NOGO">'+r.day+'/'+r.month+'/'+r.year+','+r.page+'</a>';
+                htm += '<p>'+r.match+'</p></li>';
+            }
+            htm += '</ul>';
+        }
+        else {
+            htm = 'sorry, no matches found';
+        } 
+   }
+   else if(results.status == 'fail') {
+       htm = results.error;
+   }
+   else {
+       htm = 'unknown error';
+   }
+   return htm;
+}
+
+function bind_protocol_click() {
+    console.log($('.protocol-result'));
+    $('.protocol-result').click(function(c) {
+        c.preventDefault();
+        var file = $(this).data('file'),
+            page = $(this).data('page'),
+            u = authbase+'/protocols/'+window.ProtocolSearchBase+'/'+file+'.pdf';
+        if(/^\d+$/.test(page)){
+            u += '#page='+page;
+        }
+        iframe_in_modal(u);
+    });
+}
+
+function search(options) {
+    $.ajax({
+        url: options.url+'&'+options.query,
+        DataType: 'json'
+    }).done(function(results) {
+        $('#auth-mod').modal('show').find('.modal-body').html(options.results_handler(results));
+        if('function' == typeof(options.post_process)) {
+            options.post_process()
+        }
+    }).fail(function(err) {
+        alert(err);
+    });
+    $('#auth-mod').find('.share-modal').hide();
+}
+
+
 function highlight_menu(ul) {
     ul.find('li').each(function() {
         if($('body').hasClass(this.id)) {
@@ -286,6 +342,7 @@ $(document).ready(function() {
         var d = $(this).data('file'),
             k = $(this).closest('.well').data('knesset'),
             u = authbase+'/protocols/'+k+'/'+d+'.pdf';
+            
         iframe_in_modal(u);
     });
     var display_params  = location.search.match(/^\?(vid|book|slideshow|doc)=(.*)$/);
@@ -449,7 +506,7 @@ $(document).ready(function() {
     
         
     $('#fsearch').submit(function() {
-        var query = $(this).serialize();
+        /*var query = $(this).serialize();
         $.ajax({
             url: location.origin+'/search/websearch.py/?pretty=1&auth={{auth}}&book=allbooks&'+query,
             DataType: 'json'
@@ -457,19 +514,33 @@ $(document).ready(function() {
             $('#auth-mod').modal('show').find('.modal-body').html(process_fts_search_results(results));
         }).fail(function(err) {
             alert(err);
+        });*/
+        search({
+            query : $(this).serialize(),
+            url : location.origin+'/search/websearch.py/?pretty=1&auth={{auth}}&book=allbooks',
+            results_handler: process_fts_search_results
         });
        return false; 
     }); 
     
+    $('#psearch').submit(function() {
+        search({
+            query : $(this).serialize(),
+            url : location.origin+'/search/websearch.py/?pretty=1&auth={{auth}}',
+            results_handler : process_protocols_search_results,
+            post_process : bind_protocol_click
+        });
+        var knesset = $(this).find('select[name="book"]').val();
+        window.ProtocolSearchBase = knesset.substr(0,knesset.indexOf('-protocols'));
+        return false;
+    });
+     
     $('#gsearch').submit(function() {
         var query = $(this).serialize();
-        $.ajax({
-            url : search_template.replace('GOOGLESEARCHQUERY',query),            
-            DataType: 'json'
-        }).done(function(res) {
-            $('#auth-mod').modal('show').find('.modal-body').html(process_google_search_results(res)).end().find('.share-modal').hide();
-        }).fail(function(err) {
-            alert(err);
+        search({
+            url : search_template.replace('GOOGLESEARCHQUERY',query),
+            query : $(this).serialize(),
+            results_handler : process_google_search_results
         });
         return false;
    });

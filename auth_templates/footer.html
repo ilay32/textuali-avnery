@@ -53,6 +53,18 @@
         <button type="submit">{{string_translations.search}}</button> 
     </form> 
     {{/ftsearch}}
+    {{#protocolsearch}}
+    <form id="psearch" class="form-inline">
+        <label for="book">{{string_translations.search_protocols}} {{string_translations.in}}:</label>
+        <select name="book">
+            {{#knessets}}
+            <option value="{{knesset}}-protocols">{{name}}</option>
+            {{/knessets}}
+        </select>
+        <input name="q" type="text" maxlneght="50" placeholder="{{string_translations.search}}" />
+        <button type="submit">{{string_translations.search}}</button> 
+    </form> 
+    {{/protocolsearch}}
 </div>
 <div id="share-container" class="fade utilbox">
     <nav id="social">
