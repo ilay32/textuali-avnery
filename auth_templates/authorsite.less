@@ -164,8 +164,8 @@ a {
     .map {
         display:block;
         position: absolute;
-        width:50%;
         height: 100%;
+        width: 100%;
         z-index: 2;
         top: 0;
         &.prim.rtl, &.alt.ltr {
@@ -173,6 +173,9 @@ a {
         }
         &.alt.rtl, &.prim.ltr {
             {{side}}:0;
+        }
+        &.split {
+            width: 50%;
         }
     }
 }

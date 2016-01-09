@@ -56,8 +56,10 @@
             <div class="row">
                 <div class="header-component" id="logo">
                     <img src="{{baseurl}}/img/{{logo}}" alt="{{auth_name}}"/>
-                    <a class="map prim {{dir}}" href="{{baseurl}}/{{primlang}}" title="{{primlangname}}"></a>
-                    <a class="map alt {{dir}}" href="{{baseurl}}/{{altlang}}" title="{{altlangname}}"></a>
+                    <a class="map prim {{dir}} {{#split_logo}}split{{/split_logo}}" href="{{baseurl}}/{{primlang}}" title="{{primlangname}}"></a>
+                    {{#split_logo}}
+                    <a class="map alt {{dir}} split" href="{{baseurl}}/{{altlang}}" title="{{altlangname}}"></a>
+                    {{/split_logo}}
                 </div>
                 <div id="menu-button" class="header-component col-sm-1 hidden-md hidden-lg"> 
                     <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target=".navbar-collapse">

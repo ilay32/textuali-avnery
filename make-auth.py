@@ -665,6 +665,7 @@ class AuthorSiteGenerator:
         if 'langswitch' in self.siteconfig['string_translations'] and g['primlang'] in self.siteconfig['string_translations']['langswitch']:
             g['altlangname'] =  self.siteconfig['string_translations']['langswitch'][g['primlang']]
         g['is_primary_language'] = lang == g['primlang']
+        g['split_logo'] = self.siteconfig['split_logo']
         # prevents css caching
         g['ver'] = str(random.randint(999,9999)) 
         for p,v in self.siteconfig.iteritems():
