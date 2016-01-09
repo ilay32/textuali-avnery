@@ -504,7 +504,7 @@ class AuthorSiteGenerator:
         for social,details in self.siteconfig['socials'].iteritems() :
             socials.append({
                 "label" : self.default(details['label']),
-                "icon" : details['icon'],
+                "icon" : os.path.join(self.siteconfig['baseurl'],"img", details['icon']) if 'icon' in details else os.path.join(self.conf['front']['domain'], "media", social+".png"),
                 "url" : self.compile_social_url(social,page)
             })
         templatedata['socials'] = socials
@@ -528,7 +528,8 @@ class AuthorSiteGenerator:
         if social == "email":
             pagename = self.default(pagedict['label']) if 'label' in pagedict else ""
             mailto = self.siteconfig['socials'][social]['mailto'] 
-            ret = "mailto:"+mailto+"?Subject="+self.siteconfig['destination_domain']+" "+pagename
+            #ret = "mailto:"+mailto+"?Subject="+self.siteconfig['destination_domain']+" "+pagename
+            ret = "mailto:"+mailto
         return ret
     
     def get_additional(self,page):
@@ -665,7 +666,7 @@ class AuthorSiteGenerator:
         if 'langswitch' in self.siteconfig['string_translations'] and g['primlang'] in self.siteconfig['string_translations']['langswitch']:
             g['altlangname'] =  self.siteconfig['string_translations']['langswitch'][g['primlang']]
         g['is_primary_language'] = lang == g['primlang']
-        g['split_logo'] = self.siteconfig['split_logo']
+        g['split_logo'] = self.siteconfig.get('split_logo')
         # prevents css caching
         g['ver'] = str(random.randint(999,9999)) 
         for p,v in self.siteconfig.iteritems():
