@@ -119,12 +119,12 @@ function book_in_modal(bookurl,bookid) {
     }
 }
 
-function slideshow_in_modal(id) {
+function slideshow_in_modal(id,title=false) {
     var t = location.origin+location.pathname.replace(/(\/[a-z_\-0-9]+\.html)$/ , "/slideshows/"+id+".htm");
     $.ajax({
         url: t,
         dataType: 'HTML'
-    }).done( function(slideshow) { 
+    }).done(function(slideshow) { 
         slideshow = $(slideshow);
         if (slideshow.length == 1) {
             slideshow.find('.loader').each(function() {
@@ -141,9 +141,10 @@ function slideshow_in_modal(id) {
             $('#auth-mod').modal('show').find('.modal-body').html(slideshow);
             slideshow.height($(window).height()*0.9).fadeIn(200);
             share('#auth-mod',window.location.href.replace(window.location.search, '')+'?slideshow='+id);
-
-        
-    }
+            if(title) {
+                $('#'+id).prepend('<h2>'+title+'</h2>');
+            }
+        }
     });
 }
 
@@ -269,8 +270,8 @@ function process_protocols_search_results(results,knesset) {
    return htm;
 }
 
+
 function bind_protocol_click() {
-    console.log($('.protocol-result'));
     $('.protocol-result').click(function(c) {
         c.preventDefault();
         var file = $(this).data('file'),
@@ -279,7 +280,10 @@ function bind_protocol_click() {
         if(/^\d+$/.test(page)){
             u += '#page='+page;
         }
+        var s = u.replace(/^.*\/protocols\//,'')
         iframe_in_modal(u);
+        share('#auth-mod',location.origin+location.pathname+"?protocol="+s);
+
     });
 }
 
@@ -295,8 +299,11 @@ function search(options) {
     }).fail(function(err) {
         alert(err);
     });
-    $('#auth-mod').find('.share-modal').hide();
+    if(!options.share) {
+        $('#auth-mod').find('.share-modal').hide();
+    }
 }
+
 
 
 function highlight_menu(ul) {
@@ -344,8 +351,9 @@ $(document).ready(function() {
             u = authbase+'/protocols/'+k+'/'+d+'.pdf';
             
         iframe_in_modal(u);
+        share('#auth-mod',location.origin+location.pathname+'?protocol='+k+'/'+d);
     });
-    var display_params  = location.search.match(/^\?(vid|book|slideshow|doc)=(.*)$/);
+    var display_params  = location.search.match(/^\?(vid|book|slideshow|doc|protocol)=(.*)$/);
     
     highlight_menu($('#primary-navigation > .nav'));
     
@@ -443,6 +451,17 @@ $(document).ready(function() {
             case 'doc':
                 $('.doc-wrap#'+display_params[2]).trigger('click');
             break;
+            case 'protocol':
+                var u = authbase+'/protocols/';
+                if (!/\.pdf$/.test(display_params[2])) {
+                    iframe_in_modal(u+display_params[2]+'.pdf');
+                }
+                else {
+                    fileandpage = location.href.replace(/^.*\?protocol=/,'');
+                    iframe_in_modal(u+fileandpage);
+                }
+                share('#auth-mod',location.href);
+            break;
             default:
                 $.noop();
         }
@@ -506,8 +525,8 @@ $(document).ready(function() {
     
     $('.bare-slideshow').click(function(c) {
         c.preventDefault();
-        s = $(this).data('slideshow');
-        slideshow_in_modal(s);
+        var s = $(this).data('slideshow');
+        slideshow_in_modal(s,$(c.target).attr('title'));
     });
      
     $('#fsearch').submit(function() {
@@ -533,7 +552,8 @@ $(document).ready(function() {
             query : $(this).serialize(),
             url : location.origin+'/search/websearch.py/?pretty=1&auth={{auth}}',
             results_handler : process_protocols_search_results,
-            post_process : bind_protocol_click
+            post_process : bind_protocol_click,
+            share: true
         });
         var knesset = $(this).find('select[name="book"]').val();
         window.ProtocolSearchBase = knesset.substr(0,knesset.indexOf('-protocols'));

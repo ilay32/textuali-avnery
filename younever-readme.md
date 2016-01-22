@@ -31,7 +31,7 @@ generic site
     an "fbshare" (full url) entry specified, it overrides both of the above.
     ** menu -- see comments in the json itself 
     ** social -- see comments in the json itself 
-    ** bare slideshows -- a list of directories relative to SITEROOT/img. For each directory a slideshow will be rendered in all languages.
+    ** bare slideshows -- a list of directories relative to SITEROOT/img. For each directory a slideshow will be rendered in all languages. To activate it use <a href="whatever" class="bare-slideshow" title="will go over the carousel" data-slideshow="id of slideshow from the bare_slideshows list mentioned above"></a>
     ** pages -- see general comments in the json, but also: 
         *** templates:
             **** isotope -- requires a SITEROOT/<lang>/<pagename>-isotope-blocks.json. see the json for instructions about block options
