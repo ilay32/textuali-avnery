@@ -119,7 +119,7 @@ function book_in_modal(bookurl,bookid) {
     }
 }
 
-function slideshow_in_modal(id,title=false) {
+function slideshow_in_modal(id,title) {
     var t = location.origin+location.pathname.replace(/(\/[a-z_\-0-9]+\.html)$/ , "/slideshows/"+id+".htm");
     $.ajax({
         url: t,
@@ -329,7 +329,7 @@ $(document).ready(function() {
                     video_in_modal(event.data.video);
                 break;
                 case 'slideshow':
-                    slideshow_in_modal(event.data.slideshow);
+                    slideshow_in_modal(event.data.slideshow,false);
                 break;
                 default:
                     $.noop();
@@ -446,7 +446,7 @@ $(document).ready(function() {
                 video_in_modal(display_params[2]);
             break;
             case 'slideshow' :
-                slideshow_in_modal(display_params[2])
+                slideshow_in_modal(display_params[2],false)
             break;
             case 'doc':
                 $('.doc-wrap#'+display_params[2]).trigger('click');
@@ -519,7 +519,7 @@ $(document).ready(function() {
     $('.slideshow-modal').click(function(c) {
         if(!$(c.target).is('a')) {
             s = $(this).data('slideshow');
-            slideshow_in_modal(s);
+            slideshow_in_modal(s,false);
         }
     });
     
