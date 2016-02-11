@@ -370,3 +370,20 @@ form {
     border-radius: 3px;
     margin-{{oposide}}:10px;
 }
+
+/* editor modal and iframe */
+.modal-dialog {
+    width: 98%;
+    height: 90%;
+    min-height: 500px;
+}
+.modal-content {
+    height: 100%;
+}
+
+.modal-dialog iframe {
+    width: 100%;
+    border: none;
+    height: 100%;
+    min-height: 500px;
+}

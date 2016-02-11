@@ -161,7 +161,7 @@ if __name__=='__main__':
                #         book['pagelinks'] = pages                
                 if not os.path.exists(book.indexpath):
                     os.makedirs(book.indexpath)
-                ind = open(book.indexpath+"index.html",'w')
+                ind = open(book.indexpath+"index.php",'w')
                 ind.write(stache.render(stache.load_template('index-template.html'),bookdict).encode('utf-8'))
                 sc = open(book.indexpath+"bookscript.js", 'w')
                 sc.write(stache.render(stache.load_template('bookscript.js'),bookdict).encode('utf-8'))
