@@ -14,9 +14,13 @@ def make_heads(textualibook,bookhtmls):
         if os.path.isfile(htmfile):
             with open(htmfile,'r+') as t:
                 top = re.sub(headp,stache.render(stache.load_template('htmhead.html'),textualibook.htm_template_data(filename)).encode('utf-8').rstrip(),t.read())
-                #print re.sub(tailp,'</body>\n</html>',top)
+                w = ""
+                if re.match(tailp,top) :
+                    w = re.sub(tailp,'</body>\n</html>',top)
+                else:
+                    w = top+'</body>\n</html>' 
                 t.seek(0)
-                t.write(re.sub(tailp,'</body>\n</html>',top))
+                t.write(w)
                 t.truncate()
                 t.close()
     
