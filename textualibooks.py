@@ -156,7 +156,7 @@ class TextualiBook:
         r = self.books.pagenum        
         m = r.search(s)
         if m and m.group(1):
-            ret = m.group(1).strip("0")
+            ret = m.group(1).lstrip("0")
         return ret
 
     def book_ratio(self,frontjpg):

@@ -1,24 +1,30 @@
-import re, json,logging,os,pystache,textualibooks,sys
+import re, json,logging,os,pystache,textualibooks,sys, shutil
 
 logging.basicConfig(level=logging.DEBUG) 
 logger=logging.getLogger('make-heads')
 stache = pystache.Renderer(search_dirs='.',file_encoding='utf-8',string_encoding='utf-8',file_extension=False)
 
 headp = re.compile("^.*<\s*div.*class=\"pagelive\"\s*>",re.DOTALL)
-tailp = re.compile("<\s*\/\s*body\s*>.*$",re.DOTALL)
+tailp = re.compile("(?<=.)<\s*\/\s*body\s*>.*$",re.DOTALL)
 yespat = re.compile("^y(es)?$",re.IGNORECASE)
   
 def make_heads(textualibook,bookhtmls):
     for filename in os.listdir(bookhtmls):
         htmfile = bookhtmls+"/"+filename
+        bkp = textualibook.srcpath+"/htmls_backup"
+        if not os.path.isdir(bkp):
+            logger.info("creating back up directory: "+bkp) 
+            os.makedirs(bkp)
         if os.path.isfile(htmfile):
+            logger.info("backing up "+htmfile)
+            shutil.copyfile(htmfile,bkp+"/"+filename) 
             with open(htmfile,'r+') as t:
                 top = re.sub(headp,stache.render(stache.load_template('htmhead.html'),textualibook.htm_template_data(filename)).encode('utf-8').rstrip(),t.read())
                 w = ""
-                if re.match(tailp,top) :
+                if re.search(tailp,top) :
                     w = re.sub(tailp,'</body>\n</html>',top)
                 else:
-                    w = top+'</body>\n</html>' 
+                    w = top+'\n</body>\n</html>' 
                 t.seek(0)
                 t.write(w)
                 t.truncate()
