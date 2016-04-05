@@ -20,7 +20,8 @@ function page_files(page) {
     return {
         jpg : srcs+'/jpg/'+ filename + '.jpg', 
         html : srcs+'/html/' + filename + '.htm', 
-        hard : hard
+        hard : hard,
+        htmlbare: filename + '.htm'
     };
 }
 
@@ -169,6 +170,18 @@ function toggle_html(btn) {
     });
 }
 
+function edit_url(file) {
+    return "{{front.domain}}/editor/editor.php?auth={{authdir}}&book={{bookdir}}&page="+file;
+}
+function edit_button_update(pages) {
+    for(i in pages) {
+        file = {{page_list}}[pages[i] - 1];
+        tar = $('#edit'+i);
+        tar.data('url',edit_url(file));
+        tar.find('.btn-text').text('{{string_translations.edit}} '+ file);
+        tar.show();
+    }
+}
 function show_html(pages) {
     var tar; 
     for (i in pages) {
@@ -284,6 +297,7 @@ function loadApp() {
                 }					
             },
             'turning' : function(event, page, view) {
+                edit_button_update(view);
                 $('.popover').modalPopover('hide');
                 //$('#search-results').removeClass('in');
                 if($('#top-buttons').hasClass('open')) {
@@ -347,8 +361,14 @@ $(window).resize(function() {
     }*/
     toggleHtml(); 
 });
-
+$('.edit').click(function() {
+    var url = $(this).data('url');
+    $('#editor-frame').find('.modal-body').html('<iframe src="'+url+'"></iframe>');
+    $('#editor-frame').modal('show');
+});
+    
 $(document).ready(function() {
+    edit_button_update([1,2]);
     $('.flipbook').data('displayMode', 'scan');
     if(parseInt({{toc}}) > 0) {
         get_toc({{toc}});

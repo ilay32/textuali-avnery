@@ -1,3 +1,8 @@
+
+<?php 
+include("../../../editor/init.php");
+?>
+
 <!DOCTYPE html>
 <!--[if lt IE 7 ]> <html lang="{{language}}" class="ie6"> <![endif]-->
 <!--[if IE 7 ]>    <html lang="{{language}}" class="ie7"> <![endif]-->
@@ -88,6 +93,15 @@
                 <span class="glyphicon glyphicon-download-alt"></span>
             </button>
             {{/pdf_downloads}}
+            <?php if(is_logged_in()) : ?>
+            <button type="button" class="btn btn-default edit" id="edit0" data-url="" >
+                <span class="btn-text">{{string_translations.edit}} {{bookdir}}p00a.htm</span>           
+            </button>
+            <button type="button" class="btn btn-default edit" id="edit1" data-url="" >
+                    <span class="btn-text">{{string_translations.edit}} {{bookdir}}p00a.htm</span>           
+            </button>
+            <a href="{{front.domain}}editor/logout.php">logout</a>
+            <?php endif; ?>
         </div><!-- side-bttons -->
         <div class="largenav prev" title="{{string_translations.prev_page}}">
             <!--<span title="to front cover" data-seek="1" class="glyphicon glyphicon-{{backward}} flb-seek"></span>-->
@@ -125,7 +139,18 @@
         {{/pagelinks}}
     </div> 
     {{/has_texts}}
-    
+    <div class="modal fade" id="editor-frame" tabindex="-1" role="dialog">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body"></div>
+            </div><!-- /.modal-content -->
+        </div><!-- /.modal-dialog -->
+    </div><!-- /.modal -->  
     <!-- Bootstrap core JavaScript
     ================================================== -->
     <!-- Placed at the end of the document so the pages load faster -->
