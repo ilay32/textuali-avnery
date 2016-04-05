@@ -320,8 +320,9 @@ function loadApp() {
             }
         },
         nop: function(path) {
-           if ($('.flipbook').turn('is'))
-               $('.flipbook').turn('page', 2);
+           if ($('.flipbook').turn('is')) {
+               $('.flipbook').turn('page', flip2phis(2));
+           }
         }
     });
 

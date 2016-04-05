@@ -93,6 +93,7 @@ include("../../../editor/init.php");
                 <span class="glyphicon glyphicon-download-alt"></span>
             </button>
             {{/pdf_downloads}}
+            {{#has_texts}}
             <?php if(is_logged_in()) : ?>
             <button type="button" class="btn btn-default edit" id="edit0" data-url="" >
                 <span class="btn-text">{{string_translations.edit}} {{bookdir}}p00a.htm</span>           
@@ -102,6 +103,7 @@ include("../../../editor/init.php");
             </button>
             <a href="{{front.domain}}editor/logout.php">logout</a>
             <?php endif; ?>
+            {{/has_texts}}
         </div><!-- side-bttons -->
         <div class="largenav prev" title="{{string_translations.prev_page}}">
             <!--<span title="to front cover" data-seek="1" class="glyphicon glyphicon-{{backward}} flb-seek"></span>-->
