@@ -144,7 +144,7 @@ class TextualiBook:
                     pagenum = self.page_num_by_file(os.path.basename(p))
                     if pagenum:
                         pages.append({
-                            "href" : self.books.pageurl.format(pagebase,self.bookid,pagenum),
+                            "href" : self.books.pageurl.format(self.authorblock['generic_site_domain'],self.authid,self.bookid,os.path.basename(p)),
                             "title" : self.bookdata['book_nicename'] + " | "+pageslang+" "+str(pagenum),
                             "text": self.bookdata['book_nicename'] + ", "+pageslang+" "+str(pagenum)
                         })
@@ -294,7 +294,11 @@ class TextualiBooks:
             self.conf = data 
          
         self.realpagename = re.compile("p\d{3,4}$")
-        self.pageurl = '{0}?book={1}/#page/{2}'
+        # this renders links to webpages that load the page in ajax
+        # its for the bots
+        #self.pageurl = '{0}?book={1}/#page/{2}'
+        # for now, we do direct link
+        self.pageurl = '{0}/texts/{1}/{2}/html/{3}' 
         self.pagenum = re.compile("p+(\d{3,4})+\.htm+l?$")
         
     
