@@ -1,5 +1,6 @@
 var first_flipto = location.href.match(/(\/#page\/)(\d*)$/);
 var srcs = "{{srcs}}";
+/*
 {{#generic_srcs}}
 if(location.host != "textuali.com") {
     srcs = "{{generic_srcs}}"; 
@@ -8,7 +9,7 @@ if(location.host != "textuali.com") {
     }
 }
 {{/generic_srcs}}
-
+*/
 
 function page_files(page) {
     if(page > {{pages}}  || page < 1) {

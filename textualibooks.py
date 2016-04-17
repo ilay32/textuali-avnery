@@ -79,6 +79,8 @@ class TextualiBook:
         pages = self.pages_list()
         if(pages):
             ret.update(pages)
+        else:
+            print "pages empty in "+self.authid+" "+self.bookid
         return ret 
     
     def generic_block_dict(self):
