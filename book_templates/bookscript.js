@@ -1,15 +1,15 @@
 var first_flipto = location.href.match(/(\/#page\/)(\d*)$/);
 var srcs = "{{srcs}}";
-/*
+
 {{#generic_srcs}}
 if(location.host != "textuali.com") {
     srcs = "{{generic_srcs}}"; 
-    if (self == self.top) {
+    if (self == self.top && !/bot|googlebot|crawler|spider|robot|crawling/i.test(window.navigator.userAgent)) {
         location.assign("{{generic_base}}?book={{bookdir}}");
     }
 }
 {{/generic_srcs}}
-*/
+
 
 function page_files(page) {
     if(page > {{pages}}  || page < 1) {
