@@ -55,6 +55,17 @@ include("../../../editor/init.php");
             <button type="button" class="btn btn-default flb-seek"  data-seek="{{pages}}" title="{{string_translations.go_to_end}}">
                 <span class="glyphicon glyphicon-{{forward}}"></span>
             </button>
+            {{#has_info}}
+            <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown">
+                <span class="glyphicon glyphicon-info-sign"></span>
+             </button>
+             <ul id="info" class="dropdown-menu toc-list">
+                {{#info_items}}
+                <li>{{name}}: {{content}}</li>
+                {{/info_items}}
+            </ul>
+            {{/has_info}}
+
             <form id="gotopage-form"> 
                 <input type="text" maxlength="5" placeholder="#{{string_translations.page}}"/> 
                 <button type="submit" class="btn btn-default">{{string_translations.go}}</button>

@@ -79,13 +79,24 @@ class TextualiBook:
         pages = self.pages_list()
         if(pages):
             ret.update(pages)
-        else:
-            print "pages empty in "+self.authid+" "+self.bookid
+        #if self.bookdata['editorial_info'] or self.bookdata['remark']:
+        #    ret['info'] = True
+        if self.bookdata.get('info_box'):
+            ret['has_info'] = True
+            ret['info_items'] = [{
+                "name": textualangs.translate(key,'he'),
+                "content" : val
+            } for key,val in self.bookdata['info_box'].iteritems() ]
+            if self.bookdata.get('language_translated_from') :
+                ret['info_items']['tanslated_from'] = {
+                    "content" : textualangs.langname(self.bookdata['language_translated_from'],self.bookdata['language']),
+                    "content" : textualangs.translate("translation from",self.bookdata['language'],multi=True)
+                } 
         return ret 
     
     def generic_block_dict(self):
        if 'site' not in self.env:
-           logger.error("can't privde blocks without site configuration data")
+           logger.error("can't provide blocks without site configuration data")
            return {}
        ret = self.bookdata
        block = self.authorblock
