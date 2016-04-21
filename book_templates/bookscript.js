@@ -289,6 +289,7 @@ function loadApp() {
                         }
                     }
                     Hash.go('page/'+page);
+                    parent.postMessage({type:'flipped_to',"page" : page}, "*");
                 } 
                 //$('.flb-next, .flb-prev').show();
                 $('.largenav').removeClass('disabled');
@@ -482,6 +483,9 @@ $(document).ready(function() {
         }
     });
     $('.mode-toggle').click(function() {
+        if($('#enlarge').hasClass('btn-danger')) {
+            unenlarge_flip();
+        }     
         $('.mode-toggle').not(this).removeClass('on');
         var d=$('.flipbook').data();
         if(this.id == 'showhtmls' && d.displayMode == 'scan')  {

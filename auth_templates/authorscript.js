@@ -83,17 +83,21 @@ function TextualiJpgsLoader(book,pages) {
 function frame_height(elem) {
     var height = $(window).height() - minuses[elem];
     $(elem).each(function() {
-        $(this).find('iframe').height(Math.max(height,300));
+        $(this).find('iframe,object').height(Math.max(height,300));
     });
 }
 
 
-function iframe_in_modal(url) {
-    $('#auth-mod').modal('show').find('.modal-body').html('<iframe></iframe>');
+function tag_in_modal(url,tag,att) {
+    $('#auth-mod').modal('show').find('.modal-body').html('<'+tag+'></'+tag+'>');
     frame_height('#auth-mod');
     setTimeout(function() {
-        $('#auth-mod').find('iframe').attr('src',url);
+        $('#auth-mod').find(tag).attr(att,url);
     },100);
+}
+
+function iframe_in_modal(url) {
+    tag_in_modal(url,'iframe','src');
 }
 
 function video_in_modal(v) {
@@ -157,9 +161,9 @@ function bind_vid_adjustment() {
 }
 
 function share(modalid,url) {
-    var s = $(modalid).find('input.share');
+    var s = $(modalid).find('span.share');
     $(modalid).find('.share-modal').bind('click', function() {
-        s.val(url).closest('.share-input-wrap').toggleClass('in');
+        s.text(url).closest('.share-input-wrap').toggleClass('in');
     });
 }
 
@@ -320,7 +324,7 @@ function highlight_menu(ul) {
 
 $(document).ready(function() {
     window.addEventListener("message", function(event) {
-        if(/textuali\.com\/avnery-timeline\/.*timeline.*html$/.test(event.source) || true) {
+        //if(/textuali\.com\/avnery-timeline\/.*timeline.*html$/.test(event.source) || true) {
             switch(event.data.type) {
                 case 'flip':
                     book_in_modal(event.data.url); 
@@ -331,10 +335,17 @@ $(document).ready(function() {
                 case 'slideshow':
                     slideshow_in_modal(event.data.slideshow,false);
                 break;
+                case 'flipped_to':
+                    var s = $('#auth-mod').find('span.share');
+                    cur = s.text().replace(/\/#page.*$/,'');
+                    s.closest('.share-input-wrap').removeClass('in');
+                    s.replaceWith($('<span/>').addClass('share'));
+                    share('#auth-mod',cur+'/#page/'+event.data.page);
+                break;
                 default:
                     $.noop();
             }
-        }
+        //}
     });
     $('main .row.well').first().find('.collapse').eq(0).collapse('show');
     $('main .row.well').find('button').click(function() {
@@ -350,7 +361,8 @@ $(document).ready(function() {
             k = $(this).closest('.well').data('knesset'),
             u = authbase+'/protocols/'+k+'/'+d+'.pdf';
             
-        iframe_in_modal(u);
+        //iframe_in_modal(u);
+        tag_in_modal(u,'object','data');
         share('#auth-mod',location.origin+location.pathname+'?protocol='+k+'/'+d);
     });
     var display_params  = location.search.match(/^\?(vid|book|slideshow|doc|protocol)=(.*)$/);
@@ -398,7 +410,7 @@ $(document).ready(function() {
 
     $('.modal-content').click(function(c) {
         if (!$(c.target).is('.share-modal')) {
-            $(this).find('input.share').removeClass('in');
+            $(this).find('span.share').removeClass('in');
         }
     });
     $('#auth-mod').on('hide.bs.modal',function() {
