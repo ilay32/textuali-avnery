@@ -360,7 +360,7 @@ $(document).ready(function() {
             };
         });
     });
-    $('li[data-file]').click(function() {
+    $('.open-protocol').click(function() {
         var d = $(this).data('file'),
             k = $(this).closest('.well').data('knesset'),
             u = authbase+'/protocols/'+k+'/'+d+'.pdf';
@@ -369,6 +369,16 @@ $(document).ready(function() {
         tag_in_modal(u,'object','data');
         share('#auth-mod',location.origin+location.pathname+'?protocol='+k+'/'+d);
     });
+    $('.open-file').click(function() {
+        var d = $(this).data('file'),
+            b = $('#static-container').data('heaplocation'),
+            u = null;
+        if(typeof(b) == 'string') {
+            u = authbase+'/'+b+'/'+d;
+            tag_in_modal(u,'objet','data');
+            share('#auth-mod',location.origin+location.pathname+'?protocol='+b+'/'+d);
+        }
+    });  
     var display_params  = location.search.match(/^\?(vid|book|slideshow|doc|protocol)=(.*)$/);
     
     highlight_menu($('#primary-navigation > .nav'));

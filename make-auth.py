@@ -9,23 +9,12 @@ op.add_option("--showlang", action="store", type="string", dest="showlang", help
 op.add_option("-p", "--pagelinks", action="store_true", dest="pagelinks", help="generate dummy webpages with link to book htmls")
 op.add_option("--init",action="store",type="string", dest="init_auth",help="initialize author site. AUTHOR should be an existing directory in texts")
 
-#op.add_option("-a", action="store_true", dest="do_htaccess", help="add a .htaccess file according to the 'primary_language' specified in siteconfig.json")
-
 logging.basicConfig(level=logging.DEBUG) 
 logger=logging.getLogger('make-auth')
 jc = jsoncomment.JsonComment(json)
 stache = pystache.Renderer(
     search_dirs='auth_templates',file_encoding='utf-8',string_encoding='utf-8',file_extension=False
 )
-
-#https://www.googleapis.com/customsearch/v1?q=%D7%A9%D7%9C%D7%95%D7%9D&cx=006641765881684709425:t3vpkc0zyvo&relatedSite=thinkil.co.il&fields=items%2Cqueries%2CsearchInformation%2FtotalResults%2Curl&key=AIzaSyCXwxmdVWn6J453z2kZhiR82DQre4gNkJs
-
-#htmlparser = HTMLParser()
-#hetran = gettext.translation('avnery_heb',os.getcwd()+'/lang',['he_IL'])
-#hetran.install('avnery_heb')
-
-#def unescape(s):
-#    return htmlparser.unescape(s).encode('utf-8')
 
 class AuthorSiteGenerator:
     puncpat = re.compile('[%s]' % re.escape(string.punctuation))
@@ -51,7 +40,8 @@ class AuthorSiteGenerator:
             "isotope": self.isotope_template_data,
             "pictures" : self.pictures_template_data,
             "documents" : self.documents_template_data,
-            "protocols" : self.protocols_template_data
+            "protocols" : self.protocols_template_data,
+            "file_heap": self.file_heap_template_data
         } 
         if os.path.isfile(".makeauthignore") :
             self.hidden =  eval(open('.makeauthignore').read())
@@ -59,6 +49,56 @@ class AuthorSiteGenerator:
     def default(self,obj):
         return textualangs.default(self.lang, self.siteconfig['primary_language'],obj)
     
+    def parse_file_name(self,filename):
+        pat = re.compile("^(\d+)\-(\d+)_0*([0-9]+)")
+        m = pat.match(filename)
+        if len(m.groups()) != 3:
+            logger.warning("invalid file name (ignored): "+filename)   
+            return False
+        return {
+            "ord" : m.group(1),
+            "length" : m.group(2),
+            "begin" : m.group(3),
+            "file" : filename
+        }
+    
+    def file_heap_template_data(self,pagedict):
+        if 'heap_location' not in pagedict:
+            logger.error("please speicfy heap location")
+            return {}
+        rows  = []
+        files = [self.parse_file_name(f) for f in os.listdir(os.path.join(self.conf['front']['srcs_dir'],self.auth,pagedict['heap_location']))]
+        files.sort(key=lambda x: int(x['ord']))
+        batch_size = int(pagedict['batch_size']) if 'batch_size' in pagedict else 100
+        batches_in_row = int(pagedict['batches_in_row']) if 'batches_in_row' in pagedict else 10
+        loc = 0
+        global_batch_count = 0
+        while loc < len(files):
+            i = 0
+            row =  {
+                "name" : textualangs.translate("issue",self.lang,plural=True)+" "+str(loc + i*batch_size*batches_in_row + 1)+"-"+str(loc + (i+1)*batch_size*batches_in_row ),
+                "batches" : list(),
+            }
+            while i < batches_in_row:
+                global_batch_count += 1
+                batch_name  = str(loc+1)+"-"+str(loc+batch_size)
+                batch_files = list()
+                for j in range(loc,loc + batch_size):
+                    filedata = files[j]
+                    if loc+1 == int(filedata['ord']):
+                        batch_files.append(filedata)
+                    loc += 1
+                row['batches'].append({
+                    "batch_name" : batch_name,
+                    "batch_files" : batch_files,
+                    "index" : global_batch_count
+                })
+                row['batches'].sort(key=lambda x: x['index'])
+                i += 1
+            rows.append(row)
+        return {"rows" : rows, "heap_base": pagedict['heap_location']}
+
+         
     def protocols_template_data(self,pagedict):
         knessets = []
         for f,name in pagedict['file_lists'].iteritems():
@@ -256,31 +296,6 @@ class AuthorSiteGenerator:
         if 'exclude_ids' in pagedict:
             books = [x for x in books if x.bookid not in pagedict['exclude_ids']]
         return books
-
-    #def book_item(self,bookdict):
-    #    block = self.authorblock
-    #    front = self.conf['front']
-    #    #google = "https://www.google.com/search?q={0}"
-    #    book = bookdict
-    #    files = books = textualibooks.TextualiBooks()self.book_files(book['bookdir'])
-    #    if files != None:
-    #        book['cover'] = files['front']
-    #        book['backcover'] = files['back']
-    #        book['pages'] = files['count']
-    #        book['aspect'] = 'vertical' if files['proportions'] > 1.0 else 'horizontal' 
-    #    book['url'] = self.authtexts+"/"+book['bookdir']
-    #    book['language_name'] = textualangs.langname(book['language'])
-    #    if 'orig_match_id' in book:
-    #        book['orig_name'] = self.get_book_name(book['orig_match_id'])
-    #        book['orig_url'] = self.authtexts+"/"+book['orig_match_id']
-    #    translation_of = None
-    #    if 'orig_match_id' in bookdict:
-    #        translation_of = bookdict['orig_match_id']
-    #    book['other_langs'] = self.get_other_langs(book['bookdir'],translation_of)
-    #    #if 'link' not in book or book['link']=="":
-    #    #    q = '+'.join(self.puncpat.sub('',book['book_nicename']+" "+self.authorblock['nicename']).split(' '))
-    #    #    book['google'] = google.format(q.encode('utf-8')) 
-    #    return book
     
     def videos_template_data(self,pagedict):
         ret = None
