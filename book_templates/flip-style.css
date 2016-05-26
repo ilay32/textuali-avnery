@@ -51,9 +51,7 @@ body{
     text-align:center;
 }
 
-#buttons-row .glyphicon {
-    margin-{{side}}: 5px;
-}
+
 
 button[type="submit"] {
     font-size:12px;
@@ -291,12 +289,42 @@ input[type="text"] {
     font-size:12px
 }
 
-#gotopage-form input[type="text"] {
+#gotopage-form input[type="text"], #free-bookmark {
     width: 60px;
 }
 
 
-
+/* bookmarks */
+#bookmarks {
+    width: 500px;
+    {{side}}: -500px;
+    padding: 5px;
+}
+#bookmarks h3 {
+    margin: 0;
+    text-align: center;
+}
+#bookmark-comment {
+    width: 100%;
+    height: 100px;
+}
+.bookmark {
+    cursor: pointer;
+    text-align:{{side}};
+    margin: 10px 0;
+}
+#new-marks {
+    text-align: center;
+}
+.delete-bookmark {
+    float: {{oposide}};
+}
+.bookmark.deleted {
+    text-decoration: line-through;
+}
+.bookmark.deleted .delete-bookmark {
+    opacity: 0.3;
+}
 /* flip direction adjustments  */
 .page.odd { 
     text-align:{{side}}
@@ -306,9 +334,13 @@ input[type="text"] {
      text-align:{{side}};
 }
 
-.btn-group > .btn {
+.btn-group > .btn, .btn-group > .dropdown > .btn {
     float: {{side}};
     margin-{{oposide}}: 10px;
+}
+
+.btn-group > .dropdown {
+    float: {{side}};
 }
 
 .page.{{odd}} .spine-gradient /*, .page.{{odd}} .page-html*/{
@@ -369,10 +401,15 @@ form {
     direction: {{dir}};
 }*/
 
-.btn-group > .btn:first-child:not(:last-child):not(.dropdown-toggle), .btn-group > .btn:last-child:not(:first-child), .btn-group > .dropdown-toggle:not(:first-child),.btn-group > .btn:not(:first-child):not(:last-child):not(.dropdown-toggle){
+
+.btn-group > .btn:first-child:not(:last-child):not(.dropdown-toggle), .btn-group > .btn:last-child:not(:first-child), .btn-group > .dropdown-toggle:not(:first-child),.btn-group > .btn:not(:first-child):not(:last-child):not(.dropdown-toggle) {
     border-radius: 3px;
     margin-{{oposide}}:10px;
 }
+/*.btn-group > .dropdown > .btn:first-child:not(:last-child):not(.dropdown-toggle), .btn-group > .dropdown > .btn:last-child:not(:first-child), .btn-group > .dropdown-toggle:not(:first-child),.btn-group > .dropdown > .btn:not(:first-child):not(:last-child):not(.dropdown-toggle) {
+    border-radius: 3px;
+    margin-{{oposide}}:10px;
+}*/
 
 /* editor modal and iframe */
 .modal-dialog {

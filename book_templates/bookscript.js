@@ -1,6 +1,6 @@
 var first_flipto = location.href.match(/(\/#page\/)(\d*)$/);
-var srcs = "{{srcs}}";
-
+srcs = "{{srcs}}";
+bm_key = '{{authdir}}_{{bookdir}}';     
 {{#generic_srcs}}
 if(location.host != "textuali.com") {
     srcs = "{{generic_srcs}}"; 
@@ -51,7 +51,7 @@ function enlarge_flip() {
     }
 }
 
-function flip2phis(num) {
+function phis2flip(num) {
     var ret = -1;
     if(num > 0 && num <= {{phispage_count}}) {
         ret = parseInt(num) + parseInt({{start_offset}});
@@ -72,6 +72,9 @@ function flip2phis(num) {
     return ret;
 }
 
+function flip2phis(num) {
+    return Math.max(1,parseInt(num) - parseInt({{start_offset}}));
+}
 function loadPage(page, pageElement) {
     var pf = page_files(page);
     if (!pf) {
@@ -187,7 +190,7 @@ function edit_url(file) {
 function edit_button_update(pages) {
     for(i in pages) {
         file = {{page_list}}[pages[i] - 1];
-        tar = $('#edit'+i);
+        var tar = $('#edit'+i);
         tar.data('url',edit_url(file));
         tar.find('.btn-text').text('{{string_translations.edit}} '+ file);
         tar.show();
@@ -299,6 +302,11 @@ function loadApp() {
                 if(page == 1) {
                     $('.largenav.prev').addClass('disabled');
                 }
+                edit_button_update(pages);
+                bookmarks_texts(pages);
+                if(pages[0] == 0) {
+                    $('.create-mark.second').hide();
+                }
             },
             'start' : function(event,pageObject,corner) {
                 toggleHtml(pageObject.turn.turn('view'));
@@ -309,13 +317,11 @@ function loadApp() {
                 }					
             },
             'turning' : function(event, page, view) {
-                edit_button_update(view);
                 $('.popover').modalPopover('hide');
                 //$('#search-results').removeClass('in');
                 if($('#top-buttons').hasClass('open')) {
                     $('.toc-list.toc').dropdown('toggle');
                 }
-
             }
         }                 
     });
@@ -333,7 +339,7 @@ function loadApp() {
         },
         nop: function(path) {
            if ($('.flipbook').turn('is')) {
-               $('.flipbook').turn('page', flip2phis(2));
+               $('.flipbook').turn('page', phis2flip(2));
            }
         }
     });
@@ -352,7 +358,7 @@ function loadApp() {
     });
     
     if(first_flipto != null && first_flipto[2] !== "") {
-        Hash.go('page/'+flip2phis(first_flipto[2]));
+        Hash.go('page/'+phis2flip(first_flipto[2]));
     }
 
     
@@ -379,8 +385,117 @@ $('.edit').click(function() {
     $('#editor-frame').find('.modal-body').html('<iframe src="'+url+'"></iframe>');
     $('#editor-frame').modal('show');
 });
-    
+
+function delete_all_bookmarks() {
+    if(typeof(Storage !== "undefined") && typeof(JSON) !== "undefined") { 
+        var bookmarks = JSON.parse(localStorage.getItem("textuali_bookmarks"));
+        if(bookmarks != null && bookmarks[bm_key] != null) {
+            delete bookmarks[bm_key];
+            localStorage.setItem("textuali_bookmarks",JSON.stringify(bookmarks));
+        }
+        if(Object.keys(bookmarks).length == 0) {
+            localStorage.removeItem("textuali_bookmarks");
+        }
+        bookmarks_dropdown();
+    }
+}
+
+function bookmarks_dropdown() {
+    if(typeof(Storage !== "undefined") && typeof(JSON) !== "undefined") { 
+        var bookmarks = JSON.parse(localStorage.getItem("textuali_bookmarks"));
+        $('#stored-marks').empty().css('padding-bottom' , '0');
+        if(bookmarks != null && bookmarks[bm_key] != undefined) {
+            var marks = bookmarks[bm_key]['marks'];
+            $('#stored-marks').append('<h3 class="btn-default">{{string_translations.your_bookmarks}}</h3>').css('padding-bottom', '50px');
+            for(var markid in marks) {
+                var comment = marks[markid]['comment'],
+                    page = marks[markid]['page'],
+                    deleted = marks[markid]['deleted'] ? ' deleted' : '',
+                    mark = "<div class='bookmark"+deleted+"' data-mark='"+page+"' data-markid='"+markid+"'>{{string_translations.page}} "+flip2phis(page);
+                if(comment != "") {
+                    mark += ': '+comment;
+                }
+                mark += '</div>';
+                var delete_button = $('<button class="btn btn-xs btn-default delete-bookmark">{{string_translations.delete}}</button>').click(function(c) {
+                    c.stopPropagation();
+                    var m = $(this).closest('.bookmark').data('markid');
+                    if(typeof(m) == 'number' || /^\d+$/.test(m)){
+                        delete_bookmark(m);
+                    }
+                });
+                mark = $(mark).append(delete_button);
+                $('#stored-marks').append(mark);
+            }
+        }
+    }
+    else {
+        console.warn("no storage or JSON. skipping textuali bookmark functionality");
+        $('#bookmarks-trigger,#bookmarks').remove();
+    } 
+    $('.bookmark').click(function() {
+        var mark = $(this).data('mark');
+        $('.flipbook').turn('page',mark);
+    });
+}
+
+function bookmark(page,comment) {
+        var allmarks = JSON.parse(localStorage.getItem("textuali_bookmarks")),
+            tomark = {},
+            marks = {},
+            count = 0;
+        if(allmarks == null) {
+            allmarks = {};
+        }
+        else if(bm_key in allmarks) {
+            count = allmarks[bm_key]['count'];
+            marks = allmarks[bm_key]['marks'];
+        }
+        marks[++count]={'page': page, 'comment' : comment};
+        allmarks[bm_key] = {'count' : count,  'marks' : marks};
+        localStorage.setItem("textuali_bookmarks",JSON.stringify(allmarks));
+        bookmarks_dropdown();
+    }
+
+function delete_bookmark(markid) {
+    var allmarks = JSON.parse(localStorage.getItem("textuali_bookmarks"));
+    if (bm_key in allmarks) {
+        if(markid in allmarks[bm_key]['marks']) {
+            allmarks[bm_key]['count'];
+            allmarks[bm_key]['marks'][markid]['deleted']=true;
+        }
+    }
+    localStorage.setItem("textuali_bookmarks",JSON.stringify(allmarks));
+    bookmarks_dropdown();
+}   
+
+function bookmarks_texts(pages) {
+    var textpref = "{{string_translations.mark}} {{string_translations.page}} ";
+    $('.create-mark.first').text(textpref+flip2phis(pages[0])).data('mark',pages[0]);
+    if(pages[0] != 0) {
+        $('.create-mark.second').show().text(textpref+flip2phis(pages[1])).data('mark',pages[1]);
+    }
+}
+
+
 $(document).ready(function() {
+    $(window).load(bookmarks_dropdown);
+    
+    $('#delete-all-bookmarks').click(delete_all_bookmarks);
+    $('#bookmarks-trigger').click(function() {
+        $(this).closest('.dropdown').toggleClass('open');
+    });
+    
+    $('.create-mark').click(function() {
+        var m = $(this).data('mark'),
+            c = $('#bookmark-comment').val();
+        if($(this).hasClass('input')) {
+            m = phis2flip($('#free-bookmark').val());
+        } 
+        if(typeof(m) == 'number' || /^\d+$/.test(m)) {
+            bookmark(m,c);
+        }
+    });
+
     edit_button_update([1,2]);
     $('.flipbook').data('displayMode', 'scan');
     if(parseInt({{toc}}) > 0) {
@@ -399,6 +514,10 @@ $(document).ready(function() {
 
            }
         }
+        var exclude3 = $('.dropdown-toggle').add($('.dropdown-menu').find('*').andSelf());
+        if(!exclude3.is(c.target)) {
+            $('.dropdown').removeClass('open');
+        } 
     }); 
     
     $('.page_end').click(function(c) {
@@ -429,9 +548,9 @@ $(document).ready(function() {
 
     $('#gotopage-form').submit(function() {
         var v = $(this).find('input').val();
-        phis = flip2phis(v);
-        if(phis > 0) {
-            $('.flipbook').turn('page', phis);
+        flip = phis2flip(v);
+        if(flip > 0) {
+            $('.flipbook').turn('page', flip);
         }
         else {
             $(this).siblings('.error-message').fadeIn(300).delay(4000).fadeOut(300);

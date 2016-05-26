@@ -109,6 +109,7 @@ function video_in_modal(v) {
 
 function book_in_modal(bookurl,bookid) {
     iframe_in_modal(bookurl);
+    $('#auth-mod').data('curbook',bookid);
     var s = window.location.href.replace(window.location.search, '');
     if (bookid == undefined) {
         var m  = bookurl.match(/{{auth}}\/([a-z0-9]+)/);
@@ -338,6 +339,9 @@ $(document).ready(function() {
                 case 'flipped_to':
                     var s = $('#auth-mod').find('span.share');
                     cur = s.text().replace(/\/#page.*$/,'');
+                    if(cur == "") {
+                        cur = location.host+location.pathname+'?book='+$('#auth-mod').data('curbook');
+                    }
                     s.closest('.share-input-wrap').removeClass('in');
                     s.replaceWith($('<span/>').addClass('share'));
                     share('#auth-mod',cur+'/#page/'+event.data.page);

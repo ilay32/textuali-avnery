@@ -76,6 +76,7 @@ class TextualiBook:
         ret['frontjpg'] = os.path.basename(files['jpgs'][0])
         ret['openbook_ratio'] = files['openratio']
         ret['ver'] = str(random.randint(999,9999)) 
+        ret['rel'] = self.auth_text_relation()
         pages = self.pages_list()
         if(pages):
             ret.update(pages)
@@ -94,6 +95,18 @@ class TextualiBook:
                 } 
         return ret 
     
+    def auth_text_relation(self):
+        t = self.bookdata['book_type']
+        l = self.bookdata['language']
+        k = 'by'
+        if t == 'translation':
+            k = 'translated_by'
+        if t == 'about':
+            k = 'about'
+        if t == 'edited':
+            k = 'edited_by'
+        return textualangs.translate(k,l)
+        
     def generic_block_dict(self):
        if 'site' not in self.env:
            logger.error("can't provide blocks without site configuration data")

@@ -41,29 +41,44 @@ include("../../../editor/init.php");
 <body>
     <div class="row" id="buttons-row">
         <div class="btn-group btn-group-xs" id="top-buttons">
-            <span title="{{book_nicename}}" class="btn btn-default">{{authnice}}</span>
-            <span title="{{book_nicename}}" class="btn btn-default">{{book_nicename}}</span> 
+            <span title="{{book_nicename}}" class="btn btn-default">
+                {{book_nicename}}
+            </span> 
+            <span title="{{authnice}}" class="btn btn-default">
+                {{rel}} {{authnice}}
+            </span>
             <button type="button" class="btn btn-default flb-seek"  data-seek="1" title="{{string_translations.go_to_start}}">
                 <span class="glyphicon glyphicon-{{backward}}"></span>
             </button>
-            {{#toc}}
-            <button type="button" id="totoc" title="{{string_translaitons.toc_long}}" class="btn btn-default dropdown-toggle jpg-toc" data-toggle="dropdown">
-                {{string_translations.toc_short}}
-                <span class="glyphicon glyphicon-list"></span>
+            <button type="button" class="btn btn-default flb-prev"  data-seek="1" title="{{string_translations.prev}}">
+                <span class="glyphicon glyphicon-chevron-{{side}}"></span>
             </button>
+            {{#toc}}
+            <div class="dropdown btn-group-xs">
+                <button type="button" id="totoc" title="{{string_translaitons.toc_long}}" class="btn btn-default dropdown-toggle jpg-toc" data-toggle="dropdown">
+                    {{string_translations.toc_short}}
+                    <span class="glyphicon glyphicon-list"></span>
+                </button>
+            </div>
             {{/toc}}
+            <button type="button" class="btn btn-default flb-next"  data-seek="1" title="{{string_translations.next}}">
+                <span class="glyphicon glyphicon-chevron-{{oposide}}"></span>
+            </button>
+
             <button type="button" class="btn btn-default flb-seek"  data-seek="{{pages}}" title="{{string_translations.go_to_end}}">
                 <span class="glyphicon glyphicon-{{forward}}"></span>
             </button>
             {{#has_info}}
-            <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown">
-                <span class="glyphicon glyphicon-info-sign"></span>
-             </button>
-             <ul id="info" class="dropdown-menu toc-list">
-                {{#info_items}}
-                <li>{{name}}: {{content}}</li>
-                {{/info_items}}
-            </ul>
+            <div class="dropdown btn-group-xs">
+                <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown">
+                    <span class="glyphicon glyphicon-info-sign"></span>
+                 </button>
+                 <ul id="info" class="dropdown-menu toc-list">
+                    {{#info_items}}
+                    <li>{{name}}: {{content}}</li>
+                    {{/info_items}}
+                </ul>
+            </div>
             {{/has_info}}
 
             <form id="gotopage-form"> 
@@ -76,10 +91,35 @@ include("../../../editor/init.php");
                 <button data-popper="#search-popover" id="search-trigger" type="submit" class="btn btn-default" >{{string_translations.search}}</button>
             </form>
             {{/has_search}}
-            <!-- <div class="dropdown-menu">
-                <input type="text" class="form-control" placeholder="search">
-            </div> -->
-        </div>
+            <div class="dropdown">
+                <button id="bookmarks-trigger" type="button" class="btn btn-default dropdown-toggle btn-xs">
+                    <span class="glyphicon glyphicon-bookmark"></span>
+                </button>
+                <div id="bookmarks" class="dropdown-menu">
+                    <div id="stored-marks"></div> 
+                    <div id="new-marks">
+                        <h3 class="btn-default">
+                            {{string_translations.mark_selected}}
+                        </h3>
+                        <textarea id="bookmark-comment" placeholder="{{string_translations.add_comment}}"></textarea>
+                        <div class="btn-group-xs">
+                            <button type="button" class="btn btn-default create-mark first" ></button>
+                            <button type="button" class="btn btn-default create-mark second"> </button> {{string_translations.or}}
+                           
+                            <input id="free-bookmark" type="text" maxlength="5" placeholder="#{{string_translations.go}}"/> 
+                            {{string_translations.and}}
+                            <button type="button" class="btn btn-default create-mark input">
+                                {{string_translations.mark}}
+                            </button>
+                            {{string_translations.or}}
+                            <button class="btn btn-default" id="delete-all-bookmarks">
+                                {{string_translations.delete}} {{string_translations.all}}
+                            </button>
+                        </div>
+                    </div><!-- new-bookmarks-->
+                </div>
+            </div>
+        </div><!-- button group-->
     </div><!-- buttons-row -->
 
     <div class="textuali-container">
@@ -137,13 +177,13 @@ include("../../../editor/init.php");
         </div>
     </div><!-- container -->
     
-    {{#has_search}}
+    {{#has_search_canceled}}
     <div id="search-popover" data-trigger="#search-trigger" class="popover">
         <div id="search-results" class="fade">
             <div class="error-message hidden"></div>
          </div>
      </div>
-    {{/has_search}} 
+    {{/has_search_canceled}} 
 
     {{#has_texts}}
     <div id="pagelinks" class="hide">
