@@ -1,0 +1,37 @@
+<div id="static-container" data-heaplocation="{{heap_base}}"> 
+    {{#pagetitle}}
+        {{>pagetitle.html}}
+    {{/pagetitle}}
+    
+    {{#content}}
+    <div class="row">
+        <div class="col-sm-12">
+            {{content}}
+        </div>
+    </div>
+    {{/content}}
+
+    {{#rows}}
+    <div class="row well">
+        <div class="col-xs-12">
+            <h3>
+                {{name}}
+            </h3>
+        </div>
+        {{#batches}}
+        <div class="protocols-year-list col-sm-3">
+            <button class="btn btn-default" role="button" data-toggle="collapse" data-target="#batch-{{index}}" aria-expanded="false" aria-controls="batch-{{index}}" >
+                {{batch_name}}
+            </button>
+            <div class="collapse" id="batch-{{index}}">
+                <ul>
+                {{#batch_files}}
+                    <li class="open-file" data-file="{{file}}">{{string_translations.issue}} {{ord}}</li>
+                {{/batch_files}}
+                </ul>
+            </div>
+        </div>
+        {{/batches}}
+    </div><!-- row -->
+    {{/rows}}
+</main>
