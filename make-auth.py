@@ -1,17 +1,13 @@
 
 import csv,json,jsoncomment,urllib2,re,logging,sys,os,glob,jsonmerge,lesscpy,six, optparse,textualangs,pystache,string,random,cgi,urlparse,textualibooks
-#from distutils.dir_util import copy_tree
-#from urlparse import urlparse
-#from HTMLParser import HTMLParser
 from PIL import Image
-#from shutil import copytree, ignore_patterns
 
-#copytree(source, destination, ignore=ignore_patterns('*.pyc', 'tmp*'))
 op = optparse.OptionParser()
 op.add_option("-s", action="store_true", dest="render_styles", help="render style files")
 op.add_option("--hidelang", action="store", type="string", dest="hidelang", help="hides the specified language wihtout rendering the site")
 op.add_option("--showlang", action="store", type="string", dest="showlang", help="hides the specified language without rendering the site")
 op.add_option("-p", "--pagelinks", action="store_true", dest="pagelinks", help="generate dummy webpages with link to book htmls")
+op.add_option("--init",action="store",type="string", dest="init_auth",help="initialize author site. AUTHOR should be an existing directory in texts")
 
 #op.add_option("-a", action="store_true", dest="do_htaccess", help="add a .htaccess file according to the 'primary_language' specified in siteconfig.json")
 
@@ -724,20 +720,6 @@ class AuthorSiteGenerator:
         self.global_template_vars = g
         return g
          
-    #def parse_lang(self,str):
-    #    lang = 'he';
-    #    m = self.langpat.match(str)
-    #    if(m != None):
-    #       lang = self.langpat.match(str).group(2) 
-    #    return lang
-    
-    #def strip_lang(self,str):
-    #    ans = str
-    #    m = self.langpat.match(str)
-    #    if(m != None):
-    #        ans = self.langpat.match(str).group(1)
-    #    return ans
-          
     def render_styles(self):
         stylertl = open(self.indexpath+"/css/style-rtl.css", 'w')
         styleltr = open(self.indexpath+"/css/style-ltr.css", 'w')
@@ -745,7 +727,6 @@ class AuthorSiteGenerator:
         srtl = lesscpy.compile(six.StringIO(stache.render(stache.load_template('authorsite.less'),rtlvars).encode('utf-8')),minify=True)
         if srtl:
             stylertl.write(srtl) 
-        #stylertl.write(lesscpy.compile(six.StringIO(self.json2less(rtlvars)+open('auth_templates/authorsite.less').read()),minify=True)) 
         stylertl.close()
         logger.info('rtl styles done')
         ltrvars = jsonmerge.merge(self.siteconfig['stylevars'],{ "dir": "ltr", "side": "left", "oposide": "right" }) 
@@ -754,7 +735,6 @@ class AuthorSiteGenerator:
             styleltr.write(sltr)
         if not sltr or not srtl:
             logger.error("could not compile authorsite.less")
-        #styleltr.write(lesscpy.compile(six.StringIO(self.json2less(ltrvars)+open('auth_templates/authorsite.less').read()),minify=True)) 
         styleltr.close()
         logger.info('ltr styles done')
     
@@ -769,18 +749,6 @@ class AuthorSiteGenerator:
             logger.info(scriptf+" written")
         s.close()
         
-    #def json2less(self,dict) :
-    #    ret = "/* Variables from */"
-    #    lineform = '@{0}:{1};\n'
-    #    for prop,val in dict.iteritems():
-    #        ret += lineform.format(prop,val)
-    #    return ret
-    ##def merge_menus(self,dict):
-    #    ret = []
-    #    for pages in dict.itervalues():
-    #        ret = ret + pages.append["home"]
-    #    return ret
-    
     def render_pagelinks(self):
         logger.info('generating links to book pages')
         front = self.conf['front']
@@ -819,19 +787,13 @@ class AuthorSiteGenerator:
             else:
                 self.lang = lang
                 self.langpath = self.indexpath+"/"+lang
-                #header = self.render_header()
-                #footer = self.render_footer()
                 self.render_script()
-                
                 if isinstance(self.siteconfig.get('bare_slideshows'),list):
                     logger.info("rendering bare slideshows in "+self.lang+"/slideshows")
                     if not os.path.exists(self.langpath+"/slideshows"):
                         os.makedirs(self.langpath+"/slideshows")
                     for slideshow in self.siteconfig['bare_slideshows']:
                         self.bare_slideshow(slideshow)
-
-                #if not 'home' in men:
-                #    self.render_page('home',lang,header,footer)
                 for page,defs in self.siteconfig['pages'].iteritems():
                     if 'template' in defs and not not defs['template']:
                         self.render_page(page)
@@ -839,14 +801,8 @@ class AuthorSiteGenerator:
                 print "======"
         logger.info(authdir+" site done")
     
-        #if options.do_htaccess:
-        #lang = self.siteconfig['primary_language'] if 'primary_language' in self.siteconfig else 'he'
-        #hf = open(self.indexpath+"/.htaccess","w")
-        #hf.write(stache.render(stache.load_template('htaccess.mustache'),{"lang": self.siteconfig['primary_language']}))
-        #hf.close()
-           
+                   
     def book_files(self,book):
-        #urlbase = self.conf['front']['domain']+os.path.basename(self.conf['front']['srcs_dir'])+"/"+self.auth+"/"+book+"/jpg/"
         urlbase = self.authtexts+"/"+book+"/jpg/"
         jpgs = sorted(glob.glob(self.conf['front']['srcs_dir']+"/"+self.auth+"/"+book+"/jpg/*.jpg"))
         if len(jpgs) == 0:
@@ -862,42 +818,7 @@ class AuthorSiteGenerator:
             "proportions" : ratio
         }
     
-     
-    #def get_other_langs(self,bookdir,orig):
-    #    if 'book_translations_base' not in self.siteconfig:
-    #        logger.error("please set 'book_translations_base', e.g en/publications.html, in siteconfig.json for books template to be complete")
-    #        return ""
-    #    olangs = {"langs" : []}
-    #    for book in self.displaybooks:
-    #        if book['bookdir'] != bookdir and 'orig_match_id' in book:
-    #            if book['orig_match_id'] == bookdir or book['orig_match_id'] == orig or book['bookdir'] == orig:
-    #                olangs['langs'].append({
-    #                    "name" : textualangs.langname(book['language']),
-    #                    #"link": self.booktranslink.format(self.siteconfig['baseurl'],self.siteconfig['book_translations_base'],book['bookdir'])
-    #                    "link": "?book="+book['bookdir']
-    #                })
-    #    if len(olangs['langs']) == 0:
-    #        olangs = ""
-    #    return olangs
-
-    #def get_book_name(self,bookdir):
-    #   name = ''
-    #   for book in self.displaybooks:
-    #       if book['bookdir'] == bookdir:
-    #           name = book['book_nicename']
-    #           break;
-    #   return name
     
-    #def get_book_type(self,bookdir):
-    #    t = bookdir[:1]
-    #    if t in self.conf['book_types']:
-    #        ret = self.conf['book_types'][t]
-    #    elif re.match("[a-z]",t):
-    #        ret = "book"
-    #    else:
-    #        ret = None
-    #    return ret
-
     def hide_lang(self,lang):
         if lang in self.hidden:
             logger.info(lang+" already hidden")
@@ -937,8 +858,11 @@ class AuthorSiteGenerator:
 
 if __name__=='__main__':
     (options, args) = op.parse_args()
+    if isinstance(options.init_auth,six.string_types):
+        logger.info("intializing default site for "+options.init_auth)
+        quit()
     if not args:
-        logger.error("usage:python2.7 make-auth.py [options] [lang (to show/hide]  <author>")
+        logger.error("usage:python2.7 make-auth.py [options] [lang to show/hide]  <author>")
         quit()
     else:
         authdir = args[0]
@@ -969,24 +893,4 @@ if __name__=='__main__':
                     print "if you like what you see in %s, type 'copy-generic %s %s':" %(asg.devurl, asg.auth,asg.siteconfig['destination_folder'])
                 else:
                     logger.error("specified live destination "+asg.siteconfig['destination_folder']+" doesn't exist.")
-                #u = raw_input("\n********\ncheck out "+asg.siteconfig['baseurl']+", do you want to update the live site?[y/n]: ")
-                #if u == "yes" or u=="y":
-                #    devbase = asg.siteconfig['baseurl']
-                #    asg.siteconfig['baseurl'] = "/"
-                #    logger.info("rendering with null url")
-                #    asg.render_site()
-                #    logger.info("copying to "+asg.siteconfig['destination_folder'])
-                #    try:
-                #        dst = "/home/sidelang/webapps/"+asg.siteconfig['destination_folder']
-                #        if not os.path.exists(dst):
-                #            logger.error(dst+" doesn't exist. quitting")
-                #            quit()
-                #        else:
-                #            copy_tree(asg.indexpath,dst)
-                #    except Exception as e: 
-                #        logger.error(str(e)) 
-                #    asg.siteconfig['baseurl']=devbase
-                #    logger.info("rerendering dev site")
-                #    asg.render_site()
-                #else:
-                #    print("fine")
+                
