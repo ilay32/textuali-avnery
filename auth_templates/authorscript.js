@@ -440,7 +440,10 @@ $(document).ready(function() {
     /*$('iframe').load(function() {
         console.log(parent.document.getElementById('content'));
     });*/
-    $('[data-href]').click(function() {
+    $('[data-href]').click(function(c) {
+        if($(c.target).closest('.collapse, .collapser').length > 0) {
+            return
+        } 
         var h = $(this).data('href'),
             o = $(this).data('open');
         switch(o) {

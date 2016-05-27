@@ -1,6 +1,8 @@
 
 import csv,json,jsoncomment,urllib2,re,logging,sys,os,glob,jsonmerge,lesscpy,six, optparse,textualangs,pystache,string,random,cgi,urlparse,textualibooks
 from PIL import Image
+from HTMLParser import HTMLParser
+
 
 op = optparse.OptionParser()
 op.add_option("-s", action="store_true", dest="render_styles", help="render style files")
@@ -15,6 +17,7 @@ jc = jsoncomment.JsonComment(json)
 stache = pystache.Renderer(
     search_dirs='auth_templates',file_encoding='utf-8',string_encoding='utf-8',file_extension=False
 )
+htmlparser = HTMLParser()
 
 class AuthorSiteGenerator:
     puncpat = re.compile('[%s]' % re.escape(string.punctuation))
@@ -232,8 +235,20 @@ class AuthorSiteGenerator:
                     block['text'] = block['text'][self.lang]
                 if not bool(urlparse.urlparse(block['img']).scheme):
                     block['relative'] = "../img/"
-                if 'vid' in urlparse.parse_qs(urlparse.urlparse(block['link']).query):
+                if 'link' in block and 'vid' in urlparse.parse_qs(urlparse.urlparse(block['link']).query):
                     block['playbutton'] = True
+                if 'collapse' in block:
+                    c = block['collapse']
+                    col  = {
+                        "coid" : block['id']+'-collapse',
+                        "short" : self.default(c['short']),
+                        "long" : self.default(c['long']) 
+                    }
+                    if 'trigger' in c and c['trigger'] == "arrow":
+                        col['arrow'] = 1
+                    else:
+                        col['more'] = 1
+                    block['collapse'] = col
         else:
             logger.error("could not find "+blocksf)
             blocks = []

@@ -14,6 +14,23 @@
                 {{text}}
             </div>
             {{/text}}
+            {{#collapse}}
+            <h4 class="collapser" data-toggle="collapse" data-target="#{{coid}}" aria-expanded="false" aria-controls="{{coid}}">
+                {{short}}
+                {{#arrow}}
+                <span class="glyphicon glyphicon-chevron-down"></span>
+                {{/arrow}}
+                {{#more}}
+                <span class="glyphicon">{{string_translations.more}}...</span>
+                {{/more}}
+
+            </h4>
+            <div class="collapse" id="{{coid}}">
+                <div class="well">
+                    {{long}}
+                </div>
+            </div> 
+            {{/collapse}}
         </div>
     {{/iblocks}}
     </div><!-- isotope -->

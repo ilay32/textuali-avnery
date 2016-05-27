@@ -25,15 +25,23 @@ generic site
 * most data is stored in json files in the site directory but some depend on the language module and on the authors flip data: home/sidelang/webapps/phptextuali/textuali(-dev)/config.json
 * a 420px thumbnail is generated automatically for the first slide of every slideshow. It is used in the slideshow page.
 * siteconfig usage :
+
     ..* favicon -- enter file name and save it in SITEROOT/img. Defaults to textuali.com/media/favicon.ico
+
     ..* logo -- enter file name and save it in SITEROOT/img. Defaults to /img/logo-<langcode> where <langcode> is the page language, or 'he' for rtl and 'en' for ltr.
+
     ..* default image for facebook <og:image> tag -- save fbshare-default.whatever in site/img. If absent, the logo-<language> is used. If a page has
-    an "fbshare" (full url) entry specified, it overrides both of the above.
+an "fbshare" (full url) entry specified, it overrides both of the above.
+    
     ..* menu -- see comments in the json itself 
+    
     ..* social -- see comments in the json itself 
+    
     ..* bare slideshows -- a list of directories relative to SITEROOT/img. For each directory a slideshow will be rendered in all languages. To activate it use <a href="whatever" class="bare-slideshow" title="will go over the carousel" data-slideshow="id of slideshow from the bare_slideshows list mentioned above"></a>
+   
    ..* pages -- see general comments in the json, but also: 
-        ..* templates:
+        
+        ....* templates:
             **** isotope -- requires a SITEROOT/<lang>/<pagename>-isotope-blocks.json. see the json for instructions about block options
             defaults to siteconfig.primary_language/<pagename>-isotope-blocks.json
             **** static -- requires a SITEROOT/<lang>/<page>-static.html -- good for arbitrary html
