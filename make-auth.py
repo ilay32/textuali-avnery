@@ -53,15 +53,16 @@ class AuthorSiteGenerator:
         return textualangs.default(self.lang, self.siteconfig['primary_language'],obj)
     
     def parse_file_name(self,filename):
-        pat = re.compile("^(\d+)\-(\d+)_0*([0-9]+)")
+        pat = re.compile("^[A-Z]\-I(\d+)\-D(\d+)")
         m = pat.match(filename)
-        if len(m.groups()) != 3:
+        if len(m.groups()) != 2:
             logger.warning("invalid file name (ignored): "+filename)   
             return False
         return {
             "ord" : m.group(1),
-            "length" : m.group(2),
-            "begin" : m.group(3),
+            "date" : "/".join([m.group(2)[i:i+2] for i in range(0,6,2)]),
+            #"length" : m.group(2),
+            #"begin" : m.group(3),
             "file" : filename
         }
     
@@ -79,17 +80,20 @@ class AuthorSiteGenerator:
         while loc < len(files):
             i = 0
             row =  {
-                "name" : textualangs.translate("issue",self.lang,plural=True)+" "+str(loc + i*batch_size*batches_in_row + 1)+"-"+str(loc + (i+1)*batch_size*batches_in_row ),
+                "name" : textualangs.translate("issue",self.lang,plural=True)+" "+str(loc + i*batch_size*batches_in_row + 1)+"-"+str(min(loc + (i+1)*batch_size*batches_in_row,len(files))),
                 "batches" : list(),
             }
-            while i < batches_in_row:
+            end = False
+            while i < batches_in_row and not end:
+                last_in_batch = loc + batch_size
+                if last_in_batch > len(files):
+                    last_in_batch = len(files)
+                    end = True
                 global_batch_count += 1
-                batch_name  = str(loc+1)+"-"+str(loc+batch_size)
+                batch_name  = files[loc]['date']+" - "+files[last_in_batch-1]['date']+" ("+str(last_in_batch - loc)+")"
                 batch_files = list()
-                for j in range(loc,loc + batch_size):
-                    filedata = files[j]
-                    if loc+1 == int(filedata['ord']):
-                        batch_files.append(filedata)
+                for j in range(loc,last_in_batch):
+                    batch_files.append(files[j])
                     loc += 1
                 row['batches'].append({
                     "batch_name" : batch_name,

@@ -375,7 +375,7 @@ $(document).ready(function() {
             u = null;
         if(typeof(b) == 'string') {
             u = authbase+'/'+b+'/'+d;
-            tag_in_modal(u,'objet','data');
+            tag_in_modal(u,'object','data');
             share('#auth-mod',location.origin+location.pathname+'?protocol='+b+'/'+d);
         }
     });  
