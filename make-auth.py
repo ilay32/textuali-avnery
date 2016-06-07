@@ -58,9 +58,16 @@ class AuthorSiteGenerator:
         if len(m.groups()) != 2:
             logger.warning("invalid file name (ignored): "+filename)   
             return False
+        date = m.group(2)
+        day = date[:2]
+        month = date[2:4]
+        year = date[4:6]
         return {
             "ord" : m.group(1),
-            "date" : "/".join([m.group(2)[i:i+2] for i in range(0,6,2)]),
+            "year" : year,
+            "day" : day,
+            "month" : month,
+            "date" : "/".join([day,month,year]),
             #"length" : m.group(2),
             #"begin" : m.group(3),
             "file" : filename
@@ -73,35 +80,36 @@ class AuthorSiteGenerator:
         rows  = []
         files = [self.parse_file_name(f) for f in os.listdir(os.path.join(self.conf['front']['srcs_dir'],self.auth,pagedict['heap_location']))]
         files.sort(key=lambda x: int(x['ord']))
-        batch_size = int(pagedict['batch_size']) if 'batch_size' in pagedict else 100
-        batches_in_row = int(pagedict['batches_in_row']) if 'batches_in_row' in pagedict else 10
+        very_last_year = int(files[len(files) -1]['year'])
+        years_in_row = int(pagedict['years_in_row']) if 'years_in_row' in pagedict else 10
         loc = 0
-        global_batch_count = 0
+        global_years_count = 0
         while loc < len(files):
-            i = 0
+            row_count = 0
+            first_year = files[loc]['year']
+            last_year = str(min(int(first_year) + years_in_row, very_last_year)) 
             row =  {
-                "name" : textualangs.translate("issue",self.lang,plural=True)+" "+str(loc + i*batch_size*batches_in_row + 1)+"-"+str(min(loc + (i+1)*batch_size*batches_in_row,len(files))),
-                "batches" : list(),
+                "first_year" : "19"+first_year,                
+                "last_year" : "19"+last_year,              
+                "years" : list(),
             }
             end = False
-            while i < batches_in_row and not end:
-                last_in_batch = loc + batch_size
-                if last_in_batch > len(files):
-                    last_in_batch = len(files)
+            year = first_year
+            while row_count <= years_in_row and not end:
+                global_years_count += 1
+                year_files = [f for f in files if f['year'] == year]
+                if len(year_files) > 0:
+                    row['years'].append({
+                        "year" : "19"+year,
+                        "year_files" :  year_files,
+                        "index" : global_years_count
+                    })
+                row['years'].sort(key=lambda x: x['index'])
+                year = str(int(year) + 1)
+                loc = loc + len(year_files)
+                if loc == len(files) - 1:
                     end = True
-                global_batch_count += 1
-                batch_name  = files[loc]['date']+" - "+files[last_in_batch-1]['date']+" ("+str(last_in_batch - loc)+")"
-                batch_files = list()
-                for j in range(loc,last_in_batch):
-                    batch_files.append(files[j])
-                    loc += 1
-                row['batches'].append({
-                    "batch_name" : batch_name,
-                    "batch_files" : batch_files,
-                    "index" : global_batch_count
-                })
-                row['batches'].sort(key=lambda x: x['index'])
-                i += 1
+                row_count += 1
             rows.append(row)
         return {"rows" : rows, "heap_base": pagedict['heap_location']}
 
@@ -431,8 +439,13 @@ class AuthorSiteGenerator:
         
         if 'page_title' in pagedict and lang in pagedict['page_title'] and 'innertitle' not in pagedict:
             templatedata['pagetitle'] = pagedict['page_title'][lang]
+            if 'title_image' in pagedict:
+                templatedata['title_image'] =  pagedict['title_image']
+            templatedata['has_pagetitle'] = True
         else:
-            templatedata['pagetitle'] = None
+            templatedata['has_pagetitle'] = None 
+                 
+        
         menu_items = []
         utils = [] 
         favicon = self.conf['front']['domain']+"/media/favicon.ico"
@@ -581,10 +594,15 @@ class AuthorSiteGenerator:
         pagedict = self.siteconfig['pages'][page]
         lang = self.lang
         block = self.get_globals()
+        
         if 'innertitle' in pagedict and pagedict['innertitle']:
             block['pagetitle'] = self.default(pagedict['page_title'])
-        #block['page'] = page
-        #block['template'] = pagedict['template']
+            if 'title_image' in pagedict:
+                block['title_image'] = pagedict['title_image']
+            block['has_pagetitle'] = True
+        else:
+            block['has_pagetitle'] = False
+        
         template = pagedict['template']
         contf= self.langpath+"/"+page+"-maintext.txt"
         statf = self.langpath+"/"+page+"-static.html"

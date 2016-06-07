@@ -1,7 +1,7 @@
 <div id="static-container" data-heaplocation="{{heap_base}}"> 
-    {{#pagetitle}}
-        {{>pagetitle.html}}
-    {{/pagetitle}}
+    {{#has_pagetitle}}
+        {{ > pagetitle.html }}
+    {{/has_pagetitle}}
     
     {{#content}}
     <div class="row">
@@ -15,23 +15,23 @@
     <div class="row well">
         <div class="col-xs-12">
             <h3>
-                {{name}}
+                {{first_year}}-{{last_year}}
             </h3>
         </div>
-        {{#batches}}
+        {{#years}}
         <div class="protocols-year-list col-sm-3">
-            <button class="btn btn-default" role="button" data-toggle="collapse" data-target="#batch-{{index}}" aria-expanded="false" aria-controls="batch-{{index}}" >
-                {{batch_name}}
+            <button class="btn btn-default" role="button" data-toggle="collapse" data-target="#year-{{index}}" aria-expanded="false" aria-controls="year-{{index}}" >
+                {{year}}
             </button>
-            <div class="collapse" id="batch-{{index}}">
+            <div class="collapse" id="year-{{index}}">
                 <ul>
-                {{#batch_files}}
-                    <li class="open-file" data-file="{{file}}">{{string_translations.issue}} {{ord}} {{date}}</li>
-                {{/batch_files}}
+                {{#year_files}}
+                    <li class="open-file" data-file="{{file}}">{{string_translations.published_on}}: {{date}}</li>
+                {{/year_files}}
                 </ul>
             </div>
         </div>
-        {{/batches}}
+        {{/years}}
     </div><!-- row -->
     {{/rows}}
 </main>

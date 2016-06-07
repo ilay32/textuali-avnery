@@ -1,5 +1,10 @@
 <div class="row">
     <div class="col-sm-12">
-        <h1 class="page-title">{{pagetitle}}</h1>
+        <h1 class="page-title">
+            {{#title_image}}
+            <img class="title-image" src="{{baseurl}}/img/{{title_image}}" alt="{{description}}"/>
+            {{/title_image}}
+            {{pagetitle}}
+        </h1>
     </div>
 </div>
