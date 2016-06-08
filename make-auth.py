@@ -828,7 +828,7 @@ class AuthorSiteGenerator:
         if options.render_styles:
             self.render_styles()
         access = open(self.indexpath+"/access", "w")
-        access.write(stache.render(stache.load_template("access"),{"lang":self.siteconfig['primary_language']}))
+        access.write(stache.render(stache.load_template("access"),{"lang":self.siteconfig['primary_language'], "domain" : self.siteconfig['destination_domain'] }))
         
         if options.pagelinks:
             self.render_pagelinks()
