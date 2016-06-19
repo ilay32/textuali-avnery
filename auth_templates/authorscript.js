@@ -481,7 +481,7 @@ $(document).ready(function() {
                 $('.doc-wrap#'+display_params[2]).trigger('click');
             break;
             case 'protocol':
-                var u = authbase+'/protocols/';
+                var u = /knesset/.test(display_params[2]) ? authbase+'/protocols/' : authbase+"/";
                 if (!/\.pdf$/.test(display_params[2])) {
                     iframe_in_modal(u+display_params[2]+'.pdf');
                 }
