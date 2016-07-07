@@ -265,10 +265,13 @@ a.toc-link, a.toc-link:visited {
     background-color:white;
 }
 
-.popover#search-popover {
+.popover {
+    direction: {{dir}};
+    text-align:{{side}};
     max-width: 500px;
     padding: 10px;
 }
+
 
 .in-page-highlight {
     font-size: 16px;

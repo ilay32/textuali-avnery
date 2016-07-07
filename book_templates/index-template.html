@@ -138,6 +138,14 @@ include("../../../editor/init.php");
                 <span class="glyphicon glyphicon-picture"></span>
             </button>
             {{/has_texts}}
+            
+            {{#external_texts}}
+            <button title="{{string_translations.external_texts_message}}" type="button" id="goto-external" class="btn btn-default" data-popper="#externals-popover">
+                <span class="btn-text">{{string_translations.text_mode}}</span>
+                <span class="glyphicon glyphicon-text-width"></span>
+            </button>
+            {{/external_texts}}
+            
             {{#pdf_downloads}}
             <button title="download pdf" href="{{book_shortname}}.pdf" type="button" class="btn btn-default" id="download-pdf">
                 <span class="btn-text">{{string_translations.download}}</span>
@@ -184,6 +192,11 @@ include("../../../editor/init.php");
          </div>
      </div>
     {{/has_search_canceled}} 
+    
+    {{#external_texts}}
+    <div id="externals-popover" class="popover fade" data-trigger="#goto-external">
+    </div>
+    {{/external_texts}}
 
     {{#has_texts}}
     <div id="pagelinks" class="hide">

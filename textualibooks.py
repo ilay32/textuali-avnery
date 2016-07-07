@@ -1,4 +1,4 @@
-import json,logging,os,textualangs,glob,Image,re,random,cgi
+import json,logging,os,textualangs,glob,Image,re,random,cgi,pycurl,io,urllib
 from webconfig import folders
 from PIL import Image
 from HTMLParser import HTMLParser
@@ -29,7 +29,21 @@ class TextualiBook:
         self.default_lang = "he" if textualangs.direc(self.bookdata['language']) == 'rtl' else "en"
         self.auth_htm_title_part = self.default('authpart_htm_title').format(self.default(self.authorblock['nicename']))
         self.thumbsize = 200,200
-        
+    
+    def get_pages_map(self):
+        if 'external_texts_domain' in self.authorblock:
+            domain = self.authorblock['external_texts_domain']
+        if 'external_texts_domain' in self.bookdata:
+            domain = self.bookdata['external_texts_domain']
+        logging.info("getting pages map from "+domain) 
+        url = domain+'?book_map='+self.bookid;
+        buf = io.BytesIO()
+        c = pycurl.Curl()
+        c.setopt(c.URL,str(url))
+        c.setopt(c.WRITEFUNCTION,buf.write)
+        c.perform()
+        return buf.getvalue().decode('UTF-8')
+         
         
     def htm_template_data(self,htmfile):
         num = self.page_num_by_file(htmfile)
@@ -93,6 +107,10 @@ class TextualiBook:
                     "content" : textualangs.langname(self.bookdata['language_translated_from'],self.bookdata['language']),
                     "content" : textualangs.translate("translation from",self.bookdata['language'],multi=True)
                 } 
+        if 'external_texts_domain' in self.authorblock or 'external_texts_domain' in self.bookdata:
+            ret['external_texts_map'] = self.get_pages_map()
+            ret['external_texts'] = True
+             
         return ret 
     
     def auth_text_relation(self):

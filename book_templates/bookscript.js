@@ -1,6 +1,8 @@
 var first_flipto = location.href.match(/(\/#page\/)(\d*)$/);
 srcs = "{{srcs}}";
 bm_key = '{{authdir}}_{{bookdir}}';     
+
+
 {{#generic_srcs}}
 if(location.host != "textuali.com") {
     srcs = "{{generic_srcs}}"; 
@@ -9,6 +11,21 @@ if(location.host != "textuali.com") {
     }
 }
 {{/generic_srcs}}
+
+/*function title_inlist(list,title) {
+    console.log(list,title);
+    var found = false, i = 0;
+    while(!found && i < list.length) {
+        if(list[i]['title'] == title) {
+            found = true;
+        }
+        i++;
+    }
+    return found;
+}*/
+
+
+
 
 
 function page_files(page) {
@@ -187,6 +204,46 @@ function toggle_html(btn) {
 function edit_url(file) {
     return "{{front.domain}}/editor/editor.php?auth={{authdir}}&book={{bookdir}}&page="+file;
 }
+
+{{#external_texts}}
+function external_texts_update(pages) {
+    $('#externals-popover').empty();
+    listed = [];
+    for(p in pages) {
+        list  = get_external_text_urls(pages[p]); 
+        $.each(list,function(i,v){
+            if($.inArray(v.title,listed) == -1) {
+                $('#externals-popover').append($('<h6><a target="_top" href="'+v.url+'">'+v.title+'</a></h6>'));
+                listed.push(v.title);
+            } 
+        }); 
+    }
+}
+
+function get_external_text_urls(flip_page) {
+    var map  = {{{external_texts_map}}},
+        page = flip2phis(flip_page - 1),
+        i = 0,
+        stop = false,
+        ret = [];
+    while(i < map.length && !stop) {
+        var title = map[i][1], 
+            num = parseInt(map[i][0]); 
+        if(num > page) {
+            stop = true;
+        }
+        if(num >= page) {
+            ret.push({
+                "title" : title,
+                "url" : decodeURIComponent(map[i][2])
+            });
+        }
+        i++;
+    }
+    return ret;
+}
+{{/external_texts}}
+
 function edit_button_update(pages) {
     for(i in pages) {
         file = {{page_list}}[pages[i] - 1];
@@ -303,6 +360,9 @@ function loadApp() {
                     $('.largenav.prev').addClass('disabled');
                 }
                 edit_button_update(pages);
+                {{#external_texts}}
+                external_texts_update(pages);
+                {{/external_texts}}
                 bookmarks_texts(pages);
                 if(pages[0] == 0) {
                     $('.create-mark.second').hide();
