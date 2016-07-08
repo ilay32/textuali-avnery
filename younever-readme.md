@@ -13,17 +13,21 @@ errors should explain themselves, usually they are due to faulty config.json
       * for particular <book>: /(dev)-texts/uri_avnery/\<book\>/bookstyle.css
 
   * to update the dev config json from the live one, use the update option:
-    ** python make-in.py -u or python make-in.py --update-config
+
+    python make-in.py -u or python make-in.py --update-config
 
   * blocked pages json instructions:
-    * blocked_message: general for author -- object with language code keys:
-     
+    * blocked_message: 
+      * general for author -- object with language code keys:
           "blocked_message" : {
-            "he" : "עברית",
-            "en" : "אנגלית"
+              "he" : "עברית", 
+              "en" : "אנגלית"
           }
 
-     * blocked -- array of two-valued array: 
+      * per book -- string:
+          "blocked_message" : "message"
+           
+   * blocked -- array of two-valued array: 
      
            "blocked" : [ [1,10], [34,45] ] 
            
