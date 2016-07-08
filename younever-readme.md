@@ -3,33 +3,31 @@
 **run:** python make-in.py 
 
 errors should explain themselves, usually they are due to faulty config.json
-    * uses the language module
-    
-    * generates thumbnails available in this url: <textuali.com or authordomain>/texts/<author>/<book>/<front or back>-thumbnail.jpg
-    
-    * flip  styling: 
+  * uses the language module
+  * generates thumbnails available in this url: <textuali.com or authordomain>/texts/<author>/<book>/<front or back>-thumbnail.jpg
+  * flip  styling:
     
     to overrride default styles use (create if needed) the following files:
-      
-      * for all <author> flips:
-        
-        * /(dev)-texts/<author>/authorstyle.css
-      
-      * for particular <book>:
-      
-        * /(dev)-texts/uri_avnery/\<book\>/bookstyle.css
+     * for all <author> flips: /(dev)-texts/<author>/authorstyle.css
+
+      * for particular <book>: /(dev)-texts/uri_avnery/\<book\>/bookstyle.css
 
   * to update the dev config json from the live one, use the update option:
     ** python make-in.py -u or python make-in.py --update-config
 
   * blocked pages json instructions:
-    ** message: general for author -- object with language code keys:
-     '"blocked_message" : {
-         "he" : "עברית",
-         "en" : "אנגלית"
-     }'
-    ** blocked -- array of two-valued arraye.g. [ [1,10], [34,45] ] meaning
-    the blocked pages are 1 through 10 and 34 through 45.
+    * blocked_message: general for author -- object with language code keys:
+     
+          "blocked_message" : {
+            "he" : "עברית",
+            "en" : "אנגלית"
+          }
+
+     * blocked -- array of two-valued array: 
+     
+           "blocked" : [ [1,10], [34,45] ] 
+           
+       meaning the blocked pages are 1 through 10 and 34 through 45.
 
 ##htm files  wrap script
 
