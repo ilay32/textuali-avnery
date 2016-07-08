@@ -2,7 +2,6 @@ var first_flipto = location.href.match(/(\/#page\/)(\d*)$/);
 srcs = "{{srcs}}";
 bm_key = '{{authdir}}_{{bookdir}}';     
 
-
 {{#generic_srcs}}
 if(location.host != "textuali.com") {
     srcs = "{{generic_srcs}}"; 
@@ -24,9 +23,19 @@ if(location.host != "textuali.com") {
     return found;
 }*/
 
-
-
-
+{{#blocked}}
+function is_blocked(page) {
+    var b = {{blocked}},
+        ans = false,
+        page = flip2phis(page);
+    for(i in b) {
+        if(page >= b[i][0] && page <= b[i][1]) {
+            ans = true;
+        }
+    }
+    return ans;
+}
+{{/blocked}}
 
 function page_files(page) {
     if(page > {{pages}}  || page < 1) {
@@ -95,6 +104,10 @@ function flip2phis(num) {
 function loadPage(page, pageElement) {
     var pf = page_files(page);
     if (!pf) {
+        return;
+    }
+    if(is_blocked(page)) {
+        pageElement.addClass('blocked').find('.spine-gradient').append('{{blocked_message}}');
         return;
     }
     pageElement.css('background-image','url('+pf.jpg+')');
@@ -370,6 +383,7 @@ function loadApp() {
             },
             'start' : function(event,pageObject,corner) {
                 toggleHtml(pageObject.turn.turn('view'));
+                
             }, 
             'missing': function (e, pages) { 
                 for (var i = 0; i < pages.length; i++) {

@@ -30,11 +30,14 @@ class TextualiBook:
         self.auth_htm_title_part = self.default('authpart_htm_title').format(self.default(self.authorblock['nicename']))
         self.thumbsize = 200,200
     
+    def cascade(self,key):
+        ret = self.authorblock.get(key)
+        if key in self.bookdata:
+            ret = self.bookdata[key]
+        return ret
+
     def get_pages_map(self):
-        if 'external_texts_domain' in self.authorblock:
-            domain = self.authorblock['external_texts_domain']
-        if 'external_texts_domain' in self.bookdata:
-            domain = self.bookdata['external_texts_domain']
+        domain = self.cascade('external_texts_domain')
         logging.info("getting pages map from "+domain) 
         url = domain+'?book_map='+self.bookid;
         buf = io.BytesIO()
@@ -110,7 +113,10 @@ class TextualiBook:
         if 'external_texts_domain' in self.authorblock or 'external_texts_domain' in self.bookdata:
             ret['external_texts_map'] = self.get_pages_map()
             ret['external_texts'] = True
-             
+        if 'blocked' in self.bookdata:
+            ret['blocked'] = self.bookdata['blocked']
+            message  = self.cascade('blocked_message')
+            ret['blocked_message'] = self.default(message) if isinstance(message,dict) else message
         return ret 
     
     def auth_text_relation(self):

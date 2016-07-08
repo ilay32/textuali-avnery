@@ -272,6 +272,15 @@ a.toc-link, a.toc-link:visited {
     padding: 10px;
 }
 
+.page.blocked  {
+    background-color: #303049;
+    color: white;
+    font-size: 28px;
+    text-align:center !important;
+}
+.page.blocked .spine-gradient {
+    padding-top: 30%;
+}
 
 .in-page-highlight {
     font-size: 16px;
