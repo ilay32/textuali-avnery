@@ -2,7 +2,7 @@
 
 **run:** python make-in.py 
 
-errors should explain themselves, usually they\'re due to faulty config.json
+errors should explain themselves, usually they are due to faulty config.json
     * uses the language module
     
     * generates thumbnails available in this url: <textuali.com or authordomain>/texts/<author>/<book>/<front or back>-thumbnail.jpg

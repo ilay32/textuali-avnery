@@ -106,10 +106,12 @@ function loadPage(page, pageElement) {
     if (!pf) {
         return;
     }
+    {{#blocked}}
     if(is_blocked(page)) {
         pageElement.addClass('blocked').find('.spine-gradient').append('{{blocked_message}}');
         return;
     }
+    {{/blocked}}
     pageElement.css('background-image','url('+pf.jpg+')');
     foundHtml = false;
     if('{{has_texts}}' == 'True' ) {			
