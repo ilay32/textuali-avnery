@@ -720,8 +720,8 @@ $(document).ready(function() {
 $(function() {
     yepnope({
         test : Modernizr.csstransforms,
-        yep: ['{{front.domain}}vendor/turnjs4/lib/turn.js'],
-        nope: ['{{front.domain}}vendor/turnjs4/lib/turn.html4.min.js'],
+        yep: ['{{front.domain}}/vendor/turnjs4/lib/turn.js'],
+        nope: ['{{front.domain}}/vendor/turnjs4/lib/turn.html4.min.js'],
         complete: loadApp
     });
 });     

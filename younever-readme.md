@@ -25,13 +25,23 @@ errors should explain themselves, usually they are due to faulty config.json
           }
 
       * per book -- string:
-          "blocked_message" : "message"
+           "blocked_message" : "message"
            
    * blocked -- array of two-valued array: 
      
            "blocked" : [ [1,10], [34,45] ] 
            
        meaning the blocked pages are 1 through 10 and 34 through 45.
+   
+   * pack -- object with two items:
+   
+           "pack" : {
+               "domain" : "some domain",
+               "root" : "some name"
+           }
+     When run with the options -pa <author>, the script will wrap all the authors texts along with the necessary scripts to a zip file named <author>.zip at the webapp root.
+     The *root* entry will be the name of the zip root directory.
+     The *domain* is the destination domain from which the packed flips are to be served.
 
 ##htm files  wrap script
 

@@ -442,7 +442,7 @@ $(document).ready(function() {
     });*/
     $('[data-href]').click(function(c) {
         if($(c.target).closest('.collapse, .collapser').length > 0) {
-            return
+            return;
         } 
         var h = $(this).data('href'),
             o = $(this).data('open');

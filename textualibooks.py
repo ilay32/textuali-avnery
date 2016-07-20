@@ -94,6 +94,8 @@ class TextualiBook:
         ret['openbook_ratio'] = files['openratio']
         ret['ver'] = str(random.randint(999,9999)) 
         ret['rel'] = self.auth_text_relation()
+        ret['write_index_to'] = os.path.join(self.indexpath,'index.php')
+        ret['write_script_to'] = os.path.join(self.indexpath,'bookscript.js')
         pages = self.pages_list()
         if(pages):
             ret.update(pages)
@@ -118,7 +120,7 @@ class TextualiBook:
             message  = self.cascade('blocked_message')
             ret['blocked_message'] = self.default(message) if isinstance(message,dict) else message
         return ret 
-    
+         
     def auth_text_relation(self):
         t = self.bookdata['book_type']
         l = self.bookdata['language']
