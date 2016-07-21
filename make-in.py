@@ -106,7 +106,7 @@ if __name__=='__main__':
     doing = conf['authors'].iterkeys() if auth == None else [auth]
     for authdir in doing:
         authbooks = books.get_auth_books(authdir)
-        for book in authbooks[:10]:
+        for book in authbooks:
             bookdict = book.index_dict()
             if bookdict:
                 if not os.path.exists(book.indexpath):

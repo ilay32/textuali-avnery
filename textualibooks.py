@@ -7,6 +7,7 @@ htmlparser = HTMLParser()
 logging.basicConfig(level=logging.DEBUG) 
 logger=logging.getLogger('textualibooks')
 
+            
 def unescape(s):
     return htmlparser.unescape(s).encode('utf-8')
 
@@ -119,6 +120,16 @@ class TextualiBook:
             ret['blocked'] = self.bookdata['blocked']
             message  = self.cascade('blocked_message')
             ret['blocked_message'] = self.default(message) if isinstance(message,dict) else message
+        socials = self.cascade('socials')
+        if isinstance(socials ,list):
+            social_urls = {
+                "facebook" : "https://www.facebook.com/sharer/sharer.php?u=",        
+                "twitter" : "https://twitter.com/intent/tweet?text=",
+                "email" : "mailto:?Subject="
+            }
+            ret['socials'] = [{"name" : social, "url": social_urls[social]} for social in socials]
+            if 'twitter' in socials:
+                ret['twitter_default'] = self.default(self.cascade('twitter_default'))
         return ret 
          
     def auth_text_relation(self):

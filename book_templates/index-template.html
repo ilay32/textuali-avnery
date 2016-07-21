@@ -23,7 +23,7 @@ include("../../../editor/init.php");
     <link href="{{front.domain}}/bootstrap/css/bootstrap.min.css" rel="stylesheet" type="text/css">
 	<link href="{{front.domain}}/css/flip-{{flipdirection}}.css" rel="stylesheet" type="text/css"/>
     {{#has_author_css}}
-	<link href="{{front.domain}}/{{^packing}}{indices_dir}}/{{authdir}}{{/packing}}/authorstyle.css" rel="stylesheet" type="text/css">
+	<link href="{{front.domain}}/{{^packing}}{{indices_dir}}/{{authdir}}{{/packing}}/authorstyle.css" rel="stylesheet" type="text/css">
     {{/has_author_css}} 
     {{#has_book_css}}
 	<link href="bookstyle.css" rel="stylesheet" type="text/css">
@@ -117,7 +117,8 @@ include("../../../editor/init.php");
                         </div>
                     </div><!-- new-bookmarks-->
                 </div>
-            </div>
+            </div><!-- bookmarks .dropdown -->
+            <img title="{{string_translations.share}}" id="share-modal" src="{{front.domain}}/media/share_no_margin.png"/>
         </div><!-- button group-->
     </div><!-- buttons-row -->
 
@@ -200,6 +201,20 @@ include("../../../editor/init.php");
     <div id="externals-popover" class="popover fade" data-trigger="#goto-external">
     </div>
     {{/external_texts}}
+     
+    <div id="flip-share" class="fade" >
+        <div class="alert alert-info" role="alert">
+            {{#socials}}
+            <span class="share" id="share-{{name}}" data-href="{{url}}">
+                <img alt="{{name}}" src="{{front.domain}}/media/{{name}}.png" />
+            </span>
+            {{/socials}}
+            <span id="share-url" title="{{string_translations.copy_link}}" ></span>
+            <button type="button" class="close" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+            </button>
+        </div>
+    </div>
 
     {{#has_texts}}
     <div id="pagelinks" class="hide">

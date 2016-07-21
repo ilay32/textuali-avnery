@@ -268,6 +268,33 @@ function edit_button_update(pages) {
         tar.show();
     }
 }
+
+function share_urls_update(page) {
+    url = location.href; 
+    if(window != self.top) {
+        var parser = document.createElement('a'),
+            parenturl = document.referrer;
+        parser.href = parenturl;
+        url = parser.origin + parser.pathname+"?book={{bookdir}}";
+    }
+    if(page > 1) {
+        url += "/#page/"+flip2phis(page);
+    }
+    $('#share-url').text(url);
+    $('.share').each(function() {
+        var sharebase = $(this).attr('data-href'),
+            u = url;
+        switch(this.id) {
+            case 'share-twitter' : 
+                u = sharebase + "{{twitter_default}}";
+            break;
+            default:
+                u = sharebase + url; 
+        }
+        $(this).data('share_url',u);
+    });
+}  
+
 function show_html(pages) {
     var tar; 
     for (i in pages) {
@@ -364,7 +391,7 @@ function loadApp() {
                         }
                     }
                     Hash.go('page/'+page);
-                    parent.postMessage({type:'flipped_to',"page" : page}, "*");
+                    //parent.postMessage({type:'flipped_to',"page" : page}, "*");
                 } 
                 //$('.flb-next, .flb-prev').show();
                 $('.largenav').removeClass('disabled');
@@ -375,6 +402,7 @@ function loadApp() {
                     $('.largenav.prev').addClass('disabled');
                 }
                 edit_button_update(pages);
+                share_urls_update(page);
                 {{#external_texts}}
                 external_texts_update(pages);
                 {{/external_texts}}
@@ -398,6 +426,7 @@ function loadApp() {
                 if($('#top-buttons').hasClass('open')) {
                     $('.toc-list.toc').dropdown('toggle');
                 }
+                $('#flip-share').removeClass('in');
             }
         }                 
     });
@@ -554,8 +583,14 @@ function bookmarks_texts(pages) {
 
 
 $(document).ready(function() {
+    $('.share').click(function() {
+        var h = $(this).data('share_url');
+        window.open(h,"", "width=600, height=400");
+    });
+    $('#share-modal,#flip-share .close').click(function() {
+        $('#flip-share').toggleClass('in');
+    });
     $(window).load(bookmarks_dropdown);
-    
     $('#delete-all-bookmarks').click(delete_all_bookmarks);
     $('#bookmarks-trigger').click(function() {
         $(this).closest('.dropdown').toggleClass('open');

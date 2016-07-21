@@ -94,6 +94,7 @@ function tag_in_modal(url,tag,att) {
     setTimeout(function() {
         $('#auth-mod').find(tag).attr(att,url);
     },100);
+    $('#auth-mod .share-modal').addClass('hide');
 }
 
 function iframe_in_modal(url) {
@@ -109,19 +110,19 @@ function video_in_modal(v) {
 
 function book_in_modal(bookurl,bookid) {
     iframe_in_modal(bookurl);
-    $('#auth-mod').data('curbook',bookid);
-    var s = window.location.href.replace(window.location.search, '');
-    if (bookid == undefined) {
-        var m  = bookurl.match(/{{auth}}\/([a-z0-9]+)/);
-        if (m.length == 2) {
-            bookid = m[1];
-       }
-    }
-    bookid = bookid.replace(/\/$/, '');
-    if (/^[a-z0-9]{3,5}$/.test(bookid)) {
-        s += '?book='+bookid;
-        share('#auth-mod', s);
-    }
+    //$('#auth-mod').data('curbook',bookid);
+    //var s = window.location.href.replace(window.location.search, '');
+    //if (bookid == undefined) {
+    //    var m  = bookurl.match(/{{auth}}\/([a-z0-9]+)/);
+    //    if (m.length == 2) {
+    //        bookid = m[1];
+    //   }
+    //}
+    //bookid = bookid.replace(/\/$/, '');
+    //if (/^[a-z0-9]{3,5}$/.test(bookid)) {
+    //    s += '?book='+bookid;
+    //    share('#auth-mod', s);
+    //}
 }
 
 function slideshow_in_modal(id,title) {
@@ -163,7 +164,7 @@ function bind_vid_adjustment() {
 
 function share(modalid,url) {
     var s = $(modalid).find('span.share');
-    $(modalid).find('.share-modal').bind('click', function() {
+    $(modalid).find('.share-modal').removeClass('hide').bind('click', function() {
         s.text(url).closest('.share-input-wrap').toggleClass('in');
     });
 }
@@ -336,16 +337,16 @@ $(document).ready(function() {
                 case 'slideshow':
                     slideshow_in_modal(event.data.slideshow,false);
                 break;
-                case 'flipped_to':
-                    var s = $('#auth-mod').find('span.share');
-                    cur = s.text().replace(/\/#page.*$/,'');
-                    if(cur == "") {
-                        cur = location.host+location.pathname+'?book='+$('#auth-mod').data('curbook');
-                    }
-                    s.closest('.share-input-wrap').removeClass('in');
-                    s.replaceWith($('<span/>').addClass('share'));
-                    share('#auth-mod',cur+'/#page/'+event.data.page);
-                break;
+                //case 'flipped_to':
+                //    var s = $('#auth-mod').find('span.share');
+                //    cur = s.text().replace(/\/#page.*$/,'');
+                //    if(cur == "") {
+                //        cur = location.host+location.pathname+'?book='+$('#auth-mod').data('curbook');
+                //    }
+                //    s.closest('.share-input-wrap').removeClass('in');
+                //    s.replaceWith($('<span/>').addClass('share'));
+                //    share('#auth-mod',cur+'/#page/'+event.data.page);
+                //break;
                 default:
                     $.noop();
             }
