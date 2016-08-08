@@ -594,7 +594,7 @@ class AuthorSiteGenerator:
         pagedict = self.siteconfig['pages'][page]
         lang = self.lang
         block = self.get_globals()
-        
+        ret = "" 
         if 'innertitle' in pagedict and pagedict['innertitle']:
             block['pagetitle'] = self.default(pagedict['page_title'])
             if 'title_image' in pagedict:
@@ -626,7 +626,7 @@ class AuthorSiteGenerator:
             if(os.path.exists(statf)):
                 logger.info(u'loading '+lang+'/'+page+' static html')
                 stat = open(statf).read() 
-                return '<div id="static-container">'+stat+'</div><!-- static-container--></main>'+add
+                ret = '<div id="static-container">'+stat+'</div><!-- static-container--></main>'            
             else:
                 logger.error(page+" ("+lang+") "+"has template 'static' but no " + page + "-static.html found in ...site/"+lang)
                 return
@@ -636,13 +636,21 @@ class AuthorSiteGenerator:
             cont = open(contf).read()
             block['content'] = cont
         
-        if not os.path.exists(tempf):
-            logger.error("can't find template '"+template+"'")
-            return
+                
         #if template == 'timeline':
         #    self.render_timeline_src()
         
-        return  stache.render(stache.load_template(template+".html"),block).encode('utf-8')+add
+        if ret == "": 
+            if not os.path.exists(tempf):
+                logger.error("can't find template '"+template+"'")
+                return
+            ret =  stache.render(stache.load_template(template+".html"),block).encode('utf-8')
+
+        if pagedict.get('additional_on_top'):
+            ret = add+ret
+        else:
+            ret = ret+add
+        return ret
     
     def render_timeline_src(self):
         lang = self.lang
