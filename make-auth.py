@@ -38,7 +38,8 @@ class AuthorSiteGenerator:
         self.langpat = re.compile("^[a-z]{2}$")
         self.hidden = []
         self.body_blocks = {
-            "books": self.books_template_data,
+            "books" : self.books_template_data,
+            "publications": self.publications_template_data,
             "videos" : self.videos_template_data,
             "isotope": self.isotope_template_data,
             "pictures" : self.pictures_template_data,
@@ -266,14 +267,17 @@ class AuthorSiteGenerator:
             blocks = []
         return {"iblocks" : blocks}
     
-    def books_template_data(self,pagedict):
+    def publications_template_data(self,pagedict):
         prim = self.siteconfig['primary_language']
         if self.lang ==  prim:
             cats = self.books_by_cat(pagedict)
         else:
             cats = self.books_by_lang(prim,pagedict)
         return {"cats":cats}
-    
+   
+    def books_template_data(self,pagedict):
+        return {"books" : [book.generic_block_dict() for book in self.filter_page_books(pagedict,False)]}
+         
     def books_by_lang(self,skiplang,pagedict):
         ret = []
         tempdict = {}
@@ -604,7 +608,7 @@ class AuthorSiteGenerator:
             block['has_pagetitle'] = False
         
         template = pagedict['template']
-        contf= self.langpath+"/"+page+"-maintext.txt"
+        contf= self.langpath+"/"+page+"-maintext.html" 
         statf = self.langpath+"/"+page+"-static.html"
         tempf = "auth_templates/"+template+".html"
         add = self.get_additional(page)        
@@ -634,6 +638,7 @@ class AuthorSiteGenerator:
         elif os.path.exists(contf):
             logger.info(u'loading '+ page+ ' maintext  into template')
             cont = open(contf).read()
+            block['has_content'] = True
             block['content'] = cont
         
                 

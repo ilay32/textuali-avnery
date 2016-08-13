@@ -3,13 +3,9 @@
             {{ > pagetitle.html }}
         {{/has_pagetitle}}
 
-        {{#content}}
-        <div class="row">
-            <div class="col-sm-12">
-                {{content}}
-            </div>
-        </div>
-        {{/content}}
+        {{#has_content}}
+            {{ > content.html}}
+        {{/has_content}}
 
         {{#knessets}}
         <div class="row well" data-knesset="{{knesset}}">

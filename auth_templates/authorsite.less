@@ -5,15 +5,6 @@
 @vertspace: 20px;
 @font-size-large: {{font_size_base}}*1.1; 
 
-{{#header_is_light}}
-    @header_text_color: darken({{light_bg}},30%);
-    @header-border-color: lighten({{primary_color}},20%);
-{{/header_is_light}}
-{{^header_is_light}}
-    @header_text_color: lighten({{light_bg}},30%);
-    @header-border-color: {{light_bg}};
-{{/header_is_light}}
-
 html {
     font-size:{{font_size_base}};
 }
@@ -75,7 +66,7 @@ a, a:active, a:focus, a.active {
 #masthead {
     margin-bottom: 0;
     background-color:{{header_bg}};
-    border-bottom: @topborderwidth solid @header-border-color;    
+    border-bottom: @topborderwidth solid {{header_border_color}};    
     box-sizing:border-box;
     height:{{header_height}};
     .container.wide {
@@ -95,7 +86,7 @@ a, a:active, a:focus, a.active {
 }
 .navbar-toggle {
     span {
-        background-color: @header_text_color;
+        background-color: {{header_text_color}};
     }
 }
 
@@ -110,7 +101,7 @@ a, a:active, a:focus, a.active {
         li > a {
             font-weight: 600;
             font-size:@font-size-large;
-            color: @header_text_color;
+            color: {{header_text_color}};
             &:hover,&:focus,&.active{
                 background-color: transparent;
                 color: {{primary_color}};
@@ -191,10 +182,10 @@ main {
         background: none; 
     } */
     a,a:hover {
-        color:@header_text_color;
+        color:{{header_text_color}};
     }
     h1,h2,h3,h4,h5,h6 {
-        color:@header_text_color;
+        color:{{header_text_color}};
         font-weight:600;
         main > & {
             text-align:center;
@@ -219,7 +210,7 @@ main {
     margin: 10px 0;
     .vid {
         cursor: pointer;
-        color: @header_text_color;
+        color: {{header_text_color}};
     }
 }
 .startframe {
@@ -261,18 +252,18 @@ main {
             fill:@buttoncolor; 
         }
         polygon {
-            fill: @header_text_color;
+            fill: {{header_text_color}};
         }
         .rect1 {
            fill:  @buttoncolor;
         } 
         .rect2 {
             fill: @buttoncolor;
-            stroke: @header_text_color;
+            stroke: {{header_text_color}};
             stroke-width: 5;
         }
         .rect3 {
-            fill: @header_text_color;
+            fill: {{header_text_color}};
         }
     }
 }
@@ -402,7 +393,7 @@ main {
     position: fixed;
     top: {{header_height}};
     background-color: {{header_bg}};
-    color:@header_text_color;
+    color:{{header_text_color}};
     z-index:3;
     &.in {
         height:auto;
@@ -416,7 +407,7 @@ main {
        margin-{{oposide}}:@horizspace;
     }
     label {
-        color: @header_text_color;
+        color: {{header_text_color}};
         margin-{{oposide}}: 5px;
     }
 }
@@ -517,7 +508,7 @@ iframe{
     p {
         height: 100px;
         overflow: hidden;
-        color: @header_text_color;
+        color: {{header_text_color}};
         font-size: @font-size-large;
         margin: @vertspace/2 0 0;
    }
@@ -612,7 +603,7 @@ button.screenaction {
     text-align: left;
     padding-top:@vertspace;
     a {
-        color: @header_text_color;
+        color: {{header_text_color}};
         margin: 5px;
     }
 }

@@ -1,10 +1,6 @@
-    {{#content}}
-    <div class="row">
-        <div class="col-sm-12">
-            {{content}}
-        </div>
-    </div>
-    {{/content}}
+    {{#has_content}}
+        {{ > content.html}}
+    {{/has_content}}
 
 
     {{#primary}}

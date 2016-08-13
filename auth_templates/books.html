@@ -1,19 +1,12 @@
+
     {{#content}}
-    <div class="row">
-        <div class="col-sm-12">
-            {{content}}
-        </div>
-    </div>
+        {{ > content.html}}
     {{/content}}
 
-
-    {{#cats}}
     <div class="row">
-        <h2 class="col-xs-12 page-title">{{title}}</h2>
-        {{#books}}
-            {{> book.html}}
-        {{/books}}
-    </div><!-- row -->
-    {{/cats}}
+    {{#books}}
+        {{> book.html}}
+    {{/books}}
+    </div>
 </main>
 

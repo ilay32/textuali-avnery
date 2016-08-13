@@ -1,0 +1,14 @@
+    {{#has_content}}
+        {{> content.html}}
+    {{/has_content}}
+    
+    {{#cats}}
+    <div class="row">
+        <h2 class="col-xs-12 page-title">{{title}}</h2>
+        {{#books}}
+            {{> book.html}}
+        {{/books}}
+    </div><!-- row -->
+    {{/cats}}
+</main>
+
