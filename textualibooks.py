@@ -114,8 +114,10 @@ class TextualiBook:
                     "content" : textualangs.translate("translation from",self.bookdata['language'],multi=True)
                 } 
         if 'external_texts_domain' in self.authorblock or 'external_texts_domain' in self.bookdata:
-            ret['external_texts_map'] = self.get_pages_map()
-            ret['external_texts'] = True
+            pagemap  = self.get_pages_map()
+            if pagemap != "" and pagemap != "null":
+                ret['external_texts_map'] = pagemap
+                ret['external_texts'] = True
         if 'blocked' in self.bookdata:
             ret['blocked'] = self.bookdata['blocked']
             message  = self.cascade('blocked_message')
