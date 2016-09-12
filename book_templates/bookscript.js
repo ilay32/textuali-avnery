@@ -35,6 +35,38 @@ function is_blocked(page) {
     }
     return ans;
 }
+
+function find_next_available(page) {
+    if(!is_blocked(page)) {
+        return page;
+    }
+    var b = {{blocked}},
+        i = 0;
+    while(i < b.length) {
+        if(flip2phis(page) > b[i][1] ) {
+            i++;
+        }
+        else {
+            if(i < b.length && b[i][1] < {{phispage_count}}) {
+                return phis2flip(b[i][1] + 1);
+            }
+            else {
+                return first_available_page()
+            }
+        }
+    }
+}
+
+function first_available_page() {
+    var b = {{blocked}};
+    if(b[0][0] > 1) {
+        return phis2flip(1);
+    }
+    else if(b[0][1] < {{phispage_count}}) {
+        return phis2flip(b[0][1] + 1);
+    }
+    return 1;
+}
 {{/blocked}}
 
 function page_files(page) {
@@ -108,7 +140,17 @@ function loadPage(page, pageElement) {
     }
     {{#blocked}}
     if(is_blocked(page)) {
-        pageElement.addClass('blocked').find('.spine-gradient').append('{{blocked_message}}');
+        var cont = $('<div><p>{{blocked_message}}</p></div>'),
+            next = find_next_available(page),
+            nextext = next > page ? "go to next avilable page" : "go to first available page";
+        b = $('<button class="next-avail btn btn-default flb-seek" data-seek="'+next+'">'+nextext+'</button>').click(function() {
+                seek = $(this).data('seek');
+                if(/^\d+$/.test(seek)) {
+                    $('.flipbook').turn('page',seek);
+                }
+            });
+        cont.append(b);
+        pageElement.addClass('blocked').find('.spine-gradient').append(cont);
         return;
     }
     {{/blocked}}
