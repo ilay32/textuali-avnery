@@ -142,7 +142,7 @@ function loadPage(page, pageElement) {
     if(is_blocked(page)) {
         var cont = $('<div><p>{{blocked_message}}</p></div>'),
             next = find_next_available(page),
-            nextext = next > page ? "go to next avilable page" : "go to first available page";
+            nextext = next > page ? "{{string_translations.next_avail}}" : "{{string_translations.first_avail}}";
         b = $('<button class="next-avail btn btn-default flb-seek" data-seek="'+next+'">'+nextext+'</button>').click(function() {
                 seek = $(this).data('seek');
                 if(/^\d+$/.test(seek)) {
