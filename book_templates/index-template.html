@@ -188,7 +188,9 @@ include("../../../editor/init.php");
             <span title="to back cover" data-seek="{{pages}}" class="glyphicon glyphicon-{{forward}} flb-seek"></span>-->
         </div>
     </div><!-- container -->
-    
+    <div id="neo-credits">
+        textuali | powered by: <a href="http://neora.pro">neora.pro</a>
+    </div>
     {{#has_search_canceled}}
     <div id="search-popover" data-trigger="#search-trigger" class="popover">
         <div id="search-results" class="fade">
@@ -215,7 +217,7 @@ include("../../../editor/init.php");
             </button>
         </div>
     </div>
-
+    
     {{#has_texts}}
     <div id="pagelinks" class="hide">
         {{#pagelinks}}
@@ -223,6 +225,8 @@ include("../../../editor/init.php");
         {{/pagelinks}}
     </div> 
     {{/has_texts}}
+    
+    {{^packing}}
     <div class="modal fade" id="editor-frame" tabindex="-1" role="dialog">
         <div class="modal-dialog">
             <div class="modal-content">
@@ -235,6 +239,8 @@ include("../../../editor/init.php");
             </div><!-- /.modal-content -->
         </div><!-- /.modal-dialog -->
     </div><!-- /.modal -->  
+    {{/packing}}
+   
     <!-- Bootstrap core JavaScript
     ================================================== -->
     <!-- Placed at the end of the document so the pages load faster -->

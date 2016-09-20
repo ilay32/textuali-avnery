@@ -426,6 +426,14 @@ background: -moz-linear-gradient(left,  rgba(33,32,6,0.4) 0%, rgba(32,31,6,0.15)
 
 
 }
+
+#neo-credits {
+    position: absolute;
+    z-index:2;
+    left: 2px;
+    bottom: 2px;
+    font-size: 10px;
+}
 form {
     float: {{side}};
     margin: 0 10px;

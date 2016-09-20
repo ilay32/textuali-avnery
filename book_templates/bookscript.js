@@ -258,9 +258,21 @@ function toggle_html(btn) {
     });
 }
 
+{{^packing}}
 function edit_url(file) {
     return "{{front.domain}}/editor/editor.php?auth={{authdir}}&book={{bookdir}}&page="+file;
 }
+
+function edit_button_update(pages) {
+    for(i in pages) {
+        file = {{page_list}}[pages[i] - 1];
+        var tar = $('#edit'+i);
+        tar.data('url',edit_url(file));
+        tar.find('.btn-text').text('{{string_translations.edit}} '+ file);
+        tar.show();
+    }
+}
+{{/packing}}
 
 {{#external_texts}}
 function external_texts_update(pages) {
@@ -301,15 +313,8 @@ function get_external_text_urls(flip_page) {
 }
 {{/external_texts}}
 
-function edit_button_update(pages) {
-    for(i in pages) {
-        file = {{page_list}}[pages[i] - 1];
-        var tar = $('#edit'+i);
-        tar.data('url',edit_url(file));
-        tar.find('.btn-text').text('{{string_translations.edit}} '+ file);
-        tar.show();
-    }
-}
+
+
 
 function share_urls_update(page) {
     url = location.href; 
@@ -443,8 +448,12 @@ function loadApp() {
                 if(page == 1) {
                     $('.largenav.prev').addClass('disabled');
                 }
+                
+                {{^packing}}
                 edit_button_update(pages);
                 share_urls_update(page);
+                {{/packing}}
+                
                 {{#external_texts}}
                 external_texts_update(pages);
                 {{/external_texts}}
@@ -511,27 +520,6 @@ function loadApp() {
     
 } //loadApp
 
-$(window).resize(function() {
-    var rememberme = {
-        page:  $('.flipbook').turn('page'), 
-        displaymode : $('.flipbook').data('displayMode')
-    };
-    $('.flipbook').turn('destroy');
-    loadApp();
-    var book = $('.flipbook');
-    book.data('displayMode',rememberme.displaymode);
-    Hash.go('page/'+rememberme.page);
-    book.turn('page',rememberme.page);
-    /*for(p in book.turn('view')) {
-        addPage(p,book);
-    }*/
-    toggleHtml(); 
-});
-$('.edit').click(function() {
-    var url = $(this).data('url');
-    $('#editor-frame').find('.modal-body').html('<iframe src="'+url+'"></iframe>');
-    $('#editor-frame').modal('show');
-});
 
 function delete_all_bookmarks() {
     if(typeof(Storage !== "undefined") && typeof(JSON) !== "undefined") { 
@@ -625,6 +613,32 @@ function bookmarks_texts(pages) {
 
 
 $(document).ready(function() {
+    $(window).resize(function() {
+        var rememberme = {
+            page:  $('.flipbook').turn('page'), 
+            displaymode : $('.flipbook').data('displayMode')
+        };
+        $('.flipbook').turn('destroy');
+        loadApp();
+        var book = $('.flipbook');
+        book.data('displayMode',rememberme.displaymode);
+        Hash.go('page/'+rememberme.page);
+        book.turn('page',rememberme.page);
+        /*for(p in book.turn('view')) {
+            addPage(p,book);
+        }*/
+        toggleHtml(); 
+    });
+
+    {{^packing}}
+    $('.edit').click(function() {
+        var url = $(this).data('url');
+        $('#editor-frame').find('.modal-body').html('<iframe src="'+url+'"></iframe>');
+        $('#editor-frame').modal('show');
+    });
+    edit_button_update([1,2]);
+    {{/packing}}
+    
     $('.share').click(function() {
         var h = $(this).data('share_url');
         window.open(h,"", "width=600, height=400");
@@ -649,7 +663,6 @@ $(document).ready(function() {
         }
     });
 
-    edit_button_update([1,2]);
     $('.flipbook').data('displayMode', 'scan');
     if(parseInt({{toc}}) > 0) {
         get_toc({{toc}});
