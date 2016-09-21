@@ -429,7 +429,7 @@ background: -moz-linear-gradient(left,  rgba(33,32,6,0.4) 0%, rgba(32,31,6,0.15)
 
 #neo-credits {
     position: absolute;
-    z-index:2;
+    z-index:5;
     left: 2px;
     top: 2px;
     font-size: 10px;
