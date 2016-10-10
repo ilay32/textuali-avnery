@@ -113,7 +113,8 @@ if __name__=='__main__':
                 if not os.path.exists(book.indexpath):
                     os.makedirs(book.indexpath)
                 if packing:
-                    logger.info("packing "+auth,"("+('update' if update else 'full')+")")
+                    mode = "update" if update else "full"
+                    logger.info("packing "+auth+" ("+mode+")")
                     bookdict = convert_to_export(bookdict,pack_params,packagehouse)    
                     if update:
                         os.makedirs(os.path.join(packagehouse,bookdict['bookdir']))
