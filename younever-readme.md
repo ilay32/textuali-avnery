@@ -39,9 +39,11 @@ errors should explain themselves, usually they are due to faulty config.json
                "domain" : "some domain",
                "root" : "some name"
            }
-     When run with the options -pa \<author\>, the script will wrap all the authors texts along with the necessary scripts to a zip file named \<author\>.zip at the webapp root.
+     When run with the options -pa[u] \<author\>, the script will wrap all the authors texts along with the necessary scripts to a zip file named \<author\>.zip at the webapp root.
+     If the u (--update-config) option is given, only book indices, css and javascript will be packed.
      The *root* entry will be the name of the zip root directory.
      The *domain* is the destination domain from which the packed flips are to be served.
+
 
 ##htm files  wrap script
 

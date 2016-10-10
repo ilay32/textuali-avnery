@@ -40,9 +40,10 @@ if __name__=='__main__':
     conf = json.load(file('config.json'))
     (options, args) = op.parse_args()
     packing = False
+    update = options.update_config
     auth = options.author
     # update config file if requested and use the new for rendering
-    if options.update_config:
+    if update and not options.pack:
         if 'textuali-dev' not in os.path.realpath(__file__):
             logger.error("you are using the --update-config option in the wrong place. quitting.")
             quit()
@@ -112,10 +113,13 @@ if __name__=='__main__':
                 if not os.path.exists(book.indexpath):
                     os.makedirs(book.indexpath)
                 if packing:
-                    logger.info("packing "+auth)
+                    logger.info("packing "+auth,"("+('update' if update else 'full')+")")
                     bookdict = convert_to_export(bookdict,pack_params,packagehouse)    
-                    shutil.copytree(os.path.join(conf['front']['srcs_dir'],auth,bookdict['bookdir']), \
-                    os.path.join(packagehouse,bookdict['bookdir']), ignore=shutil.ignore_patterns('*.php','*.tif','_*'))
+                    if update:
+                        os.makedirs(os.path.join(packagehouse,bookdict['bookdir']))
+                    else:
+                        shutil.copytree(os.path.join(conf['front']['srcs_dir'],auth,bookdict['bookdir']), os.path.join(packagehouse,bookdict['bookdir']), ignore=shutil.ignore_patterns('*.php','*.tif','_*')) 
+                    
                 ind = open(bookdict['write_index_to'],'w')
                 ind.write(stache.render(stache.load_template('index-template.html'),bookdict).encode('utf-8'))
                 ind.close()
@@ -126,11 +130,12 @@ if __name__=='__main__':
             else:
                 logger.info(bookdict['book_shortname'] + " couldn't find pages")
         logger.info(authdir + " book indices complete")
-        if packing :
+        if packing:
             logger.info("zipping and cleaning up")
-            shutil.copytree('../media',packagehouse+'/media')
-            shutil.copytree('../vendor',packagehouse+'/vendor')
-            shutil.copytree('../bootstrap',packagehouse+'/bootstrap')
+            if not update:
+                shutil.copytree('../media',packagehouse+'/media')
+                shutil.copytree('../vendor',packagehouse+'/vendor')
+                shutil.copytree('../bootstrap',packagehouse+'/bootstrap')
             shutil.copytree('../css',packagehouse+'/css')
             zfname = auth+'.zip'
             
@@ -138,7 +143,7 @@ if __name__=='__main__':
                 os.remove(zfname)
             zipf = zipfile.ZipFile(zfname, 'w', zipfile.ZIP_DEFLATED)
             zipdir(packagehouse,zipf)
-            logger.info("zip contnenents:")
+            logger.info("zip contennts:")
             zipf.printdir()
             zipf.close() 
             
