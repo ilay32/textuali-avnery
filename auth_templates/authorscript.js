@@ -132,7 +132,8 @@ function slideshow_in_modal(id,title) {
         dataType: 'HTML'
     }).done(function(slideshow) { 
         slideshow = $(slideshow);
-        if (slideshow.length == 1) {
+        //console.log(slideshow);
+        //if (slideshow.length == 1) {
             slideshow.find('.loader').each(function() {
                 var loader = $(this);
                 var slide = new Image();
@@ -145,12 +146,12 @@ function slideshow_in_modal(id,title) {
             });
             //$(this).after(attr('src', $(this).data('src'));
             $('#auth-mod').modal('show').find('.modal-body').html(slideshow);
-            slideshow.height($(window).height()*0.9).fadeIn(200);
+            slideshow.find('.carousel').height($(window).height()*0.85).fadeIn(200);
             share('#auth-mod',window.location.href.replace(window.location.search, '')+'?slideshow='+id);
             if(title) {
-                $('#'+id).prepend('<h2>'+title+'</h2>');
+                $('#'+id).find('.carousel').before('<h2 class="slideshow-title">'+title+'</h2>');
             }
-        }
+        //}
     });
 }
 
