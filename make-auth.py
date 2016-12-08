@@ -1,5 +1,5 @@
 
-import csv,json,jsoncomment,urllib2,re,logging,sys,os,glob,jsonmerge,lesscpy,six, optparse,textualangs,pystache,string,random,cgi,urlparse,textualibooks
+import csv,json,jsoncomment,urllib2,re,logging,sys,os,glob,jsonmerge,lesscpy,six, optparse,textualangs,pystache,string,random,cgi,urlparse,textualibooks,subprocess
 from PIL import Image
 from HTMLParser import HTMLParser
 
@@ -53,16 +53,17 @@ class AuthorSiteGenerator:
     def default(self,obj):
         return textualangs.default(self.lang, self.siteconfig['primary_language'],obj)
     
-    def parse_file_name(self,filename):
+    def parse_file_name(self,filename,heap):
+        filename = filename.encode('utf-8')
         pat = re.compile("^[A-Z]\-I(\d+)\-D(\d+)")
         m = pat.match(filename)
-        if len(m.groups()) != 2:
+        if not m or len(m.groups()) != 2:
             logger.warning("invalid file name (ignored): "+filename)   
             return False
         date = m.group(2)
         day = date[:2]
         month = date[2:4]
-        year = date[4:6]
+        year = '19'+date[4:6]
         return {
             "ord" : m.group(1),
             "year" : year,
@@ -71,12 +72,53 @@ class AuthorSiteGenerator:
             "date" : "/".join([day,month,year]),
             #"length" : m.group(2),
             #"begin" : m.group(3),
-            "file" : filename
+            "file" : filename,
+            "thumb" : self.get_pdf_thumb(filename,heap)
         }
+    
+    
+    def get_pdf_thumb(self,pdfname,pdfsdir):
+        thumb = os.path.join(pdfsdir+"-thumbs",pdfname.replace('.pdf','.jpg'))
+        thumburl = re.sub(r".*"+self.auth,self.authtexts,thumb).encode('utf-8')
+        pdf = os.path.join(pdfsdir,pdfname)
+        if not os.path.isfile(thumb): 
+            logger.info("creating thumb for "+pdf)
+            try:
+                params = 'convert -resize 300x300 -crop 200x100+0+0 '+pdf+' '+thumb
+
+                subprocess.check_call(params,shell=True)
+                logger.info("done "+thumb)
+            except Exception as e:
+                logger.error(e)
+        return thumburl
     
     def file_heap_template_data(self,pagedict):
         if 'heap_location' not in pagedict:
-            logger.error("please speicfy heap location")
+            logger.error("please specify heap location")
+            return {}
+        heaplocation = os.path.join(self.conf['front']['srcs_dir'],self.auth,pagedict['heap_location'])
+        if not os.path.isdir(heaplocation+"-thumbs"):
+            os.makedirs(heaplocation+"-thumbs")
+        files = [self.parse_file_name(f,heaplocation) for f in os.listdir(heaplocation)]
+        files.sort(key=lambda x: int(x['ord']))
+        very_last_year = int(files[len(files) -1]['year'])
+        yearfiles = dict()
+        for f in files:
+            fy = f['year']            
+            if fy in yearfiles:
+                yearfiles[fy].append(f)
+            else:
+                yearfiles[fy] = [f]
+        return {
+                "yearfiles" : yearfiles,
+                "heap_base" : pagedict['heap_location']
+            } 
+
+    
+    
+    def _file_heap_template_data(self,pagedict):
+        if 'heap_location' not in pagedict:
+            logger.error("please specify heap location")
             return {}
         rows  = []
         files = [self.parse_file_name(f) for f in os.listdir(os.path.join(self.conf['front']['srcs_dir'],self.auth,pagedict['heap_location']))]
@@ -191,7 +233,7 @@ class AuthorSiteGenerator:
                 slide['caption'] = slide['title'][self.lang]
                 slide['alt'] =  cgi.escape(self.default(slide['title'])).encode('utf-8', 'xmlcharrefreplace').strip()
                 slide['ord'] = index
-        if not os.path.exists(self.langpath+"/slideshows"):
+        if not os.path.isdir(self.langpath+"/slideshows"):
             os.makedirs(self.langpath+"/slideshows")
         logger.info("rendering slideshows in "+self.lang+"/slideshows")
         for slideshow in slideshows:
@@ -402,7 +444,7 @@ class AuthorSiteGenerator:
                 self.siteconfig = jc.load(file(self.indexpath+"/siteconfig.json"))
                 self.vidframeurl = self.siteconfig['baseurl']+'/img/video/{0}{1}' 
                 self.vidframepath = self.indexpath+'/img/video/{0}{1}' 
-                self.devurl = front['domain']+self.indexpath.replace("/home/sidelang/webapps/phptextuali","").replace("../","")
+                self.devurl = front['domain']+self.indexpath.replace("/home/sidelang/webapps/phptextuali","").replace("../","/")
                 self.authtexts = self.siteconfig['destination_domain']+"/"+front['srcs_dir'].replace("../","")+"/"+authdir
                 self.authbooks = textualibooks.TextualiBooks(self.conf).get_auth_books(authid,self.siteconfig)
 
@@ -489,8 +531,8 @@ class AuthorSiteGenerator:
             }) 
         templatedata['utils'] = utils
         templatedata['menu_items'] = menu_items
-        templatedata['cssoverride']=os.path.exists(self.indexpath+"/css/local-override.css") 
-        templatedata['localscript'] = os.path.exists(self.indexpath+"/js/sitescript.js")
+        templatedata['cssoverride']=os.path.isfile(self.indexpath+"/css/local-override.css") 
+        templatedata['localscript'] = os.path.isfile(self.indexpath+"/js/sitescript.js")
         return stache.render(stache.load_template('header.html'),templatedata).encode('utf-8')
     
     # recursively generate the menu items list
@@ -573,10 +615,10 @@ class AuthorSiteGenerator:
             text = pagedict['twitt'] if 'twitt' in pagedict else self.compile_title(pagedict,",") 
             ret = "https://twitter.com/intent/tweet?text="+text            
         if social == "email":
-            pagename = self.default(pagedict['label']) if 'label' in pagedict else ""
-            mailto = self.siteconfig['socials'][social]['mailto'] 
-            #ret = "mailto:"+mailto+"?Subject="+self.siteconfig['destination_domain']+" "+pagename
-            ret = "mailto:"+mailto
+        #    pagename = self.default(pagedict['label']) if 'label' in pagedict else ""
+        #    mailto = self.siteconfig['socials'][social]['mailto'] 
+        #    #ret = "mailto:"+mailto+"?Subject="+self.siteconfig['destination_domain']+" "+pagename
+            ret = "email"
         return ret
     
     def get_additional(self,page):
@@ -627,7 +669,7 @@ class AuthorSiteGenerator:
             block['message'] = pagedict['message']
         
         if template == "static":
-            if(os.path.exists(statf)):
+            if(os.path.isfile(statf)):
                 logger.info(u'loading '+lang+'/'+page+' static html')
                 stat = open(statf).read() 
                 ret = '<div id="static-container">'+stat+'</div><!-- static-container--></main>'            
@@ -635,7 +677,7 @@ class AuthorSiteGenerator:
                 logger.error(page+" ("+lang+") "+"has template 'static' but no " + page + "-static.html found in ...site/"+lang)
                 return
         
-        elif os.path.exists(contf):
+        elif os.path.isfile(contf):
             logger.info(u'loading '+ page+ ' maintext  into template')
             cont = open(contf).read()
             block['has_content'] = True
@@ -646,7 +688,7 @@ class AuthorSiteGenerator:
         #    self.render_timeline_src()
         
         if ret == "": 
-            if not os.path.exists(tempf):
+            if not os.path.isfile(tempf):
                 logger.error("can't find template '"+template+"'")
                 return
             ret =  stache.render(stache.load_template(template+".html"),block).encode('utf-8')
@@ -668,7 +710,7 @@ class AuthorSiteGenerator:
             "src" : self.conf['front']['domain']+"/timeline" 
         }
         varsf = self.langpath+"/timeline_src_params.json"
-        if os.path.exists(varsf) :
+        if os.path.isfile(varsf) :
             vars = jc.load(file(varsf))
         elif lang != "he":
             try:
@@ -676,8 +718,6 @@ class AuthorSiteGenerator:
                 logger.info("timline - "+lang+" using defaults found in the hebrew directory")
             except:
                 logger.info("no timeline configuration, using general defaults")
-        #if not os.path.exists(dir):
-        #    os.makedirs(dir)
         vars = jsonmerge.merge(defaults,vars)
         try:
             block = jsonmerge.merge(block,vars)
@@ -695,7 +735,7 @@ class AuthorSiteGenerator:
         #home as index
         if(page == 'home'):
             page = 'index'
-        if not os.path.exists(self.langpath):
+        if not os.path.isdir(self.langpath):
             os.makedirs(self.langpath)
         if isinstance(body,six.string_types) :
             try:
@@ -820,7 +860,7 @@ class AuthorSiteGenerator:
         pageurl = '{0}/{1}/html/{2}'
         linksdir = self.indexpath+"/pagelinks" 
         links = '{0}/{1}-pages.html'
-        if not os.path.exists(linksdir):
+        if not os.path.isdir(linksdir):
             os.makedirs(linksdir)
         for book in self.authorblock['books'] :
             bookdir = book['bookdir']
@@ -855,7 +895,7 @@ class AuthorSiteGenerator:
                 self.render_script()
                 if isinstance(self.siteconfig.get('bare_slideshows'),list):
                     logger.info("rendering bare slideshows in "+self.lang+"/slideshows")
-                    if not os.path.exists(self.langpath+"/slideshows"):
+                    if not os.path.isdir(self.langpath+"/slideshows"):
                         os.makedirs(self.langpath+"/slideshows")
                     for slideshow in self.siteconfig['bare_slideshows']:
                         self.bare_slideshow(slideshow)
@@ -954,7 +994,7 @@ if __name__=='__main__':
                 if not os.path.isfile(destht):
                     logger.warning("filp addresses are under "+asg.siteconfig["destination_domain"]+".\nsave "+asg.indexpath+"/access as "+destht+" to make them work")
 
-                if os.path.exists("/home/sidelang/webapps/"+asg.siteconfig['destination_folder']):
+                if os.path.isdir("/home/sidelang/webapps/"+asg.siteconfig['destination_folder']):
                     print "if you like what you see in %s, type 'copy-generic %s %s':" %(asg.devurl, asg.auth,asg.siteconfig['destination_folder'])
                 else:
                     logger.error("specified live destination "+asg.siteconfig['destination_folder']+" doesn't exist.")

@@ -7,27 +7,26 @@
         {{ > content.html}}
     {{/has_content}}
 
-    {{#rows}}
-    <div class="row well">
-        <div class="col-xs-12">
-            <h3>
-                {{first_year}}-{{last_year}}
-            </h3>
+    <div class="row">
+        <div id="years">
+            <span class="years-control next glyphicon glyphicon-chevron-right"></span>
+            <div id="years-view"> </div>
+            <span class="years-control prev glyphicon glyphicon-chevron-left"></span>
         </div>
-        {{#years}}
-        <div class="protocols-year-list col-sm-3">
-            <button class="btn btn-default" role="button" data-toggle="collapse" data-target="#year-{{index}}" aria-expanded="false" aria-controls="year-{{index}}" >
-                {{year}}
-            </button>
-            <div class="collapse" id="year-{{index}}">
-                <ul>
-                {{#year_files}}
-                    <li class="open-file" data-file="{{file}}">{{string_translations.published_on}}: {{date}}</li>
-                {{/year_files}}
-                </ul>
-            </div>
-        </div>
-        {{/years}}
-    </div><!-- row -->
-    {{/rows}}
+    </div>
+    <div class="row">
+        <div class="col-xs-12" id="year-files"></div>
+    </div>
 </main>
+<div id="file-block-template" class="hide file-block col-lg-3 col-md-4 col-sm-6 col-xs-12">
+    <img class="file-thumb" src="" alt="" />
+    <div class="date-and-icon">
+        <span class="file-date"></span>
+        <span class="pdf-icon">
+                PDF
+        </span>
+    </div>
+</div>
+<script type="text/javascript">
+    window.YearFiles = {{yearfiles}};
+</script> 

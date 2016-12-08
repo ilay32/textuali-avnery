@@ -4,6 +4,7 @@
 @horizspace: 20px;
 @vertspace: 20px;
 @font-size-large: {{font_size_base}}*1.1; 
+@pdfred: #BB0706; 
 
 html {
     font-size:{{font_size_base}};
@@ -13,6 +14,7 @@ body, html {
     font-family: Alef;
     background-color:{{primary_color}};
 }
+
 body > * {
     direction: {{dir}};
 }
@@ -172,6 +174,19 @@ a, a:active, a:focus, a.active {
             width: 50%;
         }
     }
+}
+
+
+/* email form */
+#mailform {
+    margin-top: @vertspace;
+    padding: @vertspace * 1.5;
+    button {
+        margin-top: 25px;
+    }
+}
+.email-response {
+    text-align:center;
 }
 
 /* main */
@@ -547,6 +562,80 @@ iframe{
     padding: 10px;
 }
 
+/* file heap */
+#years {
+    @cursize: 30px;
+    margin-bottom: @vertspace;
+    .year-picker {
+        margin: 0 8px;
+        cursor: pointer;
+        &.current {
+            font-size: @cursize;
+            color: {{primary_color}};
+       }
+    }
+    .years-control {
+        display: inline-block;
+        width: 5%;
+        line-height: 30px;
+        cursor: pointer;
+        color: lighten({{textcolor}},10%);
+        &:hover {
+            color: {{textcolor}};
+        }
+        &.next {
+            text-align: right;
+        }
+        &.prev {
+            text-align: left;
+       }
+       &.disabled {
+           color: mix({{textcolor}},{{light_bg}});
+           cursor: not-allowed;
+      }
+    }
+    #years-view {
+        display:inline-block;
+        font-size: 20px;
+        height: @cursize;
+        line-height: @cursize;
+        width: 85%;
+        margin: 0 4px;
+        overflow: hidden;
+        text-align: center;
+    }
+        
+}
+
+.file-block {
+    @iconsize:30px;
+    cursor: pointer;
+    height: 200px;
+    .date-and-icon {
+        margin-top: 10px;
+    }
+    .file-thumb {
+        display: block;
+        width: 100%;
+        height: auto;
+    }
+    .pdf-icon {
+        display:inline-block;
+        text-align:center;
+        height:@iconsize;
+        background-color: @pdfred;
+        width:@iconsize;
+        line-height:@iconsize;
+        color: white;
+        font-weight: bold;
+        font-style: italic;
+    }
+    .file-date{
+        display:inline-block;
+        width: 80%;
+        text-align: center;
+   } 
+}
 /* protocols */
 .protocols-year-list {
     margin-bottom: @vertspace;

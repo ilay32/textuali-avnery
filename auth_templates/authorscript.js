@@ -20,6 +20,114 @@ function padZeroes(i) {
    return bar;
 }  
    
+function YearDocs() {
+    this.years =  Object.keys(window.YearFiles);
+    this.numyears = this.years.length;
+    this.middle  =  Math.ceil(this.numyears/2);
+    this.container = '#year-files';
+    this.selector = '#years-view';
+    this.numpickers  = Math.min(this.numyears,Math.floor($(this.selector).width()/55) - 1);
+    this.inview = [];
+    this.current = null;
+    this.step = 5;
+    
+    //initial population of years row
+    this.init = function() {
+        var left = Math.ceil(this.numpickers/2);
+        var start = this.middle - left;
+        var finish = this.middle + (this.numpickers - left - 1);
+        this.populate([start,finish]);
+        this.load_year_files(this.years[this.middle]);
+    };
+    
+    //show a given year
+    this.load_year_files = function(year) {
+        $('.year-picker').removeClass('current');
+        $(this.container).empty();
+        for(var n in YearFiles[year]) {
+            var fd = YearFiles[year][n], 
+                el = $('#file-block-template').clone();
+            el.attr('id','').removeClass('hide');
+            el.find('.file-thumb').attr('src',fd.thumb);
+            el.find('.file-date').text(fd.date);
+            el.data('file',fd.file);
+            el.click(function() {
+                var d = $(this).data('file'),
+                    b = $('#static-container').data('heaplocation'),
+                    u = null;
+                if(typeof(b) == 'string') {
+                    u = authbase+'/'+b+'/'+d;
+                    tag_in_modal(u,'object','data');
+                    share('#auth-mod',location.origin+location.pathname+'?protocol='+b+'/'+d);
+                }
+            }).end();  
+            $(this.container).append(el);
+        }
+        $('.year-picker[data-year='+year+']').addClass('current');
+        this.current = this.years.indexOf(year);
+        if(this.current == this.numyears - 1) {
+            $('.years-control.next').addClass('disabled');
+        }
+        else {
+            $('.years-control.next').removeClass('disabled');
+        }
+        if(this.current == 0) {
+            $('.years-control.prev').addClass('disabled');
+        }
+        else {
+           $('.years-control.prev').removeClass('disabled');
+        }
+    };
+
+    //go to previous year
+    this.prev = function() {
+        var p = this.current - 1;
+        if(p < 0) {
+            return false;
+        }
+        if(p < this.inview[0]) {
+            goleft = Math.min(this.step,this.inview[0]);
+            if(goleft > 0) {
+                newstart = this.inview[0] - goleft; 
+                newfinish = this.inview[1] - goleft;
+                this.populate([newstart,newfinish]);
+            }
+        }
+        this.load_year_files(this.years[p]); 
+    };
+
+    //go to next year
+    this.next = function() {
+        var n = this.current + 1;
+        if(n >= this.numyears) {
+            return false;
+        }
+        if(n >= this.inview[1]) {
+            console.log(this.inview);
+            goright = Math.min(this.step,(this.numyears - this.inview[1] - 1));
+            if(goright > 0) {
+                newstart = this.inview[0] + goright;
+                newfinish = this.inview[1] + goright;
+                this.populate([newstart,newfinish]);
+            }
+        }
+        this.load_year_files(this.years[n]);
+    };
+
+    //populate the years row with  a given slice of this.years
+    this.populate = function(slice) {
+        var yd = this;
+        $(yd.selector).empty();
+        for(var i = slice[0]; i <= slice[1]; i++) {
+            var y = yd.years[i],
+            picker =  $('<span class="year-picker" data-year="'+y+'">'+y+'</span>').click(function() {
+               yd.load_year_files(String($(this).data('year')));
+            });
+            $(yd.selector).append(picker);
+        }
+        yd.inview = slice;
+    }; 
+}
 
 function TextualiJpgsLoader(book,pages) {
     this.lastloaded = 0;
@@ -99,6 +207,12 @@ function tag_in_modal(url,tag,att) {
 
 function iframe_in_modal(url) {
     tag_in_modal(url,'iframe','src');
+}
+
+function element_in_modal(el) {
+    el = $(el);
+    $('#auth-mod').modal('show').find('.modal-body').html($(el).html());
+    frame_height('#auth-mod');
 }
 
 function video_in_modal(v) {
@@ -313,6 +427,7 @@ function search(options) {
 
 
 
+
 function highlight_menu(ul) {
     ul.find('li').each(function() {
         if($('body').hasClass(this.id)) {
@@ -353,7 +468,7 @@ $(document).ready(function() {
             }
         //}
     });
-    $('main .row.well').first().find('.collapse').eq(0).collapse('show');
+    /*$('main .row.well').first().find('.collapse').eq(0).collapse('show');
     $('main .row.well').find('button').click(function() {
         exclude = $(this).next();
         $('.collapse').not(exclude).each(function() {
@@ -361,7 +476,17 @@ $(document).ready(function() {
                 $(this).collapse('hide');
             };
         });
-    });
+    });*/
+    if(undefined != window.YearFiles) {
+        var yearsdoc = new YearDocs();
+        yearsdoc.init();
+        $('.years-control.prev').click(function() {
+            yearsdoc.prev()
+        });
+        $('.years-control.next').click(function() {
+            yearsdoc.next();
+        });
+    }
     $('.open-protocol').click(function() {
         var d = $(this).data('file'),
             k = $(this).closest('.well').data('knesset'),
@@ -447,7 +572,8 @@ $(document).ready(function() {
             return;
         } 
         var h = $(this).data('href'),
-            o = $(this).data('open');
+            o = $(this).data('open'),
+            t = this.title;
         switch(o) {
             case 'blank':
                 window.open(h, '_blank');
@@ -456,7 +582,37 @@ $(document).ready(function() {
                 iframe_in_modal(h);
             break;
             case 'social' :
-                window.open(h,"", "width=600, height=400");  
+                if(h == 'email') {
+                    element_in_modal('#mailform-wrap');
+                    $('#mailform').submit(function(e) {
+                        e.preventDefault();
+                        dat = {
+                            mailfrom : $('#mailfrom').val(),
+                            mailto : $('#mailto').val(),
+                            subject : $('#subject').val(),
+                            message: $('#message').val()+"\n{{front.domain}}"
+                        } 
+                        $.ajax({
+                            url : "{{front.domain}}/mailer/sendmail.py/",
+                            DataType: 'text/html',
+                            data : dat,
+                            method: 'POST'
+                        }).done(function(results) {
+                            $('#auth-mod').find('#mailform').fadeOut(300, function() {
+
+                                $('#auth-mod').find('.modal-body').empty().append($(results).hide()); 
+                                $('#auth-mod').find('.email-response').fadeIn(300);
+                            });
+                        }).fail(function(err) {
+                            console.log(err);
+                        });
+                        return false;
+                    });
+
+                }
+                else {
+                    window.open(h,"", "width=600, height=400");  
+                }
             break;
             default:
             case undefined:
