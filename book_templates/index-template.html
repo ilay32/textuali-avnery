@@ -191,13 +191,13 @@ include("../../../editor/init.php");
     <div id="neo-credits">
         textuali | powered by: <a target="_blank" href="http://neora.pro">neora.pro</a>
     </div>
-    {{#has_search_canceled}}
+    {{#has_search}}
     <div id="search-popover" data-trigger="#search-trigger" class="popover">
         <div id="search-results" class="fade">
             <div class="error-message hidden"></div>
          </div>
      </div>
-    {{/has_search_canceled}} 
+    {{/has_search}} 
     
     {{#external_texts}}
     <div id="externals-popover" class="popover fade" data-trigger="#goto-external">

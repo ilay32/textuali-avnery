@@ -10,6 +10,7 @@ op.add_option("--hidelang", action="store", type="string", dest="hidelang", help
 op.add_option("--showlang", action="store", type="string", dest="showlang", help="hides the specified language without rendering the site")
 op.add_option("-p", "--pagelinks", action="store_true", dest="pagelinks", help="generate dummy webpages with link to book htmls")
 op.add_option("--init",action="store",type="string", dest="init_auth",help="initialize author site. AUTHOR should be an existing directory in texts")
+op.add_option("--subdir",action="store",type="string", dest="subdir",help="render the site in a the given directory. assuming it exists under texts/author with a siteconfig.json and all")
 
 logging.basicConfig(level=logging.DEBUG) 
 logger=logging.getLogger('make-auth')
@@ -23,7 +24,8 @@ class AuthorSiteGenerator:
     puncpat = re.compile('[%s]' % re.escape(string.punctuation))
     frame0 = 'http://img.youtube.com/vi/{0}/0.jpg' 
     #booktranslink = '{0}/{1}?book={2}'    
-    def __init__(self,auth):
+    def __init__(self,auth,subdir):
+        self.site_dir = 'site' if subdir is None else subdir 
         self.global_template_vars = None
         self.lang = None
         self.indexpath = None
@@ -53,7 +55,7 @@ class AuthorSiteGenerator:
     def default(self,obj):
         return textualangs.default(self.lang, self.siteconfig['primary_language'],obj)
     
-    def parse_file_name(self,filename,heap):
+    def parse_file_name(self,filename,heap,thumb_options):
         filename = filename.encode('utf-8')
         pat = re.compile("^[A-Z]\-I(\d+)\-D(\d+)")
         m = pat.match(filename)
@@ -73,18 +75,21 @@ class AuthorSiteGenerator:
             #"length" : m.group(2),
             #"begin" : m.group(3),
             "file" : filename,
-            "thumb" : self.get_pdf_thumb(filename,heap)
+            "thumb" : self.get_pdf_thumb(filename,heap,thumb_options)
         }
     
     
-    def get_pdf_thumb(self,pdfname,pdfsdir):
+    def get_pdf_thumb(self,pdfname,pdfsdir,thumb_options):
         thumb = os.path.join(pdfsdir+"-thumbs",pdfname.replace('.pdf','.jpg'))
         thumburl = re.sub(r".*"+self.auth,self.authtexts,thumb).encode('utf-8')
         pdf = os.path.join(pdfsdir,pdfname)
         if not os.path.isfile(thumb): 
+            if not thumb_options:
+                logger.warning("please specify thumb_options for this page")
+            return ""
             logger.info("creating thumb for "+pdf)
             try:
-                params = 'convert -resize 300x300 -crop 200x100+0+0 '+pdf+' '+thumb
+                params = 'convert '+thumb_options+' '+pdf+'[0]'+' '+thumb
 
                 subprocess.check_call(params,shell=True)
                 logger.info("done "+thumb)
@@ -99,7 +104,7 @@ class AuthorSiteGenerator:
         heaplocation = os.path.join(self.conf['front']['srcs_dir'],self.auth,pagedict['heap_location'])
         if not os.path.isdir(heaplocation+"-thumbs"):
             os.makedirs(heaplocation+"-thumbs")
-        files = [self.parse_file_name(f,heaplocation) for f in os.listdir(heaplocation)]
+        files = [self.parse_file_name(f,heaplocation,pagedict.get('thumb_options')) for f in os.listdir(heaplocation)]
         files.sort(key=lambda x: int(x['ord']))
         very_last_year = int(files[len(files) -1]['year'])
         yearfiles = dict()
@@ -160,14 +165,14 @@ class AuthorSiteGenerator:
     def protocols_template_data(self,pagedict):
         knessets = []
         for f,name in pagedict['file_lists'].iteritems():
-            protlist = self.indexpath+"/"+f+".csv"
+            protlist = os.path.join(self.indexpath,f+".csv")
             if not os.path.isfile(protlist):
                 logger.error("can't find "+protlist+". check siteconfig")
             else:
                 knesset = {
                     "name" : self.default(name['label']),
                     "years" : {},
-                    "knesset" :f 
+                    "knesset" : os.path.join(pagedict['parent_folder'],f) 
                 }
                 protlist = open(protlist,'r')
                 reader  = csv.reader(protlist, delimiter=',', quotechar='"')
@@ -440,7 +445,7 @@ class AuthorSiteGenerator:
             if(authid == authdir):
                 front = self.conf['front']
                 self.authorblock = authorblock
-                self.indexpath = front['indices_dir']+"/"+authdir+"/site"
+                self.indexpath = os.path.join(front['indices_dir'],authdir,self.site_dir)
                 self.siteconfig = jc.load(file(self.indexpath+"/siteconfig.json"))
                 self.vidframeurl = self.siteconfig['baseurl']+'/img/video/{0}{1}' 
                 self.vidframepath = self.indexpath+'/img/video/{0}{1}' 
@@ -512,24 +517,25 @@ class AuthorSiteGenerator:
         for menu_item in self.siteconfig['menu'][lang]:
             menu_items.append(self.menu_items(menu_item,page))
         
-        # simliarly, colect the uti buttons (search, info, share)
-        for utilname,utildefs in self.siteconfig['utils'].iteritems():
-            if 'icon' in utildefs :
-                ic = utildefs['icon']
-                if not urlparse.urlparse(ic).netloc :
-                    icon = self.conf['front']['domain']+"/media/"+ic 
+        # simliarly, colect the util buttons (search, info, share)
+        if 'utils'  in self.siteconfig:
+            for utilname,utildefs in self.siteconfig['utils'].iteritems():
+                if 'icon' in utildefs :
+                    ic = utildefs['icon']
+                    if not urlparse.urlparse(ic).netloc :
+                        icon = self.conf['front']['domain']+"/media/"+ic 
+                    else:
+                        icon = ic 
                 else:
-                    icon = ic 
-            else:
-                icon = ""
-            #if os.path.isfile(self.indexpath+"/img/"+util['icon']):
-            #    icon = self.siteconfig['baseurl']+"/img/"+util['icon']
-            utils.append({
-                "name" : utilname,
-                "icon" : icon,
-                "title" : self.default(utildefs['mouseover'])
-            }) 
-        templatedata['utils'] = utils
+                    icon = ""
+                #if os.path.isfile(self.indexpath+"/img/"+util['icon']):
+                #    icon = self.siteconfig['baseurl']+"/img/"+util['icon']
+                utils.append({
+                    "name" : utilname,
+                    "icon" : icon,
+                    "title" : self.default(utildefs['mouseover'])
+                }) 
+            templatedata['utils'] = utils
         templatedata['menu_items'] = menu_items
         templatedata['cssoverride']=os.path.isfile(self.indexpath+"/css/local-override.css") 
         templatedata['localscript'] = os.path.isfile(self.indexpath+"/js/sitescript.js")
@@ -581,6 +587,14 @@ class AuthorSiteGenerator:
             logger.info("no footer.html found in "+self.indexpath+" or "+self.langpath) 
         if pagedict['template'] == "protocols":
             templatedata['protocolsearch'] = self.protocols_template_data(pagedict)
+        if pagedict['template'] == 'file_heap':
+            templatedata['fileheapsearch'] = {
+                'nicename' : self.default(pagedict['description']),
+                'folder' : pagedict['heap_location']
+            }
+        else:
+            templatedata['fileheapsearch'] = False
+
 
         templatedata['page'] = page
         #aboutf = self.langpath+"/about.txt"
@@ -589,19 +603,20 @@ class AuthorSiteGenerator:
         #    templatedata['about'] = about
         #else: 
         #    logger.info("missing "+aboutf)
-        socials =[]
-        for social,details in self.siteconfig['socials'].iteritems() :
-            socials.append({
-                "label" : self.default(details['label']),
-                "icon" : os.path.join(self.siteconfig['baseurl'],"img", details['icon']) if 'icon' in details else os.path.join(self.conf['front']['domain'], "media", social+".png"),
-                "url" : self.compile_social_url(social,page)
-            })
-        templatedata['socials'] = socials
-        searchopts = self.siteconfig['utils']['search']['opts']
-        if 'google' in searchopts:
-            templatedata['googlesearch'] = 1
-        if 'fts' in searchopts and self.authorblock.get('has_full_search'):
-            templatedata['ftsearch'] = 1
+        if 'socials' in self.siteconfig:
+            socials =[]
+            for social,details in self.siteconfig['socials'].iteritems() :
+                socials.append({
+                    "label" : self.default(details['label']),
+                    "icon" : os.path.join(self.siteconfig['baseurl'],"img", details['icon']) if 'icon' in details else os.path.join(self.conf['front']['domain'], "media", social+".png"),
+                    "url" : self.compile_social_url(social,page)
+                })
+            templatedata['socials'] = socials
+            searchopts = self.siteconfig['utils']['search']['opts']
+            if 'google' in searchopts:
+                templatedata['googlesearch'] = 1
+            if 'fts' in searchopts and self.authorblock.get('has_full_search'):
+                templatedata['booksearch'] = 1
         return foot+stache.render(stache.load_template('footer.html'),templatedata).encode('utf-8') 
     
     def compile_social_url(self,social,page) :
@@ -674,7 +689,7 @@ class AuthorSiteGenerator:
                 stat = open(statf).read() 
                 ret = '<div id="static-container">'+stat+'</div><!-- static-container--></main>'            
             else:
-                logger.error(page+" ("+lang+") "+"has template 'static' but no " + page + "-static.html found in ...site/"+lang)
+                logger.error(page+" ("+lang+") "+"has template 'static' but no " + page + "-static.html found in ..."+self.site_dir+"/"+lang)
                 return
         
         elif os.path.isfile(contf):
@@ -762,7 +777,7 @@ class AuthorSiteGenerator:
         g['lang'] = lang
         g['primlang'] = self.siteconfig['primary_language']
         g['primlangname'] = textualangs.langname(g['primlang'])
-        g['altlang'] = self.siteconfig['alternate_language']
+        g['altlang'] = self.siteconfig.get('alternate_language')
         g['altlangname'] =  textualangs.langname(g['altlang'])
         if 'langswitch' in self.siteconfig['string_translations'] and g['primlang'] in self.siteconfig['string_translations']['langswitch']:
             g['altlangname'] =  self.siteconfig['string_translations']['langswitch'][g['primlang']]
@@ -971,7 +986,7 @@ if __name__=='__main__':
         quit()
     else:
         authdir = args[0]
-        asg = AuthorSiteGenerator(authdir)
+        asg = AuthorSiteGenerator(authdir,options.subdir)
         if(asg.good_to_go()):
             if options.hidelang:
                 if asg.langpat.match(options.hidelang):
@@ -992,7 +1007,7 @@ if __name__=='__main__':
                 asg.render_site()
                 destht = "/home/sidelang/webapps/"+asg.siteconfig['destination_folder']+"/.htaccess"
                 if not os.path.isfile(destht):
-                    logger.warning("filp addresses are under "+asg.siteconfig["destination_domain"]+".\nsave "+asg.indexpath+"/access as "+destht+" to make them work")
+                    logger.warning("flip addresses are under "+asg.siteconfig["destination_domain"]+".\nsave "+asg.indexpath+"/access as "+destht+" to make them work")
 
                 if os.path.isdir("/home/sidelang/webapps/"+asg.siteconfig['destination_folder']):
                     print "if you like what you see in %s, type 'copy-generic %s %s':" %(asg.devurl, asg.auth,asg.siteconfig['destination_folder'])

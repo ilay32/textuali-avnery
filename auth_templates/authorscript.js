@@ -364,7 +364,7 @@ function process_google_search_results(results) {
     return htm;
 }
 
-function process_protocols_search_results(results,knesset) {
+function process_protocols_search_results(results) {
     var htm = '<div id="search-results"><h3>{{string_translations.search_results}} "'+results.q+'"</h3>';
     if(results.status == 'success') {
         if(results.matches.length > 0) {
@@ -373,7 +373,10 @@ function process_protocols_search_results(results,knesset) {
             for(var res in m) {
                 var r = m[res];
                 htm += '<li class="search-result" >';
-                htm += '<a class="protocol-result" data-file="'+r.id+'" data-page="'+r.page+'" href="#NOGO">'+r.day+'/'+r.month+'/'+r.year+','+r.page+'</a>';
+                htm += '<a class="doc-result" data-file="'+r.id+'" data-page="'+r.page+'" href="#NOGO" data-query="'+results.q.replace(/["']/g,'')+'">';
+                htm += r.day+'/'+r.month+'/'+r.year+', '+"{{string_translations.page}}".replace("'","\'")+' '+r.page
+                
+                htm += '</a>';
                 htm += '<p>'+r.match+'</p></li>';
             }
             htm += '</ul>';
@@ -393,15 +396,17 @@ function process_protocols_search_results(results,knesset) {
 
 
 function bind_protocol_click() {
-    $('.protocol-result').click(function(c) {
+    $('.doc-result').click(function(c) {
         c.preventDefault();
         var file = $(this).data('file'),
             page = $(this).data('page'),
-            u = authbase+'/protocols/'+window.ProtocolSearchBase+'/'+file+'.pdf';
-        if(/^\d+$/.test(page)){
+            query = $(this).data('query'),
+            u = authbase+'/'+window.DocsFolder+'/'+file+'.pdf';
+        if(/^\d+$/.test(page) && false){
             u += '#page='+page;
         }
-        var s = u.replace(/^.*\/protocols\//,'')
+        u += '#search="'+query+'"';
+
         iframe_in_modal(u);
         share('#auth-mod',location.origin+location.pathname+"?protocol="+s);
 
@@ -737,13 +742,24 @@ $(document).ready(function() {
     $('#psearch').submit(function() {
         search({
             query : $(this).serialize(),
-            url : location.origin+'/search/websearch.py/?pretty=1&auth={{auth}}',
+            url : location.origin+'/search/websearch.py/protocols/?pretty=1&auth={{auth}}',
             results_handler : process_protocols_search_results,
             post_process : bind_protocol_click,
             share: true
         });
         var knesset = $(this).find('select[name="book"]').val();
-        window.ProtocolSearchBase = knesset.substr(0,knesset.indexOf('-protocols'));
+        window.DocsFolder = knesset        
+        return false;
+    });
+
+    $('#fhsearch').submit(function() {
+        search({
+            query: $(this).serialize(),
+            url: location.origin+'/search/websearch.py/press/?pretty=1&auth={{auth}}',
+            results_handler: process_protocols_search_results,
+            post_process : bind_protocol_click
+        });
+        window.DocsFolder = $(this).find('input[name="book"]').val();
         return false;
     });
      
@@ -765,4 +781,5 @@ $(document).ready(function() {
         tar.toggleClass('in');
     });
    
-});
+})
+

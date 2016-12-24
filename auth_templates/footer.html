@@ -38,25 +38,33 @@
         <button type="submit">{{string_translations.search}}</button> 
     </form> 
     {{/googlesearch}}
-    {{#ftsearch}}
+    {{#booksearch}}
     <form id="fsearch" class="form-inline">
         <label for="q">{{string_translations.search_books}} {{string_translations.author}}:</label>
         <input name="q" type="text" maxlneght="50" placeholder="{{string_translations.search}}" />
         <button type="submit">{{string_translations.search}}</button> 
     </form> 
-    {{/ftsearch}}
+    {{/booksearch}}
     {{#protocolsearch}}
     <form id="psearch" class="form-inline">
         <label for="book">{{string_translations.search_protocols}} {{string_translations.in}}:</label>
         <select name="book">
             {{#knessets}}
-            <option value="{{knesset}}-protocols">{{name}}</option>
+            <option value="{{knesset}}">{{name}}</option>
             {{/knessets}}
         </select>
         <input name="q" type="text" maxlneght="50" placeholder="{{string_translations.search}}" />
         <button type="submit">{{string_translations.search}}</button> 
     </form> 
     {{/protocolsearch}}
+    {{#fileheapsearch}}
+    <form id="fhsearch" class="form-inline"> 
+        <input type="hidden" name="book" value="{{fileheapsearch.folder}}">
+        <label for="q">{{string_translations.search}} {{string_translations.in}}{{fileheapsearch.nicename}}:</label>
+        <input name="q" type="text" maxlength="50" placeholder="{{string_translations.search}}" />
+        <button type="submit">{{string_translations.search}}</button>
+    </form>
+    {{/fileheapsearch}}
 </div>
 <div id="share-container" class="fade utilbox">
     <nav id="social">
