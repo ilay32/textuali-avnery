@@ -408,7 +408,7 @@ function bind_protocol_click() {
         u += '#search="'+query+'"';
 
         iframe_in_modal(u);
-        share('#auth-mod',location.origin+location.pathname+"?protocol="+s);
+        share('#auth-mod',location.origin+location.pathname+"?protocol="+file);
 
     });
 }

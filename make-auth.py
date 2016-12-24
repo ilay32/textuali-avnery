@@ -172,7 +172,7 @@ class AuthorSiteGenerator:
                 knesset = {
                     "name" : self.default(name['label']),
                     "years" : {},
-                    "knesset" : os.path.join(pagedict['parent_folder'],f) 
+                    "knesset" : f 
                 }
                 protlist = open(protlist,'r')
                 reader  = csv.reader(protlist, delimiter=',', quotechar='"')
@@ -193,7 +193,7 @@ class AuthorSiteGenerator:
             knesset['years'].sort(key=lambda x : x['year'])
             knessets.append(knesset)
             knessets.sort(key=lambda x : x['knesset'])
-        return {"knessets" : knessets}
+        return {"knessets" : knessets, "protocols_base": pagedict['parent_folder']}
     
          
     def documents_template_data(self, pagedict) :

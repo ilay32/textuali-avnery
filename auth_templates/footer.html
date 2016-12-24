@@ -50,7 +50,7 @@
         <label for="book">{{string_translations.search_protocols}} {{string_translations.in}}:</label>
         <select name="book">
             {{#knessets}}
-            <option value="{{knesset}}">{{name}}</option>
+            <option value="{{protocols_base}}/{{knesset}}">{{name}}</option>
             {{/knessets}}
         </select>
         <input name="q" type="text" maxlneght="50" placeholder="{{string_translations.search}}" />
