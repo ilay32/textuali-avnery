@@ -126,17 +126,27 @@ except if the page block in siteconfig includes "no_additional" with any value
           
             * by id (folder): "exclude_ids": ["bookfolder1", "boookfolder2"...]
        
-        * protocols --- requires a file_lists object in which
+        * protocols ---           
+            
+          * extra field: parent_folder -- necessary
+            
+          * requires a file_lists object in which:
+
+            * keys are names of csv files kept in texts/\<author\>/\<parent_folder\>
           
-          * keys are names of csv files kept in texts/\<author\>/protocols
-          
-          * items are the lables for them
+            * items are the lables for them
+
           
         * file_heap
           
           * requires:
           
             * heap_location -- name of directory containing the files relative to texts/\<author\>/
+
+            * thumb_options -- arguments for the os convert function. 
+            should look like "-resize 400x250 -crop 100x100+10+20". 
+            If the thumbs already exist in the texts folder this is not necessary.
+            If they don\'t, the absence of this field will raise an error.    
           
           * optional:
           
