@@ -125,7 +125,7 @@ class AuthorSiteGenerator:
         return {
                 "yearfiles" : yearfiles,
                 "heap_base" : pagedict['heap_location'],
-                "organic_form" : pagedict.get('organic_form'),
+                "organic_form" : pagedict.get('organic_form',False),
                 "fhsearch" : self.fhsearch_data(pagedict),
                 "years" : years,
                 "download_button" : pagedict.get('download_button',False)
