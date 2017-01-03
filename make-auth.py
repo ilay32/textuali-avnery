@@ -55,6 +55,12 @@ class AuthorSiteGenerator:
     def default(self,obj):
         return textualangs.default(self.lang, self.siteconfig['primary_language'],obj)
     
+    def fhsearch_data(self,pagedict):
+        return {
+            'nicename' : self.default(pagedict['description']),
+            'folder' : pagedict['heap_location']
+        } 
+    
     def parse_file_name(self,filename,heap,thumb_options):
         filename = filename.encode('utf-8')
         pat = re.compile("^[A-Z]\-I(\d+)\-D(\d+)")
@@ -108,15 +114,21 @@ class AuthorSiteGenerator:
         files.sort(key=lambda x: int(x['ord']))
         very_last_year = int(files[len(files) -1]['year'])
         yearfiles = dict()
+        years = list()
         for f in files:
             fy = f['year']            
             if fy in yearfiles:
                 yearfiles[fy].append(f)
             else:
+                years.append(fy)
                 yearfiles[fy] = [f]
         return {
                 "yearfiles" : yearfiles,
-                "heap_base" : pagedict['heap_location']
+                "heap_base" : pagedict['heap_location'],
+                "organic_form" : pagedict.get('organic_form'),
+                "fhsearch" : self.fhsearch_data(pagedict),
+                "years" : years,
+                "download_button" : pagedict.get('download_button',False)
             } 
 
     
@@ -585,15 +597,14 @@ class AuthorSiteGenerator:
             foot += '</div></div></footer>'
         else:
             logger.info("no footer.html found in "+self.indexpath+" or "+self.langpath) 
-        if pagedict['template'] == "protocols":
-            templatedata['protocolsearch'] = self.protocols_template_data(pagedict)
-        if pagedict['template'] == 'file_heap':
-            templatedata['fileheapsearch'] = {
-                'nicename' : self.default(pagedict['description']),
-                'folder' : pagedict['heap_location']
-            }
+        if self.site_dir == 'site':
+            templatedata['search_form_popups'] = True
+            if pagedict['template'] == "protocols":
+                templatedata['protocolsearch'] = self.protocols_template_data(pagedict)
+            if pagedict['template'] == 'file_heap': 
+                templatedata['fhsearch'] = self.fhsearch_data(pagedict)
         else:
-            templatedata['fileheapsearch'] = False
+            templatedata['search_form_popups'] = False
 
 
         templatedata['page'] = page

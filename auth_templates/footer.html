@@ -30,6 +30,7 @@
         </div>
     </div>
 </div>
+{{#search_form_popups}}
 <div id="search-container" class="utilbox  " area-hidden="false">
     {{#googlesearch}}
     <form id="gsearch" class="form-inline">
@@ -57,15 +58,11 @@
         <button type="submit">{{string_translations.search}}</button> 
     </form> 
     {{/protocolsearch}}
-    {{#fileheapsearch}}
-    <form id="fhsearch" class="form-inline"> 
-        <input type="hidden" name="book" value="{{fileheapsearch.folder}}">
-        <label for="q">{{string_translations.search}} {{string_translations.in}}{{fileheapsearch.nicename}}:</label>
-        <input name="q" type="text" maxlength="50" placeholder="{{string_translations.search}}" />
-        <button type="submit">{{string_translations.search}}</button>
-    </form>
-    {{/fileheapsearch}}
+    {{#fhsearch}}
+       {{ > fhform.html }}
+    {{/fhsearch}}
 </div>
+{{/search_form_popups}}
 <div id="share-container" class="fade utilbox">
     <nav id="social">
         {{#socials}}

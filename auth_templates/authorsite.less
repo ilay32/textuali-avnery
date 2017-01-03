@@ -438,6 +438,10 @@ main {
 .modal-content {
     border:none;
     padding: 0;
+    .alert {
+        margin-top: @vertspace*2;
+        margin-{{side}}:@horizspace*2;
+    }
 }
 .modal-header {
     border-bottom:none;
@@ -563,6 +567,26 @@ iframe{
 }
 
 /* file heap */
+#goto-year {
+    max-height: 300px;
+    overflow-y: scroll;
+    li {
+        text-align: {{side}};
+        cursor: pointer;
+        line-height: 30px;
+        &:hover {
+            color: {{primary_color}};
+       }
+    }
+}
+#skip-to-year {
+    text-align: center;
+    margin-bottom: @vertspace/2;
+    .dropdown {
+        display:inline-block;
+        width: 200px;
+    }
+}
 #years {
     @cursize: 30px;
     margin-bottom: @vertspace;
@@ -742,9 +766,13 @@ button.screenaction {
 #search-results {
     margin-top: @vertspace;
     padding:5px;
-
     h5 {
         color : {{primary_color}};
+    }
+    .btn-primary {
+        position: absolute;
+        {{oposide}} : @horizspace;
+        top: @vertspace;
     }
 }
 @media only screen and (max-width: 1400px) {

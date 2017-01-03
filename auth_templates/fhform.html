@@ -1,0 +1,19 @@
+<form id="fhsearch" class="form-inline"> 
+    <input type="hidden" name="book" value="{{fhsearch.folder}}">
+    <label for="q">
+        {{string_translations.search}} {{string_translations.in}}{{fhsearch.nicename}}:
+    </label>
+    <input name="q" type="text" maxlength="50" placeholder="{{string_translations.search}}" />
+    {{#organic_form}}
+    <span class="glyphicon glyphicon-info-sign" data-toggle="tooltip" title="{{string_translations.search_instructions}}" data-placement="top">
+    </span>
+
+    <label for="years-range">
+        {{string_translations.in_years}}
+    </label>
+    <input name="tvaxshan" maxlength="100" type="text" id="years-range" placeholder="{{string_translations.years_range}}" >
+    <span class="glyphicon glyphicon-info-sign" data-toggle="tooltip" title="{{string_translations.years_range_message}}" data-placement="top">
+    </span>
+    {{/organic_form}}
+    <button type="submit">{{string_translations.search}}</button>
+</form>

@@ -114,6 +114,39 @@ function YearDocs() {
         this.load_year_files(this.years[n]);
     };
 
+    this.gotoyear = function(year) {
+        if(!year in window.YearFiles) {
+            return;
+        }
+        var ind = this.years.indexOf(year.toString());
+        if(ind == -1) {
+            return
+        }
+        if(ind >= this.inview[0] && ind <= this.inview[1]) {
+            this.load_year_files(year)
+        }
+        else {
+            this.populate(this.slice_on(ind));
+            this.load_year_files(year);
+        }
+    }
+    
+    this.slice_on = function(ind) {
+        var left = 0,
+            right = 0,
+            added = 1;
+        while(added < this.numpickers) {
+            if(ind - left > 0){
+                added++;
+                left++;
+            }
+            if(ind + right < this.numpickers) {
+                added++;
+                right++;
+            }
+        }
+        return [ind - left, ind + right]; 
+    }
     //populate the years row with  a given slice of this.years
     this.populate = function(slice) {
         var yd = this;
@@ -367,45 +400,53 @@ function process_google_search_results(results) {
 function process_protocols_search_results(results) {
     var htm = '<div id="search-results"><h3>{{string_translations.search_results}} "'+results.q+'"</h3>';
     if(results.status == 'success') {
-        if(results.matches.length > 0) {
-            htm += '<ul class="search-results">';
-            var m = results.matches;
-            for(var res in m) {
-                var r = m[res];
-                htm += '<li class="search-result" >';
-                htm += '<a class="doc-result" data-file="'+r.id+'" data-page="'+r.page+'" href="#NOGO" data-query="'+results.q.replace(/["']/g,'')+'">';
-                htm += r.day+'/'+r.month+'/'+r.year+', '+"{{string_translations.page}}".replace("'","\'")+' '+r.page
-                
-                htm += '</a>';
-                htm += '<p>'+r.match+'</p></li>';
-            }
-            htm += '</ul>';
+        if(/.pdf$/.test(results.results_file)) {
+            htm += '<a target="_blank" class="btn btn-primary" href="{{front.domain}}/'+results.results_file+'">{{string_translations.download_search_results}}</a>';
         }
-        else {
-            htm = 'sorry, no matches found';
-        } 
-   }
-   else if(results.status == 'fail') {
-       htm = results.error;
+        htm += '<ul class="search-results">';
+        var m = results.matches;
+        for(var res in m) {
+            var r = m[res];
+            htm += '<li class="search-result" >';
+            htm += '<a class="search-result" data-file="'+r.id+'" data-page="'+r.page+'" href="#NOGO" data-query="'+results.q.replace(/["']/g,'')+'">';
+            htm += r.day+'/'+r.month+'/'+r.year;
+            if(/^\d+$/.test(r.issue)){
+                htm += ', {{string_translations.issue}} '+r.issue+', ';
+            }
+            htm += "{{string_translations.page}}".replace("'","\'")+' '+r.page
+            htm += '</a>';
+            htm += '<p>'+r.match+'</p></li>';
+        }
+        htm += '</ul>';
    }
    else {
-       htm = 'unknown error';
-   }
+       htm = '<div class="alert alert-danger" role="alert">';
+       htm += '<strong>{{string_translations.search_error}}:</strong><br>';
+       if(results.status == 'faile') {
+             htm += results.error
+       }
+       else {
+           htm += 'unknown error';
+       }
+       htm += '</div>';
+    }
    return htm;
 }
 
 
 function bind_protocol_click() {
-    $('.doc-result').click(function(c) {
+    $('.search-result').click(function(c) {
         c.preventDefault();
         var file = $(this).data('file'),
             page = $(this).data('page'),
             query = $(this).data('query'),
-            u = authbase+'/'+window.DocsFolder+'/'+file+'.pdf';
-        if(/^\d+$/.test(page) && false){
+            u = authbase+'/'+window.DocsFolder+'/'+file+'.pdf',
+            conc = '#';
+        if(/^\d+$/.test(page)){
             u += '#page='+page;
+            conc = '&'
         }
-        u += '#search="'+query+'"';
+        u += conc+'search="'+query+'"';
 
         iframe_in_modal(u);
         share('#auth-mod',location.origin+location.pathname+"?protocol="+file);
@@ -446,6 +487,7 @@ function highlight_menu(ul) {
 }
 
 $(document).ready(function() {
+    $('[data-toggle="tooltip"]').tooltip();
     window.addEventListener("message", function(event) {
         //if(/textuali\.com\/avnery-timeline\/.*timeline.*html$/.test(event.source) || true) {
             switch(event.data.type) {
@@ -490,6 +532,9 @@ $(document).ready(function() {
         });
         $('.years-control.next').click(function() {
             yearsdoc.next();
+        });
+        $('#goto-year li').click(function() {
+            yearsdoc.gotoyear($(this).data('year'));
         });
     }
     $('.open-protocol').click(function() {
@@ -722,15 +767,6 @@ $(document).ready(function() {
     });
      
     $('#fsearch').submit(function() {
-        /*var query = $(this).serialize();
-        $.ajax({
-            url: location.origin+'/search/websearch.py/?pretty=1&auth={{auth}}&book=allbooks&'+query,
-            DataType: 'json'
-        }).done(function(results) {
-            $('#auth-mod').modal('show').find('.modal-body').html(process_fts_search_results(results));
-        }).fail(function(err) {
-            alert(err);
-        });*/
         search({
             query : $(this).serialize(),
             url : location.origin+'/search/websearch.py/?pretty=1&auth={{auth}}&book=allbooks',
@@ -753,8 +789,12 @@ $(document).ready(function() {
     });
 
     $('#fhsearch').submit(function() {
+        var q = $(this).serialize();
+        if(window.SearchResultsDownload == "True") {
+            q += '&download_button=true';
+        }
         search({
-            query: $(this).serialize(),
+            query: q,
             url: location.origin+'/search/websearch.py/press/?pretty=1&auth={{auth}}',
             results_handler: process_protocols_search_results,
             post_process : bind_protocol_click
