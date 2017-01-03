@@ -125,7 +125,7 @@ class AuthorSiteGenerator:
         return {
                 "yearfiles" : yearfiles,
                 "heap_base" : pagedict['heap_location'],
-                "organic_form" : pagedict.get('organic_form',False),
+                "organic_form" : pagedict.get('organic_form'),
                 "fhsearch" : self.fhsearch_data(pagedict),
                 "years" : years,
                 "download_button" : pagedict.get('download_button',False)
@@ -601,8 +601,12 @@ class AuthorSiteGenerator:
             templatedata['search_form_popups'] = True
             if pagedict['template'] == "protocols":
                 templatedata['protocolsearch'] = self.protocols_template_data(pagedict)
+            else:
+                templatedata['protocolsearch'] = None 
             if pagedict['template'] == 'file_heap': 
                 templatedata['fhsearch'] = self.fhsearch_data(pagedict)
+            else:
+                templatedata['fhsearch'] = None
         else:
             templatedata['search_form_popups'] = False
 
