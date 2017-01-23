@@ -567,6 +567,9 @@ iframe{
 }
 
 /* file heap */
+#goto-year-wrap, #doc-filters {
+    display: inline-block;
+}
 #goto-year {
     max-height: 300px;
     overflow-y: scroll;
@@ -589,7 +592,10 @@ iframe{
 }
 #years {
     @cursize: 30px;
-    margin-bottom: @vertspace;
+    margin: @vertspace 0;
+    padding: 5px 0;
+    border-bottom: 2px solid {{header_bg}};
+    border-top: 2px solid {{header_bg}}; 
     .year-picker {
         margin: 0 8px;
         cursor: pointer;
@@ -655,10 +661,8 @@ iframe{
         font-style: italic;
     }
     .file-date{
-        display:inline-block;
-        width: 80%;
-        text-align: center;
-   } 
+        float: {{oposide}};
+    } 
 }
 /* protocols */
 .protocols-year-list {
@@ -762,6 +766,11 @@ button.screenaction {
     }
 } 
 
+/* avnery docs minisite */
+#login-wrap {
+    margin-top: @vertspace;
+    text-align:center;
+}
 /* google search results  */
 #search-results {
     margin-top: @vertspace;

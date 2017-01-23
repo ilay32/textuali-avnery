@@ -113,6 +113,8 @@ class AuthorSiteGenerator:
         files = [self.parse_file_name(f,heaplocation,pagedict.get('thumb_options')) for f in os.listdir(heaplocation)]
         files.sort(key=lambda x: int(x['ord']))
         very_last_year = int(files[len(files) -1]['year'])
+        minissue = int(files[0]['ord'])
+        maxissue = int(files[len(files) - 1]['ord'])
         yearfiles = dict()
         years = list()
         for f in files:
@@ -128,7 +130,9 @@ class AuthorSiteGenerator:
                 "organic_form" : pagedict.get('organic_form'),
                 "fhsearch" : self.fhsearch_data(pagedict),
                 "years" : years,
-                "download_button" : pagedict.get('download_button',False)
+                "download_button" : pagedict.get('download_button',False),
+                "minissue" : minissue,
+                "maxissue" : maxissue
             } 
 
     
