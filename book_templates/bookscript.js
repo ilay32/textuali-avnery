@@ -451,8 +451,8 @@ function loadApp() {
                 
                 {{^packing}}
                 edit_button_update(pages);
-                share_urls_update(page);
                 {{/packing}}
+                share_urls_update(page);
                 
                 {{#external_texts}}
                 external_texts_update(pages);
