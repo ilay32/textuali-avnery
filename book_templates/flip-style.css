@@ -315,10 +315,13 @@ input[type="text"] {
 
 #flip-share {
     position: absolute;
-    top: 20%;
+    top: -20%;
     text-align: center;
     z-index:3;
     width: 100%;
+}
+#flip-share.in {
+    top: 20%;
 }
 #flip-share .alert {
     display: inline-block;
