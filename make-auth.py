@@ -516,10 +516,12 @@ class AuthorSiteGenerator:
         menu_items = []
         utils = [] 
         favicon = self.conf['front']['domain']+"/media/favicon.ico"
-        if isinstance(self.siteconfig['favicon'],six.string_types):
+        if isinstance(self.siteconfig.get('favicon'),six.string_types):
             favicon = self.siteconfig['baseurl']+"/img/"+self.siteconfig['favicon']
         templatedata['favicon'] = favicon
+        
         # find the facebbook share image (for <meta og:image>) 
+        fbshare = None
         try: 
             fbshare = os.path.basename(glob.glob(self.indexpath+"/img/fbshare-default*")[0])
         except:
@@ -527,7 +529,9 @@ class AuthorSiteGenerator:
                 fbshare  = templatedata['logo'] 
         if 'fbshare' in pagedict:
             fbshare  = pagedict['fbshare']
-        templatedata['fbshare'] = fbshare
+        
+        if fbshare is not None:
+            templatedata['fbshare'] = fbshare
                 
         # collect menu items for lang
         for menu_item in self.siteconfig['menu'][lang]:
@@ -718,8 +722,8 @@ class AuthorSiteGenerator:
             block['content'] = cont
         
                 
-        #if template == 'timeline':
-        #    self.render_timeline_src()
+        if template == 'timeline':
+            self.render_timeline_src()
         
         if ret == "": 
             if not os.path.isfile(tempf):
@@ -741,7 +745,7 @@ class AuthorSiteGenerator:
         defaults = {
             "theme_color" : "#288EC3",  
             "skin":"timeline.dark", 
-            "src" : self.conf['front']['domain']+"/timeline" 
+            "src" : self.conf['front']['domain']+"/timeline.json" 
         }
         varsf = self.langpath+"/timeline_src_params.json"
         if os.path.isfile(varsf) :
@@ -853,7 +857,13 @@ class AuthorSiteGenerator:
             g['logo'] = logo
         else:
             if 'logo' in self.siteconfig:
-                g['logo'] = self.siteconfig['logo']
+                try:
+                    im = Image.open(source)
+                    print im
+                except:
+                    g['logo'] = False
+                    g['text_logo'] = self.siteconfig['logo']
+                    print g['text_logo']
             else:
                 logger.error("can't find logo for "+self.lang+ "or a general one")
         self.global_template_vars = g
