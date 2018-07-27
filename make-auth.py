@@ -439,20 +439,20 @@ class AuthorSiteGenerator:
 
     #def timeline_template_data(self,pagedict):
     #    src = self.conf['front']['domain']+"/timeline"
-    #    vars = {}
+    #    tvars = {}
     #    dlang = self.siteconfig['primary_language']
     #    defaults = {"src": src, "theme_color" : "#288EC3", "auth":self.auth}
     #    varsf = self.langpath+"/timeline.json"
     #    if os.path.exists(varsf) :
-    #        vars = jc.load(file(varsf))
+    #        tvars = jc.load(file(varsf))
     #    elif self.lang != dlang:
     #        try:
-    #            vars = jc.load(self.indexpath+"/"+dlang+"/"+page+".json")
+    #            tvars = jc.load(self.indexpath+"/"+dlang+"/"+page+".json")
     #            logger.info("timline - "+self.lang+" using defaults found in the hebrew directory")
     #        except:
     #            logger.info("no timeline configuration, using general defaults")
 
-    #    return jsonmerge.merge(defaults,vars)
+    #    return jsonmerge.merge(defaults,tvars)
           
 
     def search_auth(self):
@@ -722,7 +722,7 @@ class AuthorSiteGenerator:
             block['content'] = cont
         
                 
-        if template == 'timeline':
+        if page  == 'timeline':
             self.render_timeline_src()
         
         if ret == "": 
@@ -741,24 +741,24 @@ class AuthorSiteGenerator:
         lang = self.lang
         tfilepath = "../timeline/"+self.auth+"_"+lang+".html"
         block = self.get_globals()
-        vars = {}
+        tvars = {}
         defaults = {
             "theme_color" : "#288EC3",  
             "skin":"timeline.dark", 
-            "src" : self.conf['front']['domain']+"/timeline.json" 
+            "src" : os.path.join(self.conf['front']['domain'],"timeline",self.auth+"_"+lang+".json")
         }
         varsf = self.langpath+"/timeline_src_params.json"
         if os.path.isfile(varsf) :
-            vars = jc.load(file(varsf))
+            tvars = jc.load(file(varsf))
         elif lang != "he":
             try:
-                vars = jc.load(self.indexpath+"/"+self.siteconfig['primary_language']+"/timeline_src_params.json")
-                logger.info("timline - "+lang+" using defaults found in the hebrew directory")
+                tvars = jc.load(self.indexpath+"/"+self.siteconfig['primary_language']+"/timeline_src_params.json")
+                logger.info("timeline - "+lang+" using defaults found in the hebrew directory")
             except:
                 logger.info("no timeline configuration, using general defaults")
-        vars = jsonmerge.merge(defaults,vars)
+        tvars = jsonmerge.merge(defaults,tvars)
         try:
-            block = jsonmerge.merge(block,vars)
+            block = jsonmerge.merge(block,tvars)
             tfile = open(tfilepath,"w")
             tfile.write(stache.render(stache.load_template("timeline_src.html"),block))
             tfile.close()
